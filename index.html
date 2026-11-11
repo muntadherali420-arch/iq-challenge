@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101827">
+<link rel="manifest" href="/manifest.webmanifest">
+<title>IQ Challenge — تحدّي العقول</title>
+<style>
+:root{--bg:#101827;--panel:#192438;--panel2:#22314b;--ink:#f4f7fb;--muted:#aebbd0;--gold:#ffd166;--mint:#62e6bd;--pink:#ff8fab}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0%,#273a5a 0,transparent 34%),var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+.wrap{width:min(720px,100%);margin:auto;padding:22px 16px 40px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:10px}.logo{width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,var(--gold),#ff9f68);display:grid;place-items:center;color:#182235;font-size:25px;font-weight:900}
+h1{font-size:20px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px}.score{background:var(--panel);padding:10px 14px;border-radius:14px;font-weight:800;color:var(--gold)}
+.hero{background:linear-gradient(135deg,#293b5c,#1b2940);border:1px solid #344967;border-radius:24px;padding:22px;margin-bottom:16px}
+.eyebrow{color:var(--mint);font-size:12px;font-weight:800;letter-spacing:.4px}.hero h2{font-size:26px;margin:8px 0}.hero p{color:var(--muted);line-height:1.7;margin:0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.stat{background:var(--panel);padding:14px 8px;border-radius:16px;text-align:center}.stat b{display:block;font-size:21px;color:var(--gold)}.stat span{font-size:11px;color:var(--muted)}
+.card{background:var(--panel);border:1px solid #2a3a53;border-radius:22px;padding:20px;margin-top:14px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.tag{font-size:12px;color:var(--mint);background:#183d3b;padding:7px 10px;border-radius:99px}
+.progress{height:7px;background:#2b3b54;border-radius:9px;overflow:hidden;margin:15px 0}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--mint),var(--gold));transition:width .25s}
+.question{font-size:22px;line-height:1.55;margin:18px 0}.answers{display:grid;gap:10px}.answer{width:100%;border:1px solid #354761;background:var(--panel2);color:var(--ink);padding:15px;border-radius:14px;text-align:right;font-size:16px;cursor:pointer}.answer:focus{outline:2px solid var(--gold)}.answer.correct{border-color:var(--mint);background:#17443e}.answer.wrong{border-color:var(--pink);background:#492b3c}.answer:disabled{cursor:default;opacity:1}
+.feedback{min-height:28px;color:var(--muted);font-size:14px;margin:13px 0 4px}.btn{border:0;border-radius:14px;padding:14px 18px;font-weight:800;font-size:15px;cursor:pointer;background:var(--gold);color:#192438;width:100%;margin-top:12px}.btn.secondary{background:#2c3e59;color:var(--ink)}.hidden{display:none!important}.center{text-align:center}.big{font-size:42px;margin:8px}.small{color:var(--muted);font-size:13px;line-height:1.7}.footer{text-align:center;color:#8190a7;font-size:11px;margin-top:22px}
+@media(min-width:600px){.wrap{padding-top:32px}.hero{padding:28px}.question{font-size:25px}}
+
+.auth-grid{display:grid;gap:10px;margin-top:12px}.auth-input{width:100%;padding:13px 14px;border:1px solid #354761;border-radius:12px;background:#101827;color:#f4f7fb;font-size:15px}.auth-note{font-size:13px;color:var(--muted);line-height:1.6;margin:8px 0}.auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.auth-actions .btn{margin-top:0}.account-line{font-size:13px;color:var(--mint);margin-top:8px;overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="top">
+    <div class="brand"><div class="logo">IQ</div><div><h1>تحدّي العقول</h1><div class="sub">IQ CHALLENGE · النسخة التجريبية 0.1</div></div></div>
+    <div class="score">★ <span id="totalScore">0</span></div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">فكّر، تعلّم، وتقدّم</div>
+    <h2>هل عقلك جاهز للتحدّي؟</h2>
+    <p>اختبر ذكاءك في جولة قصيرة. أجب عن الأسئلة واجمع النقاط وافتح مستويات أصعب.</p>
+  </section>
+
+  <section class="card" id="authCard">
+    <div class="row"><strong>حساب اللاعب</strong><span class="tag">تسجيل آمن</span></div>
+    <p class="auth-note">أنشئ حساباً أو سجّل دخولك حتى نربط تقدمك بحسابك. استخدم بريداً إلكترونياً تملكه.</p>
+    <div class="auth-grid" id="authForm">
+      <input class="auth-input" id="usernameInput" type="text" autocomplete="nickname" placeholder="اسم اللاعب (للحساب الجديد)">
+      <input class="auth-input" id="emailInput" type="email" autocomplete="email" placeholder="البريد الإلكتروني">
+      <input class="auth-input" id="passwordInput" type="password" autocomplete="current-password" placeholder="كلمة المرور (6 أحرف على الأقل)">
+      <div class="auth-actions"><button class="btn" id="signupBtn">إنشاء حساب</button><button class="btn secondary" id="loginBtn">تسجيل الدخول</button></div>
+    </div>
+    <div class="account-line" id="accountStatus" aria-live="polite">غير مسجّل الدخول</div>
+    <button class="btn secondary hidden" id="logoutBtn">تسجيل الخروج</button>
+  </section>
+
+  <section class="stats">
+    <div class="stat"><b id="levelStat">1</b><span>المستوى الحالي</span></div>
+    <div class="stat"><b id="bestStat">0</b><span>أفضل نتيجة</span></div>
+    <div class="stat"><b id="playedStat">0</b><span>جولات مكتملة</span></div>
+  </section>
+
+  <section class="card" id="game">
+    <div class="row"><strong id="roundTitle">الجولة الأولى</strong><span class="tag" id="category">منطق وذكاء</span></div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <div class="row small"><span id="counter">السؤال 1 من 5</span><span>10 نقاط للإجابة الصحيحة</span></div>
+    <div class="question" id="question">...</div>
+    <div class="answers" id="answers"></div>
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+    <button class="btn hidden" id="nextBtn">السؤال التالي</button>
+  </section>
+
+  <section class="card hidden center" id="result">
+    <div class="eyebrow">انتهت الجولة</div><div class="big">🏆</div>
+    <h2 id="resultTitle">أحسنت!</h2><p class="small" id="resultText"></p>
+    <button class="btn" id="againBtn">العب جولة جديدة</button>
+    <button class="btn secondary" id="resetBtn">إعادة ضبط التقدم على هذا الجهاز</button>
+  </section>
+  <div class="footer">نسخة اختبارية محلية — لا يوجد شراء أو جوائز نقدية أو إعلانات في هذه النسخة.</div>
+</main>
+<script>
+const rounds = [
+ {name:"منطق وذكاء",questions:[
+  {q:"ما العدد التالي في النمط: 2، 4، 8، 16، ؟",a:["18","24","32","30"],c:2,why:"كل عدد يساوي ضعف العدد السابق."},
+  {q:"لديك 3 تفاحات وأخذتَ تفاحتين. كم تفاحة أصبحت معك؟",a:["1","2","3","5"],c:1,why:"أنت أخذت تفاحتين، إذن أصبحت معك تفاحتان."},
+  {q:"أي كلمة لا تنتمي إلى المجموعة؟",a:["قلم","دفتر","كتاب","مطرقة"],c:3,why:"المطرقة أداة، والبقية أدوات للقراءة أو الكتابة."},
+  {q:"إذا كان اليوم الاثنين، فما اليوم بعد 10 أيام؟",a:["الأربعاء","الخميس","الجمعة","السبت"],c:1,why:"بعد 7 أيام الاثنين، وبعد 3 أيام إضافية الخميس."},
+  {q:"ما الشيء الذي كلما أخذت منه كبر؟",a:["الحفرة","العمر","الكتاب","الظل"],c:0,why:"كلما أزلت من التراب اتسعت الحفرة."}
+ ]},
+ {name:"معلومات عامة",questions:[
+  {q:"ما أكبر كوكب في المجموعة الشمسية؟",a:["الأرض","المشتري","المريخ","زحل"],c:1,why:"المشتري هو أكبر كواكب المجموعة الشمسية."},
+  {q:"كم عدد أضلاع الشكل السداسي؟",a:["5","6","7","8"],c:1,why:"الشكل السداسي له ستة أضلاع."},
+  {q:"ما عاصمة العراق؟",a:["البصرة","أربيل","بغداد","الموصل"],c:2,why:"بغداد هي عاصمة العراق."},
+  {q:"أي حيوان يُعرف بسفينة الصحراء؟",a:["الحصان","الجمل","الغزال","الفيل"],c:1,why:"الجمل مشهور بقدرته على التكيف مع الصحراء."},
+  {q:"كم دقيقة في ساعتين؟",a:["60","90","100","120"],c:3,why:"الساعة 60 دقيقة؛ ساعتان تساويان 120 دقيقة."}
+ ]},
+ {name:"ألغاز أصعب",questions:[
+  {q:"أب لديه 4 بنات، ولكل بنت أخ واحد. كم عدد الأبناء؟",a:["4","5","8","9"],c:1,why:"الأخ نفسه مشترك بين البنات: 4 بنات وولد واحد."},
+  {q:"ما العدد الذي إذا ضربته بنفسه ثم أضفت إليه 1 أصبح 50؟",a:["5","6","7","8"],c:2,why:"7 × 7 + 1 = 50."},
+  {q:"في سباق تجاوزتَ صاحب المركز الثاني. ما مركزك الآن؟",a:["الأول","الثاني","الثالث","الرابع"],c:1,why:"أخذت مركز الشخص الثاني، فأصبحت في المركز الثاني."},
+  {q:"أي شهر يحتوي على 28 يوماً؟",a:["شباط فقط","كل الشهور","نيسان فقط","كانون الأول فقط"],c:1,why:"كل شهر يحتوي على 28 يوماً على الأقل."},
+  {q:"إذا كانت 5 آلات تصنع 5 قطع في 5 دقائق، فكم تحتاج 100 آلة لصنع 100 قطعة؟",a:["5 دقائق","20 دقيقة","100 دقيقة","500 دقيقة"],c:0,why:"كل آلة تصنع قطعة خلال 5 دقائق."}
+ ]}
+];
+let roundIndex=0, qIndex=0, earned=0, locked=false;
+const $=id=>document.getElementById(id);
+let data={score:0,best:0,played:0,level:1};
+try{data={...data,...JSON.parse(localStorage.getItem("iqChallengeSave")||"{}")}}catch(e){}
+function save(){try{localStorage.setItem("iqChallengeSave",JSON.stringify(data))}catch(e){} updateStats()}
+function updateStats(){$("totalScore").textContent=data.score;$("bestStat").textContent=data.best;$("playedStat").textContent=data.played;$("levelStat").textContent=data.level}
+function loadQuestion(){
+ locked=false;let r=rounds[roundIndex],item=r.questions[qIndex];
+ $("roundTitle").textContent="الجولة "+(roundIndex+1);$("category").textContent=r.name;
+ $("counter").textContent="السؤال "+(qIndex+1)+" من "+r.questions.length;
+ $("bar").style.width=(qIndex/r.questions.length*100)+"%";$("question").textContent=item.q;
+ $("feedback").textContent="";$("nextBtn").classList.add("hidden");$("answers").innerHTML="";
+ item.a.forEach((answer,i)=>{let b=document.createElement("button");b.className="answer";b.textContent=answer;b.onclick=()=>choose(i);$("answers").appendChild(b)});
+}
+function choose(i){
+ if(locked)return;locked=true;let item=rounds[roundIndex].questions[qIndex],buttons=[...$("answers").children];
+ buttons.forEach((b,j)=>{b.disabled=true;if(j===item.c)b.classList.add("correct");else if(j===i)b.classList.add("wrong")});
+ if(i===item.c){earned+=10;$("feedback").textContent="إجابة صحيحة! +10 نقاط. "+item.why}
+ else $("feedback").textContent="ليست الإجابة الصحيحة. "+item.why;
+ $("nextBtn").textContent=qIndex===4?"عرض النتيجة":"السؤال التالي";$("nextBtn").classList.remove("hidden");
+}
+function next(){
+ if(qIndex<4){qIndex++;loadQuestion();return}
+ $("game").classList.add("hidden");$("result").classList.remove("hidden");
+ data.score+=earned;data.best=Math.max(data.best,earned);data.played++;
+ data.level=Math.max(data.level,Math.min(3,Math.floor(data.played/2)+1));save();
+ $("resultTitle").textContent=earned>=40?"ممتاز! أداء رائع":earned>=20?"أحسنت، واصل التقدم":"بداية جيدة!";
+ $("resultText").textContent="حصلت على "+earned+" من 50 نقطة في هذه الجولة. مجموع نقاطك: "+data.score+".";
+ $("bar").style.width="100%";
+}
+function start(){roundIndex=(data.played)%rounds.length;qIndex=0;earned=0;$("result").classList.add("hidden");$("game").classList.remove("hidden");loadQuestion()}
+$("nextBtn").onclick=next;$("againBtn").onclick=start;
+$("resetBtn").onclick=()=>{if(confirm("هل تريد حذف النقاط والتقدم المحفوظ على هذا الجهاز؟")){data={score:0,best:0,played:0,level:1};save();start()}};
+updateStats();loadQuestion();
+</script>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const SUPABASE_URL = 'https://dkaoptjafnilyztlznmk.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_wzAJmA21MoRZhkokNj2RFw_lLqi8U9C';
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const el = id => document.getElementById(id);
+const status = el('accountStatus');
+function setBusy(b){ el('signupBtn').disabled=b; el('loginBtn').disabled=b; }
+async function showSession(session){
+  const user=session?.user;
+  if(!user){status.textContent='غير مسجّل الدخول';el('logoutBtn').classList.add('hidden');return;}
+  const username=(user.user_metadata?.username || user.email || 'لاعب').toString();
+  status.textContent='مسجّل الدخول: '+username;
+  el('logoutBtn').classList.remove('hidden');
+  el('authForm').classList.add('hidden');
+  // Store the player's display name in their own profile. RLS restricts this to their account.
+  const {error}=await supabase.from('profiles').upsert({id:user.id,username:username.slice(0,32)},{onConflict:'id'});
+  if(error) console.warn('Profile setup:',error.message);
+}
+el('signupBtn').addEventListener('click',async()=>{
+  const username=el('usernameInput').value.trim();
+  const email=el('emailInput').value.trim();
+  const password=el('passwordInput').value;
+  if(!username||!email||password.length<6){status.textContent='أدخل اسم اللاعب والبريد وكلمة مرور من 6 أحرف على الأقل.';return;}
+  setBusy(true);status.textContent='جارٍ إنشاء الحساب...';
+  const {data,error}=await supabase.auth.signUp({email,password,options:{data:{username}}});
+  setBusy(false);
+  if(error){status.textContent='تعذّر إنشاء الحساب: '+error.message;return;}
+  if(data.session){await showSession(data.session);status.textContent='تم إنشاء الحساب وتسجيل الدخول: '+username;}
+  else status.textContent='تم إرسال طلب التسجيل. افحص بريدك إذا طُلب تأكيده، ثم سجّل الدخول.';
+});
+el('loginBtn').addEventListener('click',async()=>{
+  const email=el('emailInput').value.trim();const password=el('passwordInput').value;
+  if(!email||!password){status.textContent='أدخل البريد الإلكتروني وكلمة المرور.';return;}
+  setBusy(true);status.textContent='جارٍ تسجيل الدخول...';
+  const {data,error}=await supabase.auth.signInWithPassword({email,password});setBusy(false);
+  if(error){status.textContent='تعذّر تسجيل الدخول: '+error.message;return;}
+  await showSession(data.session);
+});
+el('logoutBtn').addEventListener('click',async()=>{const {error}=await supabase.auth.signOut();if(error){status.textContent='تعذّر تسجيل الخروج: '+error.message;return;}el('authForm').classList.remove('hidden');status.textContent='تم تسجيل الخروج.';el('logoutBtn').classList.add('hidden');});
+const {data:{session}}=await supabase.auth.getSession();
+if(session) await showSession(session);
+supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authForm').classList.remove('hidden');showSession(null);}});
+</script>
+
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));}</script>
+</body></html>
