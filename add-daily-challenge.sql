@@ -95,6 +95,8 @@ declare
   v_points integer;
   v_total_score integer;
   v_answered_count integer;
+  v_inserted boolean := false;
+  v_rows integer;
 begin
   if v_user_id is null then
     raise exception 'يجب تسجيل الدخول أولاً';
@@ -127,7 +129,9 @@ begin
   values (v_user_id, p_challenge_id, v_selected, v_points)
   on conflict (user_id, challenge_id) do nothing;
 
-  if not found then
+  get diagnostics v_rows = row_count;
+  v_inserted := (v_rows = 1);
+  if not v_inserted then
     -- The unique constraint prevents a second attempt; return the saved result.
     select points_awarded, selected_option
       into v_points, v_selected
@@ -144,11 +148,7 @@ begin
   into v_total_score, v_answered_count;
 
   return jsonb_build_object(
-    'already_answered', exists (
-      select 1 from public.challenge_answers
-      where user_id = v_user_id and challenge_id = p_challenge_id
-      having count(*) > 0
-    ) and not (v_selected = upper(coalesce(p_selected_option, '')) and v_points = case when v_is_correct then 20 else 0 end),
+    'already_answered', not v_inserted,
     'is_correct', v_is_correct,
     'correct_option', v_correct,
     'explanation', v_explanation,
