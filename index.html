@@ -57,6 +57,14 @@ h1{font-size:20px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px
     <div class="stat"><b id="playedStat">0</b><span>جولات مكتملة</span></div>
   </section>
 
+  <section class="card" id="dailyCard">
+    <div class="row"><strong>🌟 تحدّي اليوم</strong><span class="tag">مكافأة 20 نقطة</span></div>
+    <p class="small" id="dailyDate">تحدٍّ جديد كل يوم — أجب مرة واحدة فقط.</p>
+    <div class="question" id="dailyQuestion">جارٍ تحميل تحدّي اليوم...</div>
+    <div class="answers" id="dailyAnswers"></div>
+    <div class="feedback" id="dailyFeedback" aria-live="polite"></div>
+  </section>
+
   <section class="card" id="game">
     <div class="row"><strong id="roundTitle">الجولة الأولى</strong><span class="tag" id="category">منطق وذكاء</span></div>
     <label for="difficultySelect" class="small">اختر مستوى التحدّي</label>
@@ -150,6 +158,69 @@ async function loadLeaderboard() {
     list.appendChild(item);
   });
 }
+async function loadDailyChallenge() {
+  const questionEl = $('dailyQuestion');
+  const answersEl = $('dailyAnswers');
+  const feedbackEl = $('dailyFeedback');
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData.session) {
+    questionEl.textContent = 'سجّل الدخول لعرض تحدّي اليوم.';
+    answersEl.innerHTML = '';
+    feedbackEl.textContent = '';
+    return;
+  }
+  questionEl.textContent = 'جارٍ تحميل تحدّي اليوم...';
+  answersEl.innerHTML = '';
+  feedbackEl.textContent = '';
+  const { data, error } = await supabase.rpc('get_daily_challenge');
+  if (error) {
+    questionEl.textContent = 'تعذّر تحميل تحدّي اليوم.';
+    feedbackEl.textContent = error.message;
+    return;
+  }
+  const challenge = Array.isArray(data) ? data[0] : null;
+  if (!challenge) {
+    questionEl.textContent = 'لا يوجد تحدٍّ مجدول لهذا اليوم. سنعود بتحدٍّ جديد قريباً.';
+    return;
+  }
+  $('dailyDate').textContent = 'تحدّي يوم ' + new Date(challenge.challenge_date + 'T00:00:00').toLocaleDateString('ar-IQ');
+  questionEl.textContent = challenge.question;
+  ['A','B','C','D'].forEach(letter => {
+    const button = document.createElement('button');
+    button.className = 'answer';
+    button.textContent = letter + ' — ' + (challenge.options?.[letter] ?? '');
+    button.disabled = !!challenge.already_answered;
+    button.addEventListener('click', () => submitDailyAnswer(challenge.id, letter));
+    answersEl.appendChild(button);
+  });
+  if (challenge.already_answered) {
+    feedbackEl.textContent = 'أكملت تحدّي اليوم مسبقاً. مكافأتك: ' + Number(challenge.points_awarded || 0) + ' نقطة. عُد غداً لتحدٍّ جديد.';
+  }
+}
+async function submitDailyAnswer(challengeId, letter) {
+  const buttons = [...$('dailyAnswers').children];
+  buttons.forEach(button => button.disabled = true);
+  $('dailyFeedback').textContent = 'جارٍ حفظ إجابتك...';
+  const { data, error } = await supabase.rpc('submit_daily_challenge_answer', {
+    p_challenge_id: challengeId,
+    p_selected_option: letter
+  });
+  if (error) {
+    buttons.forEach(button => button.disabled = false);
+    $('dailyFeedback').textContent = 'تعذّر حفظ الإجابة: ' + error.message;
+    return;
+  }
+  buttons.forEach((button, index) => {
+    const optionLetter = ['A','B','C','D'][index];
+    if (optionLetter === data.correct_option) button.classList.add('correct');
+    else if (optionLetter === letter) button.classList.add('wrong');
+  });
+  const prefix = data.already_answered ? 'سبق أن أرسلت إجابتك. ' : (data.is_correct ? 'إجابة صحيحة! +' + data.points_awarded + ' نقطة مكافأة. ' : 'إجابة غير صحيحة. ');
+  $('dailyFeedback').textContent = prefix + (data.explanation || '') + ' مجموع نقاطك: ' + data.total_score + '.';
+  applyServerStats(data);
+  await loadLeaderboard();
+}
+
 async function loadRound() {
   const { data: sessionData } = await supabase.auth.getSession();
   if (!sessionData.session) {
@@ -266,12 +337,13 @@ if (initialSession.session) {
   const { data: stats } = await supabase.rpc('get_quiz_stats');
   applyServerStats(stats);
   await loadLeaderboard();
+  await loadDailyChallenge();
   await loadRound();
 } else {
   showGameMessage('سجّل الدخول أولاً حتى نحمّل الأسئلة ونحفظ نقاطك بأمان.');
 }
 supabase.auth.onAuthStateChange((_event, session) => {
-  if (session) { loadLeaderboard(); loadRound(); }
+  if (session) { loadLeaderboard(); loadDailyChallenge(); loadRound(); }
   else showGameMessage('سجّل الدخول أولاً حتى نحمّل الأسئلة ونحفظ نقاطك بأمان.');
 });
 </script>
