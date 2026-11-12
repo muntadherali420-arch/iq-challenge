@@ -158,7 +158,9 @@ async function loadLeaderboard() {
     list.appendChild(item);
   });
 }
+let dailyLoadVersion = 0;
 async function loadDailyChallenge() {
+  const loadVersion = ++dailyLoadVersion;
   const questionEl = $('dailyQuestion');
   const answersEl = $('dailyAnswers');
   const feedbackEl = $('dailyFeedback');
@@ -173,12 +175,16 @@ async function loadDailyChallenge() {
   answersEl.innerHTML = '';
   feedbackEl.textContent = '';
   const { data, error } = await supabase.rpc('get_daily_challenge');
+  // Auth events can trigger a second load while the first request is still running.
+  // Ignore stale responses so the same four answer buttons are never appended twice.
+  if (loadVersion !== dailyLoadVersion) return;
   if (error) {
     questionEl.textContent = 'تعذّر تحميل تحدّي اليوم.';
     feedbackEl.textContent = error.message;
     return;
   }
   const challenge = Array.isArray(data) ? data[0] : null;
+  answersEl.replaceChildren();
   if (!challenge) {
     questionEl.textContent = 'لا يوجد تحدٍّ مجدول لهذا اليوم. سنعود بتحدٍّ جديد قريباً.';
     return;
