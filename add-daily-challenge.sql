@@ -30,19 +30,30 @@ create policy "Daily challenge keys are not directly readable"
   to anon, authenticated
   using (false);
 
--- Seed today's challenge. Existing daily content is never overwritten.
+-- Seed one challenge per day for the first seven days. Existing content is preserved.
 insert into public.daily_challenges (challenge_date, question, options)
-values (
-  date '2026-11-12',
-  'إذا كان 3 عمال ينجزون 3 قطع خلال 3 دقائق، فكم دقيقة يحتاج 6 عمال لإنجاز 6 قطع بالمعدل نفسه؟',
-  '{"A":"3 دقائق","B":"6 دقائق","C":"9 دقائق","D":"12 دقيقة"}'::jsonb
-)
+values
+(date '2026-11-12', 'إذا كان 3 عمال ينجزون 3 قطع خلال 3 دقائق، فكم دقيقة يحتاج 6 عمال لإنجاز 6 قطع بالمعدل نفسه؟', '{"A":"3 دقائق","B":"6 دقائق","C":"9 دقائق","D":"12 دقيقة"}'::jsonb),
+(date '2026-11-13', 'ما العدد التالي في السلسلة: 2، 6، 12، 20، 30، ؟', '{"A":"40","B":"42","C":"44","D":"46"}'::jsonb),
+(date '2026-11-14', 'كل الورود أزهار، وبعض الأزهار تذبل سريعاً. هل نستنتج أن بعض الورود تذبل سريعاً؟', '{"A":"نعم بالتأكيد","B":"لا، لا تكفي المعلومات","C":"كل الورود تذبل","D":"لا توجد ورود"}'::jsonb),
+(date '2026-11-15', 'إذا كانت 5 آلات تصنع 5 قطع في 5 دقائق، فكم دقيقة تحتاج 100 آلة لصنع 100 قطعة بالمعدل نفسه؟', '{"A":"5 دقائق","B":"20 دقيقة","C":"100 دقيقة","D":"500 دقيقة"}'::jsonb),
+(date '2026-11-16', 'إذا كان اليوم الثلاثاء، فما اليوم بعد 100 يوم؟', '{"A":"الثلاثاء","B":"الأربعاء","C":"الخميس","D":"الجمعة"}'::jsonb),
+(date '2026-11-17', 'ما العدد التالي في السلسلة: 1، 1، 2، 3، 5، 8، ؟', '{"A":"11","B":"13","C":"15","D":"16"}'::jsonb),
+(date '2026-11-18', 'مكعب كبير مكوّن من 3×3×3 مكعبات صغيرة، ودُهنت أوجهه الخارجية كلها. كم مكعباً صغيراً له وجهان مدهونان بالضبط؟', '{"A":"8","B":"12","C":"6","D":"9"}'::jsonb)
 on conflict (challenge_date) do nothing;
 
 insert into public.daily_challenge_keys (challenge_id, correct_option, explanation)
-select id, 'A', 'بما أن عدد العمال والقطع تضاعف معاً، تبقى المدة نفسها: 3 دقائق.'
-from public.daily_challenges
-where challenge_date = date '2026-11-12'
+select d.id, v.correct_option, v.explanation
+from (values
+  (date '2026-11-12', 'A', 'بما أن عدد العمال والقطع تضاعف معاً، تبقى المدة نفسها: 3 دقائق.'),
+  (date '2026-11-13', 'B', 'الفروق هي 4 ثم 6 ثم 8 ثم 10؛ الفرق التالي 12، إذن 30 + 12 = 42.'),
+  (date '2026-11-14', 'B', 'المعلومة تقول إن بعض الأزهار تذبل، لكنها لا تحدد أن هذه الأزهار من الورود.'),
+  (date '2026-11-15', 'A', 'كل آلة تصنع قطعة واحدة خلال 5 دقائق؛ لذلك 100 آلة تصنع 100 قطعة في 5 دقائق.'),
+  (date '2026-11-16', 'C', '100 يوماً تساوي 14 أسبوعاً ويتبقى يومان؛ الثلاثاء يصبح الخميس.'),
+  (date '2026-11-17', 'B', 'كل عدد يساوي مجموع العددين السابقين: 5 + 8 = 13.'),
+  (date '2026-11-18', 'B', 'المكعبات التي لها وجهان مدهونان تقع في منتصف حواف المكعب وعددها 12.')
+) as v(challenge_date, correct_option, explanation)
+join public.daily_challenges d on d.challenge_date = v.challenge_date
 on conflict (challenge_id) do nothing;
 
 create or replace function public.get_daily_challenge()
@@ -52,7 +63,8 @@ returns table (
   question text,
   options jsonb,
   already_answered boolean,
-  selected_option text
+  selected_option text,
+  points_awarded integer
 )
 language plpgsql
 security definer
@@ -67,7 +79,7 @@ begin
 
   return query
   select d.id, d.challenge_date, d.question, d.options,
-         (a.id is not null), a.selected_option
+         (a.id is not null), a.selected_option, coalesce(a.points_awarded, 0)
   from public.daily_challenges d
   left join public.challenge_answers a
     on a.challenge_id = d.id and a.user_id = v_user_id
