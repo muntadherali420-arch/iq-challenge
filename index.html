@@ -17,7 +17,7 @@ h1{font-size:20px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.stat{background:var(--panel);padding:14px 8px;border-radius:16px;text-align:center}.stat b{display:block;font-size:21px;color:var(--gold)}.stat span{font-size:11px;color:var(--muted)}
 .card{background:var(--panel);border:1px solid #2a3a53;border-radius:22px;padding:20px;margin-top:14px}
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px}.tag{font-size:12px;color:var(--mint);background:#183d3b;padding:7px 10px;border-radius:99px}
-.progress{height:7px;background:#2b3b54;border-radius:9px;overflow:hidden;margin:15px 0}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--mint),var(--gold));transition:width .25s}
+.difficulty-select{width:100%;padding:12px 14px;margin:14px 0 4px;border:1px solid #354761;border-radius:12px;background:#101827;color:#f4f7fb;font-size:15px}.progress{height:7px;background:#2b3b54;border-radius:9px;overflow:hidden;margin:15px 0}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--mint),var(--gold));transition:width .25s}
 .question{font-size:22px;line-height:1.55;margin:18px 0}.answers{display:grid;gap:10px}.answer{width:100%;border:1px solid #354761;background:var(--panel2);color:var(--ink);padding:15px;border-radius:14px;text-align:right;font-size:16px;cursor:pointer}.answer:focus{outline:2px solid var(--gold)}.answer.correct{border-color:var(--mint);background:#17443e}.answer.wrong{border-color:var(--pink);background:#492b3c}.answer:disabled{cursor:default;opacity:1}
 .feedback{min-height:28px;color:var(--muted);font-size:14px;margin:13px 0 4px}.btn{border:0;border-radius:14px;padding:14px 18px;font-weight:800;font-size:15px;cursor:pointer;background:var(--gold);color:#192438;width:100%;margin-top:12px}.btn.secondary{background:#2c3e59;color:var(--ink)}.hidden{display:none!important}.center{text-align:center}.big{font-size:42px;margin:8px}.small{color:var(--muted);font-size:13px;line-height:1.7}.footer{text-align:center;color:#8190a7;font-size:11px;margin-top:22px}
 @media(min-width:600px){.wrap{padding-top:32px}.hero{padding:28px}.question{font-size:25px}}
@@ -59,6 +59,8 @@ h1{font-size:20px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px
 
   <section class="card" id="game">
     <div class="row"><strong id="roundTitle">الجولة الأولى</strong><span class="tag" id="category">منطق وذكاء</span></div>
+    <label for="difficultySelect" class="small">اختر مستوى التحدّي</label>
+    <select id="difficultySelect" class="difficulty-select"><option value="all">كل المستويات</option><option value="easy">سهل</option><option value="medium">متوسط</option><option value="hard">صعب</option><option value="expert">خبير</option><option value="genius">عبقري</option></select>
     <div class="progress"><div class="bar" id="bar"></div></div>
     <div class="row small"><span id="counter">السؤال 1 من 5</span><span>10 نقاط للإجابة الصحيحة</span></div>
     <div class="question" id="question">...</div>
@@ -115,7 +117,8 @@ async function loadRound() {
     return;
   }
   showGameMessage('جارٍ تحميل الأسئلة...');
-  const { data, error } = await supabase.rpc('get_quiz_questions');
+  const selectedDifficulty = $('difficultySelect').value;
+  const { data, error } = await supabase.rpc('get_quiz_questions_by_difficulty', { p_difficulty: selectedDifficulty });
   if (error) {
     showGameMessage('تعذّر تحميل الأسئلة. تأكد من تنفيذ ملف إعداد Supabase SQL ثم أعد المحاولة.');
     $('feedback').textContent = error.message;
@@ -214,6 +217,7 @@ $('nextBtn').addEventListener('click', () => {
   }
 });
 $('againBtn').addEventListener('click', loadRound);
+$('difficultySelect').addEventListener('change', loadRound);
 $('resetBtn').classList.add('hidden');
 
 const { data: initialSession } = await supabase.auth.getSession();
