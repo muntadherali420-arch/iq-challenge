@@ -137,3 +137,34 @@ revoke all on function public.get_quiz_questions() from public, anon;
 revoke all on function public.submit_question_answer(uuid, text) from public, anon;
 grant execute on function public.get_quiz_questions() to authenticated;
 grant execute on function public.submit_question_answer(uuid, text) to authenticated;
+
+
+create or replace function public.get_quiz_stats()
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_user_id uuid := auth.uid();
+  v_total_score integer;
+  v_answered_count integer;
+begin
+  if v_user_id is null then
+    raise exception 'يجب تسجيل الدخول أولاً';
+  end if;
+
+  select coalesce(sum(points_awarded),0), count(*)
+    into v_total_score, v_answered_count
+  from public.question_attempts
+  where user_id = v_user_id;
+
+  return jsonb_build_object(
+    'total_score', v_total_score,
+    'answered_count', v_answered_count
+  );
+end;
+$$;
+
+revoke all on function public.get_quiz_stats() from public, anon;
+grant execute on function public.get_quiz_stats() to authenticated;
