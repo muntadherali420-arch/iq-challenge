@@ -75,64 +75,159 @@ h1{font-size:20px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px
   </section>
   <div class="footer">نسخة اختبارية محلية — لا يوجد شراء أو جوائز نقدية أو إعلانات في هذه النسخة.</div>
 </main>
-<script>
-const rounds = [
- {name:"منطق وذكاء",questions:[
-  {q:"ما العدد التالي في النمط: 2، 4، 8، 16، ؟",a:["18","24","32","30"],c:2,why:"كل عدد يساوي ضعف العدد السابق."},
-  {q:"لديك 3 تفاحات وأخذتَ تفاحتين. كم تفاحة أصبحت معك؟",a:["1","2","3","5"],c:1,why:"أنت أخذت تفاحتين، إذن أصبحت معك تفاحتان."},
-  {q:"أي كلمة لا تنتمي إلى المجموعة؟",a:["قلم","دفتر","كتاب","مطرقة"],c:3,why:"المطرقة أداة، والبقية أدوات للقراءة أو الكتابة."},
-  {q:"إذا كان اليوم الاثنين، فما اليوم بعد 10 أيام؟",a:["الأربعاء","الخميس","الجمعة","السبت"],c:1,why:"بعد 7 أيام الاثنين، وبعد 3 أيام إضافية الخميس."},
-  {q:"ما الشيء الذي كلما أخذت منه كبر؟",a:["الحفرة","العمر","الكتاب","الظل"],c:0,why:"كلما أزلت من التراب اتسعت الحفرة."}
- ]},
- {name:"معلومات عامة",questions:[
-  {q:"ما أكبر كوكب في المجموعة الشمسية؟",a:["الأرض","المشتري","المريخ","زحل"],c:1,why:"المشتري هو أكبر كواكب المجموعة الشمسية."},
-  {q:"كم عدد أضلاع الشكل السداسي؟",a:["5","6","7","8"],c:1,why:"الشكل السداسي له ستة أضلاع."},
-  {q:"ما عاصمة العراق؟",a:["البصرة","أربيل","بغداد","الموصل"],c:2,why:"بغداد هي عاصمة العراق."},
-  {q:"أي حيوان يُعرف بسفينة الصحراء؟",a:["الحصان","الجمل","الغزال","الفيل"],c:1,why:"الجمل مشهور بقدرته على التكيف مع الصحراء."},
-  {q:"كم دقيقة في ساعتين؟",a:["60","90","100","120"],c:3,why:"الساعة 60 دقيقة؛ ساعتان تساويان 120 دقيقة."}
- ]},
- {name:"ألغاز أصعب",questions:[
-  {q:"أب لديه 4 بنات، ولكل بنت أخ واحد. كم عدد الأبناء؟",a:["4","5","8","9"],c:1,why:"الأخ نفسه مشترك بين البنات: 4 بنات وولد واحد."},
-  {q:"ما العدد الذي إذا ضربته بنفسه ثم أضفت إليه 1 أصبح 50؟",a:["5","6","7","8"],c:2,why:"7 × 7 + 1 = 50."},
-  {q:"في سباق تجاوزتَ صاحب المركز الثاني. ما مركزك الآن؟",a:["الأول","الثاني","الثالث","الرابع"],c:1,why:"أخذت مركز الشخص الثاني، فأصبحت في المركز الثاني."},
-  {q:"أي شهر يحتوي على 28 يوماً؟",a:["شباط فقط","كل الشهور","نيسان فقط","كانون الأول فقط"],c:1,why:"كل شهر يحتوي على 28 يوماً على الأقل."},
-  {q:"إذا كانت 5 آلات تصنع 5 قطع في 5 دقائق، فكم تحتاج 100 آلة لصنع 100 قطعة؟",a:["5 دقائق","20 دقيقة","100 دقيقة","500 دقيقة"],c:0,why:"كل آلة تصنع قطعة خلال 5 دقائق."}
- ]}
-];
-let roundIndex=0, qIndex=0, earned=0, locked=false;
-const $=id=>document.getElementById(id);
-let data={score:0,best:0,played:0,level:1};
-try{data={...data,...JSON.parse(localStorage.getItem("iqChallengeSave")||"{}")}}catch(e){}
-function save(){try{localStorage.setItem("iqChallengeSave",JSON.stringify(data))}catch(e){} updateStats()}
-function updateStats(){$("totalScore").textContent=data.score;$("bestStat").textContent=data.best;$("playedStat").textContent=data.played;$("levelStat").textContent=data.level}
-function loadQuestion(){
- locked=false;let r=rounds[roundIndex],item=r.questions[qIndex];
- $("roundTitle").textContent="الجولة "+(roundIndex+1);$("category").textContent=r.name;
- $("counter").textContent="السؤال "+(qIndex+1)+" من "+r.questions.length;
- $("bar").style.width=(qIndex/r.questions.length*100)+"%";$("question").textContent=item.q;
- $("feedback").textContent="";$("nextBtn").classList.add("hidden");$("answers").innerHTML="";
- item.a.forEach((answer,i)=>{let b=document.createElement("button");b.className="answer";b.textContent=answer;b.onclick=()=>choose(i);$("answers").appendChild(b)});
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const SUPABASE_URL = 'https://dkaoptjafnilyztlznmk.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_wzAJmA21MoRZhkokNj2RFw_lLqi8U9C';
+const supabase = window.iqSupabase || createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+window.iqSupabase = supabase;
+
+const $ = id => document.getElementById(id);
+let questions = [], qIndex = 0, earned = 0, locked = false;
+let totalScore = 0, answeredCount = 0, bestRound = 0;
+
+function updateStats() {
+  $('totalScore').textContent = totalScore;
+  $('bestStat').textContent = bestRound;
+  $('playedStat').textContent = Math.floor(answeredCount / 5);
+  $('levelStat').textContent = Math.max(1, Math.min(10, Math.floor(answeredCount / 10) + 1));
 }
-function choose(i){
- if(locked)return;locked=true;let item=rounds[roundIndex].questions[qIndex],buttons=[...$("answers").children];
- buttons.forEach((b,j)=>{b.disabled=true;if(j===item.c)b.classList.add("correct");else if(j===i)b.classList.add("wrong")});
- if(i===item.c){earned+=10;$("feedback").textContent="إجابة صحيحة! +10 نقاط. "+item.why}
- else $("feedback").textContent="ليست الإجابة الصحيحة. "+item.why;
- $("nextBtn").textContent=qIndex===4?"عرض النتيجة":"السؤال التالي";$("nextBtn").classList.remove("hidden");
+function showGameMessage(message) {
+  $('game').classList.remove('hidden');
+  $('result').classList.add('hidden');
+  $('question').textContent = message;
+  $('answers').innerHTML = '';
+  $('feedback').textContent = '';
+  $('nextBtn').classList.add('hidden');
+  $('counter').textContent = 'تحدّي العقول';
+  $('bar').style.width = '0%';
 }
-function next(){
- if(qIndex<4){qIndex++;loadQuestion();return}
- $("game").classList.add("hidden");$("result").classList.remove("hidden");
- data.score+=earned;data.best=Math.max(data.best,earned);data.played++;
- data.level=Math.max(data.level,Math.min(3,Math.floor(data.played/2)+1));save();
- $("resultTitle").textContent=earned>=40?"ممتاز! أداء رائع":earned>=20?"أحسنت، واصل التقدم":"بداية جيدة!";
- $("resultText").textContent="حصلت على "+earned+" من 50 نقطة في هذه الجولة. مجموع نقاطك: "+data.score+".";
- $("bar").style.width="100%";
+function applyServerStats(data) {
+  if (!data) return;
+  totalScore = Number(data.total_score || 0);
+  answeredCount = Number(data.answered_count || 0);
+  updateStats();
 }
-function start(){roundIndex=(data.played)%rounds.length;qIndex=0;earned=0;$("result").classList.add("hidden");$("game").classList.remove("hidden");loadQuestion()}
-$("nextBtn").onclick=next;$("againBtn").onclick=start;
-$("resetBtn").onclick=()=>{if(confirm("هل تريد حذف النقاط والتقدم المحفوظ على هذا الجهاز؟")){data={score:0,best:0,played:0,level:1};save();start()}};
-updateStats();loadQuestion();
+async function loadRound() {
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData.session) {
+    showGameMessage('سجّل الدخول أولاً حتى نحمّل الأسئلة ونحفظ نقاطك بأمان.');
+    return;
+  }
+  showGameMessage('جارٍ تحميل الأسئلة...');
+  const { data, error } = await supabase.rpc('get_quiz_questions');
+  if (error) {
+    showGameMessage('تعذّر تحميل الأسئلة. تأكد من تنفيذ ملف إعداد Supabase SQL ثم أعد المحاولة.');
+    $('feedback').textContent = error.message;
+    return;
+  }
+  questions = Array.isArray(data) ? data : [];
+  qIndex = 0;
+  earned = 0;
+  if (!questions.length) {
+    $('game').classList.add('hidden');
+    $('result').classList.remove('hidden');
+    $('resultTitle').textContent = 'أكملت كل الأسئلة المتاحة!';
+    $('resultText').textContent = 'مجموع نقاطك المحفوظ في حسابك: ' + totalScore + '.';
+    $('againBtn').textContent = 'تحديث الأسئلة';
+    $('resetBtn').classList.add('hidden');
+    return;
+  }
+  $('resetBtn').classList.add('hidden');
+  $('againBtn').textContent = 'العب جولة جديدة';
+  $('result').classList.add('hidden');
+  $('game').classList.remove('hidden');
+  renderQuestion();
+}
+function renderQuestion() {
+  locked = false;
+  const q = questions[qIndex];
+  $('roundTitle').textContent = 'جولة جديدة';
+  $('category').textContent = q.category || q.difficulty || 'منطق وذكاء';
+  $('counter').textContent = 'السؤال ' + (qIndex + 1) + ' من ' + questions.length;
+  $('bar').style.width = (qIndex / questions.length * 100) + '%';
+  $('question').textContent = q.question_text;
+  $('feedback').textContent = '';
+  $('nextBtn').classList.add('hidden');
+  $('answers').innerHTML = '';
+  ['A','B','C','D'].forEach((letter, i) => {
+    const b = document.createElement('button');
+    b.className = 'answer';
+    b.textContent = q['option_' + letter.toLowerCase()];
+    b.addEventListener('click', () => chooseAnswer(letter));
+    $('answers').appendChild(b);
+  });
+}
+async function chooseAnswer(letter) {
+  if (locked) return;
+  locked = true;
+  const buttons = [...$('answers').children];
+  buttons.forEach(b => b.disabled = true);
+  $('feedback').textContent = 'جارٍ حفظ إجابتك...';
+  const q = questions[qIndex];
+  const { data, error } = await supabase.rpc('submit_question_answer', {
+    p_question_id: q.id,
+    p_selected_option: letter
+  });
+  if (error) {
+    locked = false;
+    buttons.forEach(b => b.disabled = false);
+    $('feedback').textContent = 'تعذّر حفظ الإجابة: ' + error.message;
+    return;
+  }
+  if (data?.already_answered) {
+    $('feedback').textContent = 'تمت الإجابة عن هذا السؤال مسبقاً. حمّل مجموعة جديدة.';
+    $('nextBtn').textContent = 'تحميل أسئلة جديدة';
+    $('nextBtn').classList.remove('hidden');
+    applyServerStats(data);
+    return;
+  }
+  const correctLetter = data.correct_option;
+  buttons.forEach((b, i) => {
+    const optionLetter = ['A','B','C','D'][i];
+    if (optionLetter === correctLetter) b.classList.add('correct');
+    else if (optionLetter === letter) b.classList.add('wrong');
+  });
+  const points = Number(data.points_awarded || 0);
+  earned += points;
+  applyServerStats(data);
+  $('feedback').textContent = (data.is_correct ? 'إجابة صحيحة! +' + points + ' نقاط. ' : 'إجابة غير صحيحة. ') + (data.explanation || '');
+  $('nextBtn').textContent = qIndex === questions.length - 1 ? 'عرض النتيجة' : 'السؤال التالي';
+  $('nextBtn').classList.remove('hidden');
+}
+function finishRound() {
+  bestRound = Math.max(bestRound, earned);
+  $('game').classList.add('hidden');
+  $('result').classList.remove('hidden');
+  $('resultTitle').textContent = earned >= 40 ? 'ممتاز! أداء رائع' : earned >= 20 ? 'أحسنت، واصل التقدم' : 'بداية جيدة!';
+  $('resultText').textContent = 'حصلت في هذه الجولة على ' + earned + ' نقطة. مجموع نقاط حسابك المحفوظ: ' + totalScore + '.';
+  $('againBtn').textContent = 'العب جولة جديدة';
+  $('resetBtn').classList.add('hidden');
+  $('bar').style.width = '100%';
+}
+$('nextBtn').addEventListener('click', () => {
+  if (qIndex < questions.length - 1) {
+    qIndex++;
+    renderQuestion();
+  } else {
+    finishRound();
+  }
+});
+$('againBtn').addEventListener('click', loadRound);
+$('resetBtn').classList.add('hidden');
+
+const { data: initialSession } = await supabase.auth.getSession();
+if (initialSession.session) {
+  const { data: stats } = await supabase.rpc('get_quiz_questions');
+  // The question fetch itself is performed by loadRound below.
+  await loadRound();
+} else {
+  showGameMessage('سجّل الدخول أولاً حتى نحمّل الأسئلة ونحفظ نقاطك بأمان.');
+}
+supabase.auth.onAuthStateChange((_event, session) => {
+  if (session) loadRound();
+  else showGameMessage('سجّل الدخول أولاً حتى نحمّل الأسئلة ونحفظ نقاطك بأمان.');
+});
 </script>
 
 <script type="module">
