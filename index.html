@@ -218,8 +218,8 @@ $('resetBtn').classList.add('hidden');
 
 const { data: initialSession } = await supabase.auth.getSession();
 if (initialSession.session) {
-  const { data: stats } = await supabase.rpc('get_quiz_questions');
-  // The question fetch itself is performed by loadRound below.
+  const { data: stats } = await supabase.rpc('get_quiz_stats');
+  applyServerStats(stats);
   await loadRound();
 } else {
   showGameMessage('سجّل الدخول أولاً حتى نحمّل الأسئلة ونحفظ نقاطك بأمان.');
