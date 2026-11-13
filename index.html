@@ -102,6 +102,14 @@ const $ = id => document.getElementById(id);
 let questions = [], qIndex = 0, earned = 0, locked = false;
 let totalScore = 0, answeredCount = 0, bestRound = 0;
 
+function bestRoundStorageKey() {
+  return 'iq-best-round:' + (window.iqCurrentUserId || 'guest');
+}
+function loadBestRound() {
+  bestRound = Number(localStorage.getItem(bestRoundStorageKey()) || 0);
+  updateStats();
+}
+
 function updateStats() {
   $('totalScore').textContent = totalScore;
   $('bestStat').textContent = bestRound;
@@ -320,6 +328,9 @@ async function chooseAnswer(letter) {
 }
 function finishRound() {
   bestRound = Math.max(bestRound, earned);
+  try { localStorage.setItem(bestRoundStorageKey(), String(bestRound)); } catch (error) {
+    console.warn('Could not save local best round:', error);
+  }
   $('game').classList.add('hidden');
   $('result').classList.remove('hidden');
   $('resultTitle').textContent = earned >= 40 ? 'ممتاز! أداء رائع' : earned >= 20 ? 'أحسنت، واصل التقدم' : 'بداية جيدة!';
@@ -342,6 +353,10 @@ $('difficultySelect').addEventListener('change', loadRound);
 $('resetBtn').classList.add('hidden');
 
 const { data: initialSession } = await supabase.auth.getSession();
+if (initialSession.session) {
+  window.iqCurrentUserId = initialSession.session.user.id;
+  loadBestRound();
+}
 await loadLeaderboard();
 if (initialSession.session) {
   const { data: stats } = await supabase.rpc('get_quiz_stats');
@@ -367,6 +382,7 @@ async function showSession(session){
   const user=session?.user;
   if(!user){status.textContent='غير مسجّل الدخول';el('logoutBtn').classList.add('hidden');return;}
   const username=(user.user_metadata?.username || user.email || 'لاعب').toString();
+  window.iqCurrentUserId=user.id;
   status.textContent='مسجّل الدخول: '+username;
   el('logoutBtn').classList.remove('hidden');
   el('authForm').classList.add('hidden');
