@@ -351,6 +351,7 @@ async function submitDailyAnswer(challengeId, letter) {
   const { data: submitSession } = await supabase.auth.getSession();
   const submitUserId = submitSession.session?.user?.id;
   if (!submitUserId) return;
+  const answerLoadVersion = dailyLoadVersion;
   const buttons = [...$('dailyAnswers').children];
   buttons.forEach(button => button.disabled = true);
   $('dailyFeedback').textContent = 'جارٍ حفظ إجابتك...';
@@ -359,7 +360,7 @@ async function submitDailyAnswer(challengeId, letter) {
     p_selected_option: letter
   });
   const { data: latestSession } = await supabase.auth.getSession();
-  if (latestSession.session?.user?.id !== submitUserId) return;
+  if (latestSession.session?.user?.id !== submitUserId || answerLoadVersion !== dailyLoadVersion) return;
   if (error) {
     buttons.forEach(button => button.disabled = false);
     $('dailyFeedback').textContent = 'تعذّر حفظ الإجابة: ' + error.message;
@@ -439,17 +440,24 @@ async function chooseAnswer(letter) {
   const { data: submitSession } = await supabase.auth.getSession();
   const submitUserId = submitSession.session?.user?.id;
   if (!submitUserId) return;
+  const answerRoundVersion = roundLoadVersion;
+  const q = questions[qIndex];
+  const answerQuestionId = q?.id;
+  if (!q) return;
   locked = true;
   const buttons = [...$('answers').children];
   buttons.forEach(b => b.disabled = true);
   $('feedback').textContent = 'جارٍ حفظ إجابتك...';
-  const q = questions[qIndex];
   const { data, error } = await supabase.rpc('submit_question_answer', {
     p_question_id: q.id,
     p_selected_option: letter
   });
   const { data: latestSession } = await supabase.auth.getSession();
   if (latestSession.session?.user?.id !== submitUserId) return;
+  if (answerRoundVersion !== roundLoadVersion || questions[qIndex]?.id !== answerQuestionId) {
+    if (!error && data) applyServerStats(data);
+    return;
+  }
   if (error) {
     locked = false;
     buttons.forEach(b => b.disabled = false);
