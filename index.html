@@ -513,13 +513,31 @@ body{
 .app-screen{display:none;animation:screenIn .22s ease both;padding-bottom:86px}
 .app-screen.active{display:block}
 @keyframes screenIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.game-nav{position:fixed;z-index:50;bottom:0;left:50%;transform:translateX(-50%);width:min(720px,100%);display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(12,24,43,.96);border-top:1px solid rgba(255,255,255,.13);backdrop-filter:blur(16px)}
+.game-nav{position:fixed;z-index:50;bottom:0;left:50%;transform:translateX(-50%);width:min(720px,100%);display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(12,24,43,.96);border-top:1px solid rgba(255,255,255,.13);backdrop-filter:blur(16px)}
 .nav-btn{border:0;border-radius:15px;background:transparent;color:#c5d2e6;padding:8px 3px;font:700 11px system-ui;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
 .nav-btn span{font-size:20px;line-height:1.2}
 .nav-btn.active{background:linear-gradient(135deg,#ffdc83,#ffb95f);color:#19263c;box-shadow:0 5px 18px #ffbd6333}
 #screen-play #game,#screen-play #result{min-height:420px}
 #screen-daily #dailyCard{min-height:360px}
 @media(min-width:700px){.game-nav{border:1px solid rgba(255,255,255,.14);border-bottom:0;border-radius:20px 20px 0 0}}
+
+/* Original game modes and tricky puzzle quest */
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 18px}
+.mode-card{position:relative;overflow:hidden;text-align:right;min-height:184px;padding:17px 14px;border:1px solid #ffffff24;border-radius:23px;color:#fff;display:flex;flex-direction:column;align-items:flex-start;gap:7px;box-shadow:0 12px 28px #08132635;cursor:pointer}
+.mode-card:after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;left:-34px;top:-36px;background:#ffffff13}
+.mode-million{background:linear-gradient(145deg,#193c72,#2369a6 58%,#1c3865)}
+.mode-puzzle{background:linear-gradient(145deg,#59347d,#874a9e 58%,#442b71)}
+.mode-icon{font-size:30px}.mode-kicker{font-size:10px;font-weight:800;opacity:.8}.mode-card strong{font-size:18px}.mode-card small{font-size:11px;line-height:1.6;opacity:.9}.mode-go{margin-top:auto;font-size:12px;font-weight:900;color:#ffe39b}
+.puzzle-shell{padding:18px!important}.puzzle-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.puzzle-head h2{margin:5px 0;font-size:23px}
+.puzzle-level{background:#f5d58a;color:#26334a;border-radius:13px;padding:9px 12px;font-weight:900;white-space:nowrap}
+.puzzle-progress{height:8px;background:#ffffff18;border-radius:99px;overflow:hidden;margin:15px 0}#puzzleProgressBar{height:100%;width:0;background:linear-gradient(90deg,#62e6bd,#ffd166);border-radius:99px;transition:width .3s}
+.puzzle-scene{height:150px;border-radius:20px;background:linear-gradient(135deg,#233c64,#394c75);display:grid;place-items:center;font-size:66px;margin:14px 0;box-shadow:inset 0 0 0 1px #ffffff16}
+.puzzle-tag{display:inline-block;background:#ffffff12;color:#ffdc91;border-radius:99px;padding:5px 10px;font-size:11px;font-weight:800}
+.puzzle-question{font-size:20px;line-height:1.7;margin:12px 0 16px}.puzzle-answers{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.puzzle-answer{min-height:58px;border:1px solid #ffffff25;background:#253750;color:#fff;border-radius:15px;padding:10px;font:700 14px system-ui;cursor:pointer}
+.puzzle-answer:disabled{opacity:.75;cursor:default}.puzzle-answer.correct{background:#17694f;border-color:#62e6bd}.puzzle-answer.wrong{background:#783c50;border-color:#ff8fab}
+.puzzle-feedback{min-height:45px;line-height:1.7;margin-top:12px;color:#ffdc91;font-size:13px}.puzzle-actions{display:flex;gap:9px;flex-wrap:wrap}.puzzle-actions .btn{flex:1}.puzzle-foot{margin-top:15px;opacity:.75}
+@media(max-width:390px){.mode-grid{grid-template-columns:1fr}.mode-card{min-height:150px}.puzzle-answers{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -535,7 +553,10 @@ body{
     <h2>هل عقلك جاهز للتحدّي؟</h2>
     <p>اختبر ذكاءك في جولة قصيرة. أجب عن الأسئلة واجمع النقاط وافتح مستويات أصعب.</p>
   </section>
-
+  <section class="mode-grid" aria-label="أنماط اللعب">
+    <button class="mode-card mode-million" type="button" data-open-screen="play"><span class="mode-icon">🏆</span><span class="mode-kicker">المسابقة الكبرى</span><strong>طريق القمّة</strong><small>أسئلة متدرجة • نقاط • مراحل أصعب</small><span class="mode-go">ابدأ التحدّي ←</span></button>
+    <button class="mode-card mode-puzzle" type="button" data-open-screen="puzzles"><span class="mode-icon">🧩</span><span class="mode-kicker">فكّر خارج الصندوق</span><strong>الأحجيات المخادعة</strong><small>ألغاز ذكية • تلميحات • حلول مفاجئة</small><span class="mode-go">اكتشف الألغاز ←</span></button>
+  </section>
   <section class="card" id="authCard">
     <div class="row"><strong>حساب اللاعب</strong><span class="tag">تسجيل آمن</span></div>
     <p class="auth-note">أنشئ حساباً أو سجّل دخولك حتى نربط تقدمك بحسابك. استخدم بريداً إلكترونياً تملكه.</p>
@@ -573,6 +594,17 @@ body{
     <div class="feedback" id="dailyFeedback" aria-live="polite"></div>
   </section>
 
+  </div>
+  <div class="app-screen" id="screen-puzzles">
+    <section class="card puzzle-shell">
+      <div class="puzzle-head"><div><span class="eyebrow">🧩 تحدّي التفكير الجانبي</span><h2>الأحجيات المخادعة</h2><p class="small">لا تستعجل… أحياناً الجواب مو مثل ما تتوقع!</p></div><div class="puzzle-level" id="puzzleLevel">1 / 5</div></div>
+      <div class="puzzle-progress"><div id="puzzleProgressBar"></div></div>
+      <div class="puzzle-scene" id="puzzleScene">🔍</div><div class="puzzle-tag" id="puzzleTag">لغز البداية</div>
+      <h3 class="puzzle-question" id="puzzleQuestion">جارٍ تجهيز اللغز...</h3>
+      <div class="puzzle-answers" id="puzzleAnswers"></div><div class="puzzle-feedback" id="puzzleFeedback" aria-live="polite"></div>
+      <div class="puzzle-actions"><button class="btn secondary" id="puzzleHintBtn" type="button">💡 تلميح</button><button class="btn hidden" id="puzzleNextBtn" type="button">اللغز التالي ←</button></div>
+      <p class="small puzzle-foot">تقدّم الألغاز يُحفظ على هذا الجهاز بشكل مستقل عن نقاط المسابقة.</p>
+    </section>
   </div>
   <div class="app-screen" id="screen-play">
   <section class="card" id="game">
@@ -612,7 +644,8 @@ body{
   </div>
   <nav class="game-nav" aria-label="التنقل الرئيسي">
     <button class="nav-btn active" type="button" data-screen="home"><span>🏠</span>الرئيسية</button>
-    <button class="nav-btn" type="button" data-screen="play"><span>🎮</span>العب</button>
+    <button class="nav-btn" type="button" data-screen="play"><span>🎮</span>المسابقة</button>
+    <button class="nav-btn" type="button" data-screen="puzzles"><span>🧩</span>الألغاز</button>
     <button class="nav-btn" type="button" data-screen="daily"><span>⚡</span>تحدّي اليوم</button>
     <button class="nav-btn" type="button" data-screen="profile"><span>🏆</span>إنجازاتي</button>
   </nav>
@@ -632,6 +665,7 @@ function showAppScreen(name){
 }
 window.iqShowScreen=showAppScreen;
 document.querySelectorAll('.nav-btn').forEach(button=>button.addEventListener('click',()=>showAppScreen(button.dataset.screen)));
+document.querySelectorAll('[data-open-screen]').forEach(button=>button.addEventListener('click',()=>showAppScreen(button.dataset.openScreen)));
 let soundEnabled = true;
 let audioContext = null;
 try { soundEnabled = localStorage.getItem('iq-sound-enabled') !== 'false'; } catch {}
@@ -1203,6 +1237,31 @@ el('logoutBtn').addEventListener('click',async()=>{const {error}=await supabase.
 const {data:{session}}=await supabase.auth.getSession();
 if(session) await showSession(session);
 supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authForm').classList.remove('hidden');showSession(null);}});
+</script>
+
+<script>
+(()=> {
+ const puzzles=[
+  {tag:'لغز البداية',icon:'🕳️',q:'شيء كلما أخذت منه يكبر… ما هو؟',a:['البالون','الحفرة','العمر','الظل'],correct:1,hint:'تخيّل أنك تحفر في الأرض.',why:'صحيح! كلما أزلت التراب من الحفرة، أصبحت أكبر.'},
+  {tag:'فخّ في صياغة السؤال',icon:'👨‍👧‍👦',q:'أم لديها أربع بنات، ولكل بنت أخ واحد. كم عدد أطفالها؟',a:['4','5','8','9'],correct:1,hint:'هل لكل بنت أخ مختلف، أم أنهن يشتركن بالأخ نفسه؟',why:'الأخ واحد مشترك بين البنات الأربع؛ المجموع خمسة أطفال.'},
+  {tag:'فكّر بالمعنى',icon:'🪮',q:'ما الشيء الذي له أسنان لكنه لا يعض؟',a:['التمساح','المشط','المنشار','السمكة'],correct:1,hint:'تستخدمه لترتيب شعرك.',why:'المشط له أسنان، لكنه لا يعض!'},
+  {tag:'خدعة سباق',icon:'🏃',q:'في سباق، تجاوزتَ المتسابق الذي بالمركز الثاني. ما مركزك الآن؟',a:['الأول','الثاني','الثالث','الرابع'],correct:1,hint:'أنت أخذت مكان الشخص الذي تجاوزته مباشرة.',why:'أصبحت بالمركز الثاني، لأنك أخذت مكان صاحب المركز الثاني.'},
+  {tag:'انتبه للتفاصيل',icon:'🐓',q:'ديك وقف فوق سطح مائل ووضع بيضة. إلى أي جهة ستتدحرج؟',a:['يميناً','يساراً','إلى الأسفل','لا جهة'],correct:3,hint:'هل الديك أصلاً يبيض؟',why:'ولا جهة! الديك لا يبيض.'}
+ ];
+ const key='iq-tricky-puzzle-progress-v1';let level=0,solved=false;
+ try{level=Math.max(0,Math.min(puzzles.length,Number(localStorage.getItem(key)||0)))}catch{}
+ const $=id=>document.getElementById(id);
+ function render(){
+  if(level>=puzzles.length){$('puzzleLevel').textContent='5 / 5';$('puzzleProgressBar').style.width='100%';$('puzzleScene').textContent='🏆';$('puzzleTag').textContent='اكتملت المجموعة';$('puzzleQuestion').textContent='رائع! حلّيت كل الأحجيات المتاحة حالياً.';$('puzzleAnswers').replaceChildren();$('puzzleFeedback').textContent='أحسنت! مجموعة جديدة من الألغاز ستضاف بالتحديثات القادمة.';$('puzzleHintBtn').classList.add('hidden');$('puzzleNextBtn').classList.remove('hidden');$('puzzleNextBtn').textContent='إعادة حل الألغاز';solved=true;return;}
+  const p=puzzles[level];solved=false;$('puzzleLevel').textContent=(level+1)+' / '+puzzles.length;$('puzzleProgressBar').style.width=(level/puzzles.length*100)+'%';$('puzzleScene').textContent=p.icon;$('puzzleTag').textContent=p.tag;$('puzzleQuestion').textContent=p.q;$('puzzleFeedback').textContent='';$('puzzleAnswers').replaceChildren();
+  p.a.forEach((answer,i)=>{const b=document.createElement('button');b.type='button';b.className='puzzle-answer';b.textContent=['أ','ب','ج','د'][i]+' · '+answer;b.addEventListener('click',()=>choose(i));$('puzzleAnswers').appendChild(b)});
+  $('puzzleHintBtn').classList.remove('hidden');$('puzzleHintBtn').disabled=false;$('puzzleNextBtn').classList.add('hidden');$('puzzleNextBtn').textContent='اللغز التالي ←';
+ }
+ function choose(i){if(solved)return;const p=puzzles[level],buttons=[...$('puzzleAnswers').children];if(i!==p.correct){buttons[i].classList.add('wrong');$('puzzleFeedback').textContent='مو هذا الجواب… جرّب مرة ثانية وفكّر بهدوء.';return;}solved=true;buttons.forEach((b,j)=>{b.disabled=true;if(j===p.correct)b.classList.add('correct')});$('puzzleFeedback').textContent=p.why;$('puzzleNextBtn').classList.remove('hidden');$('puzzleHintBtn').classList.add('hidden');level++;try{localStorage.setItem(key,String(level))}catch{}}
+ $('puzzleHintBtn').addEventListener('click',()=>{if(level<puzzles.length)$('puzzleFeedback').textContent='💡 تلميح: '+puzzles[level].hint;$('puzzleHintBtn').disabled=true});
+ $('puzzleNextBtn').addEventListener('click',()=>{if(level>=puzzles.length){level=0;try{localStorage.setItem(key,'0')}catch{}}render()});
+ render();
+})();
 </script>
 
 <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));}</script>
