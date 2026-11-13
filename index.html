@@ -23,6 +23,7 @@ h1{font-size:20px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px
 @media(min-width:600px){.wrap{padding-top:32px}.hero{padding:28px}.question{font-size:25px}}
 
 .leaderboard-list{display:grid;gap:9px;margin-top:14px}.leaderboard-item{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;background:#22314b;padding:12px;border-radius:13px}.leaderboard-rank{font-weight:900;color:var(--gold);text-align:center}.leaderboard-name{font-weight:700;overflow-wrap:anywhere}.leaderboard-score{color:var(--mint);font-weight:800;white-space:nowrap}.leaderboard-me{border:1px solid var(--mint)}.auth-grid{display:grid;gap:10px;margin-top:12px}.auth-input{width:100%;padding:13px 14px;border:1px solid #354761;border-radius:12px;background:#101827;color:#f4f7fb;font-size:15px}.auth-note{font-size:13px;color:var(--muted);line-height:1.6;margin:8px 0}.auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.auth-actions .btn{margin-top:0}.account-line{font-size:13px;color:var(--mint);margin-top:8px;overflow-wrap:anywhere}
+.level-progress{height:9px;background:#2b3b54;border-radius:99px;overflow:hidden;margin:10px 0}.level-progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--mint),var(--gold));transition:width .25s}.achievement-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}.achievement{display:flex;align-items:center;gap:9px;padding:11px;background:#22314b;border:1px solid #354761;border-radius:13px;min-width:0}.achievement.locked{opacity:.48;filter:saturate(.45)}.achievement-icon{font-size:25px}.achievement strong{display:block;font-size:13px}.achievement small{display:block;color:var(--muted);font-size:11px;line-height:1.5}.level-caption{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:12px}
 </style>
 </head>
 <body>
@@ -55,6 +56,14 @@ h1{font-size:20px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px
     <div class="stat"><b id="levelStat">1</b><span>المستوى الحالي</span></div>
     <div class="stat"><b id="bestStat">0</b><span>أفضل نتيجة</span></div>
     <div class="stat"><b id="playedStat">0</b><span>جولات مكتملة</span></div>
+  </section>
+  <section class="card" id="progressCard">
+    <div class="row"><strong>🚀 تقدّم اللاعب</strong><span class="tag">100 مستوى</span></div>
+    <div class="level-caption"><span id="levelProgressText">ابدأ رحلتك!</span><span id="levelProgressCount">0 / 10 إجابات</span></div>
+    <div class="level-progress"><div id="levelProgressBar"></div></div>
+    <div class="small" id="levelProgressHint">كل 10 إجابات محفوظة ترفع مستواك درجة.</div>
+    <div class="row" style="margin-top:18px"><strong>🏅 شارات الإنجاز</strong><span class="tag" id="achievementCount">0 / 5</span></div>
+    <div class="achievement-grid" id="achievementGrid"></div>
   </section>
 
   <section class="card" id="dailyCard">
@@ -115,11 +124,48 @@ function setBestRoundPlayer(userId) {
 }
 window.iqSetBestRoundPlayer = setBestRoundPlayer;
 
+const ACHIEVEMENTS = [
+  { score: 100, icon: '🌱', title: 'بداية قوية', detail: 'اجمع 100 نقطة' },
+  { score: 250, icon: '⭐', title: 'نجم المعرفة', detail: 'اجمع 250 نقطة' },
+  { score: 500, icon: '🏅', title: 'متفوّق', detail: 'اجمع 500 نقطة' },
+  { score: 1000, icon: '🏆', title: 'بطل التحدّي', detail: 'اجمع 1,000 نقطة' },
+  { score: 2500, icon: '👑', title: 'أسطورة العقول', detail: 'اجمع 2,500 نقطة' }
+];
+function renderAchievements() {
+  const grid = $('achievementGrid');
+  if (!grid) return;
+  const unlocked = ACHIEVEMENTS.filter(item => totalScore >= item.score).length;
+  $('achievementCount').textContent = unlocked + ' / ' + ACHIEVEMENTS.length;
+  grid.replaceChildren();
+  ACHIEVEMENTS.forEach(item => {
+    const isUnlocked = totalScore >= item.score;
+    const card = document.createElement('div');
+    card.className = 'achievement' + (isUnlocked ? '' : ' locked');
+    const icon = document.createElement('span');
+    icon.className = 'achievement-icon';
+    icon.textContent = isUnlocked ? item.icon : '🔒';
+    const copy = document.createElement('div');
+    const title = document.createElement('strong');
+    title.textContent = item.title;
+    const detail = document.createElement('small');
+    detail.textContent = isUnlocked ? 'تم فتح الشارة!' : item.detail;
+    copy.append(title, detail);
+    card.append(icon, copy);
+    grid.appendChild(card);
+  });
+}
 function updateStats() {
   $('totalScore').textContent = totalScore;
   $('bestStat').textContent = bestRound;
   $('playedStat').textContent = Math.floor(answeredCount / 5);
-  $('levelStat').textContent = Math.max(1, Math.min(10, Math.floor(answeredCount / 10) + 1));
+  const level = Math.max(1, Math.min(100, Math.floor(answeredCount / 10) + 1));
+  $('levelStat').textContent = level;
+  const progress = level >= 100 ? 100 : (answeredCount % 10) * 10;
+  $('levelProgressBar').style.width = progress + '%';
+  $('levelProgressText').textContent = level >= 100 ? 'وصلت إلى أعلى مستوى!' : 'المستوى ' + level + ' — التالي: ' + (level + 1);
+  $('levelProgressCount').textContent = level >= 100 ? '100 / 100 مستوى' : (answeredCount % 10) + ' / 10 إجابات';
+  $('levelProgressHint').textContent = level >= 100 ? 'إنجاز رائع! أكملت جميع المستويات.' : 'باقي ' + (10 - (answeredCount % 10)) + ' إجابات محفوظة للمستوى التالي.';
+  renderAchievements();
 }
 function showGameMessage(message) {
   $('game').classList.remove('hidden');
