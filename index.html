@@ -364,6 +364,145 @@ body{
  .achievement-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
+
+
+/* v28 — rebuild the screen hierarchy to closely match the supplied reference */
+:root{
+ --ink:#30145f;--muted:#51366f;--gold:#ffd32f;--mint:#16c879;
+}
+body{
+ background:
+ radial-gradient(ellipse at 50% 0%,#78edff 0,transparent 37%),
+ radial-gradient(ellipse at 0% 30%,#2fd7ff 0,transparent 30%),
+ radial-gradient(ellipse at 100% 55%,#a7f6ff 0,transparent 26%),
+ repeating-conic-gradient(from 4deg at 50% 0%,#ffffff22 0deg 4deg,transparent 4deg 11deg),
+ linear-gradient(180deg,#0757c9 0%,#08b8ee 38%,#5c8ff1 73%,#ae7af4 100%)!important;
+ background-attachment:fixed;
+}
+.wrap{width:min(100%,790px);padding:12px 14px 32px}
+.top{
+ position:relative;z-index:2;margin-bottom:10px;padding:9px 13px;
+ background:linear-gradient(100deg,#123ca5,#08277d)!important;
+ border:2px solid #8ceaff;border-radius:28px;
+ box-shadow:0 5px 0 #082c91,0 9px 20px #062e8d55;
+}
+.brand h1{font-size:clamp(19px,4vw,24px);font-weight:1000}
+.logo{
+ width:64px;height:64px;border-radius:50%;font-size:34px;
+ background:radial-gradient(circle at 35% 25%,#fff,#9beaff 28%,#2466ed 68%,#182ab5)!important;
+ color:#fff!important;border:3px solid #c8f7ff!important;
+ box-shadow:0 0 0 3px #3b91ff,0 5px 0 #152e9b!important;
+}
+.score{font-size:clamp(18px,4vw,27px);padding:9px 20px;border-radius:28px}
+.sound-toggle{width:64px;height:64px;padding:0;font-size:24px}
+.hero{
+ min-height:330px;display:flex;flex-direction:column;justify-content:flex-end;
+ padding:18px 20px 16px!important;margin-bottom:10px;
+ border:0!important;border-radius:0 0 30px 30px!important;
+ background:
+ radial-gradient(circle at 51% 28%,#fff7a5 0 5%,#ffe34a 6%,#ffbf19 8%,transparent 14%),
+ radial-gradient(ellipse at 27% 42%,#ffb0c4 0 12%,transparent 13%),
+ radial-gradient(ellipse at 26% 46%,#f7789b 0 17%,transparent 18%),
+ radial-gradient(ellipse at 79% 45%,#ffe36b 0 5%,transparent 6%),
+ repeating-conic-gradient(from 0deg at 50% 25%,#ffffff38 0deg 4deg,transparent 4deg 13deg),
+ linear-gradient(120deg,#0874dc 0%,#05c5f2 48%,#173ebd 100%)!important;
+ box-shadow:inset 0 -5px 0 #0c4fb9,0 8px 0 #123d9e!important;
+}
+.hero:before{
+ content:"🧠 🎓 💡";display:block;order:0;
+ font-size:clamp(66px,17vw,120px);line-height:1.05;
+ margin:0 auto 5px;filter:drop-shadow(0 6px 3px #052c8c88);
+}
+.hero .eyebrow{order:1;text-align:center;font-size:16px}
+.hero h2{order:2;font-size:clamp(27px,6vw,42px);margin:5px 0;text-shadow:0 3px 0 #482080}
+.hero p{order:3;font-size:clamp(15px,3.7vw,19px);max-width:620px;margin:0 auto}
+.hero:after{
+ order:4;content:"IQ  ·  تحدّي العقول  ·  IQ CHALLENGE";
+ display:block;width:max-content;max-width:100%;text-align:center;
+ padding:8px 28px;margin:13px auto 0;border-radius:28px;
+ color:#ffe75d;font-weight:1000;font-size:clamp(15px,3.5vw,21px);
+ background:linear-gradient(90deg,#102d9c,#2839b8,#102d9c);
+ border:2px solid #70ddff;box-shadow:0 5px 0 #08247c;
+}
+#authCard{
+ margin-top:0;border-radius:24px!important;padding:13px 16px!important;
+ background:linear-gradient(105deg,#5230bd,#2735ae 58%,#4130ae)!important;
+ border:2px solid #8fcaff!important;box-shadow:0 5px 0 #132e9c,0 10px 22px #103e9a55!important;
+}
+#authCard .row strong{font-size:18px}
+#authCard .account-line{font-size:15px;font-weight:800}
+#authCard .auth-note{margin:8px 0}
+#authCard .auth-actions .btn,#logoutBtn{border-radius:28px}
+.stats{margin:16px 0 18px;gap:10px}
+.stat{min-height:94px;display:flex;flex-direction:column;justify-content:center;border-radius:24px!important}
+.stat b{font-size:clamp(25px,6vw,34px)}
+#progressCard{
+ border-radius:27px!important;padding:17px 18px!important;
+ background:linear-gradient(120deg,#2039b5,#28239f 58%,#4a2ab7)!important;
+ border:2px solid #8dc9ff!important;box-shadow:0 6px 0 #122b91,0 12px 24px #073b9b55!important;
+}
+#progressCard>.row:first-child{font-size:19px}
+#progressCard .level-progress{height:17px;border-radius:30px}
+#progressCard .level-progress>div{border-radius:30px}
+#progressCard>.row:nth-of-type(2){
+ margin:18px -7px 0!important;padding:12px 8px 0;
+ border-top:1px solid #a89bff66;
+}
+#progressCard .achievement-grid{
+ margin:9px -7px -7px;padding:8px 0 0;gap:5px;
+ grid-template-columns:repeat(5,minmax(0,1fr));
+}
+#progressCard .achievement{
+ min-height:126px;display:flex;flex-direction:column;justify-content:center;
+ text-align:center;gap:5px;padding:8px 4px;border-radius:15px;
+ background:linear-gradient(155deg,#7540c9,#3b218e)!important;
+ border:1px solid #a98aff!important;
+}
+#progressCard .achievement-icon{font-size:clamp(24px,5vw,38px)}
+#progressCard .achievement strong{font-size:clamp(10px,2.5vw,14px)}
+#progressCard .achievement small{font-size:clamp(9px,2.2vw,12px);line-height:1.35}
+#historyCard{
+ border-radius:26px!important;background:linear-gradient(130deg,#7036c7,#3a218f)!important;
+ border:2px solid #d5aaff!important;color:#fff!important;
+}
+#historyCard strong,#historyCard .small,#historyCard .level-caption{color:#fff!important}
+#dailyCard{
+ border-radius:25px!important;padding:17px!important;
+ background:linear-gradient(115deg,#fff0a9,#ffc44f)!important;
+ border:3px solid #fff0b0!important;box-shadow:0 5px 0 #c8791b,0 10px 20px #073b9b44!important;
+}
+#dailyCard .question{font-size:19px}
+#game,#result{
+ border-radius:25px!important;background:linear-gradient(145deg,#fff5e1,#ffdfb5)!important;
+ border:3px solid #fff1bb!important;color:#30145f!important;
+}
+#game .question{font-size:clamp(20px,4.8vw,27px)}
+.answer{min-height:54px;font-size:16px;border-radius:17px!important}
+#leaderboardCard{
+ border-radius:25px!important;background:linear-gradient(135deg,#5d2bc0,#351b91)!important;
+ border:2px solid #cba7ff!important;color:#fff!important;
+}
+#leaderboardCard strong,#leaderboardCard .small{color:#fff!important}
+.btn{min-height:48px;border-radius:18px}
+.footer{padding:8px 10px}
+@media(max-width:520px){
+ .wrap{padding:8px 9px 25px}
+ .top{padding:8px 9px}
+ .logo{width:51px;height:51px;font-size:27px}
+ .sound-toggle{width:51px;height:51px;font-size:21px}
+ .hero{min-height:270px;padding:13px 12px!important}
+ .hero:before{font-size:clamp(62px,18vw,86px)}
+ .hero:after{font-size:14px;padding:7px 16px}
+ #progressCard .achievement-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+ #progressCard .achievement{min-height:112px;padding:6px 2px}
+ #progressCard .achievement-icon{font-size:25px}
+ #progressCard .achievement strong{font-size:9px}
+ #progressCard .achievement small{font-size:8px}
+ .stats{gap:6px}
+ .stat{min-height:82px;padding:8px 3px}
+ .stat span{font-size:10px!important}
+}
+
 </style>
 </head>
 <body>
