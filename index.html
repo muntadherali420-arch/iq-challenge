@@ -508,6 +508,18 @@ body{
  .stat span{font-size:10px!important}
 }
 
+
+/* Game-like screen navigation */
+.app-screen{display:none;animation:screenIn .22s ease both;padding-bottom:86px}
+.app-screen.active{display:block}
+@keyframes screenIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.game-nav{position:fixed;z-index:50;bottom:0;left:50%;transform:translateX(-50%);width:min(720px,100%);display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(12,24,43,.96);border-top:1px solid rgba(255,255,255,.13);backdrop-filter:blur(16px)}
+.nav-btn{border:0;border-radius:15px;background:transparent;color:#c5d2e6;padding:8px 3px;font:700 11px system-ui;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+.nav-btn span{font-size:20px;line-height:1.2}
+.nav-btn.active{background:linear-gradient(135deg,#ffdc83,#ffb95f);color:#19263c;box-shadow:0 5px 18px #ffbd6333}
+#screen-play #game,#screen-play #result{min-height:420px}
+#screen-daily #dailyCard{min-height:360px}
+@media(min-width:700px){.game-nav{border:1px solid rgba(255,255,255,.14);border-bottom:0;border-radius:20px 20px 0 0}}
 </style>
 </head>
 <body>
@@ -517,6 +529,7 @@ body{
     <div class="row" style="gap:8px"><button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true">🔊 الصوت يعمل</button><div class="score">★ <span id="totalScore">0</span></div></div>
   </header>
 
+  <div class="app-screen active" id="screen-home">
   <section class="hero">
     <div class="eyebrow">فكّر، تعلّم، وتقدّم</div>
     <h2>هل عقلك جاهز للتحدّي؟</h2>
@@ -550,13 +563,8 @@ body{
     <div class="achievement-grid" id="achievementGrid"></div>
   </section>
 
-  <section class="card" id="historyCard">
-    <div class="row"><strong>📚 سجل إنجازاتي</strong><span class="tag">على هذا الجهاز</span></div>
-    <p class="small">ملخص إنجازات حسابك، وآخر الجولات المسجلة على هذا الجهاز.</p>
-    <div class="level-caption" id="historySummary"><span>الجولات المكتملة: 0</span><span>المسجلة هنا: 0</span></div>
-    <div class="history-list" id="roundHistory"><div class="small">لا توجد جولات مسجلة بعد.</div></div>
-  </section>
-
+  </div>
+  <div class="app-screen" id="screen-daily">
   <section class="card" id="dailyCard">
     <div class="row"><strong>🌟 تحدّي اليوم</strong><span class="tag">مكافأة 20 نقطة</span></div>
     <p class="small" id="dailyDate">تحدٍّ جديد كل يوم — أجب مرة واحدة فقط.</p>
@@ -565,6 +573,8 @@ body{
     <div class="feedback" id="dailyFeedback" aria-live="polite"></div>
   </section>
 
+  </div>
+  <div class="app-screen" id="screen-play">
   <section class="card" id="game">
     <div class="row"><strong id="roundTitle">الجولة الأولى</strong><span class="tag" id="category">منطق وذكاء</span></div>
     <label for="difficultySelect" class="small">اختر مستوى التحدّي</label>
@@ -583,6 +593,15 @@ body{
     <button class="btn" id="againBtn">العب جولة جديدة</button>
     <button class="btn secondary" id="resetBtn">إعادة ضبط التقدم على هذا الجهاز</button>
   </section>
+  </div>
+  <div class="app-screen" id="screen-profile">
+  <section class="card" id="historyCard">
+    <div class="row"><strong>📚 سجل إنجازاتي</strong><span class="tag">على هذا الجهاز</span></div>
+    <p class="small">ملخص إنجازات حسابك، وآخر الجولات المسجلة على هذا الجهاز.</p>
+    <div class="level-caption" id="historySummary"><span>الجولات المكتملة: 0</span><span>المسجلة هنا: 0</span></div>
+    <div class="history-list" id="roundHistory"><div class="small">لا توجد جولات مسجلة بعد.</div></div>
+  </section>
+
   <section class="card" id="leaderboardCard">
     <div class="row"><strong>🏆 لوحة المتصدرين</strong><span class="tag">أفضل 20 لاعباً</span></div>
     <p class="small">الترتيب حسب مجموع النقاط المحفوظة. حدّث القائمة لمشاهدة أحدث النتائج.</p>
@@ -590,6 +609,13 @@ body{
     <div class="leaderboard-list" id="leaderboardList"><div class="small">سجّل الدخول لعرض لوحة المتصدرين.</div></div>
   </section>
   <div class="footer">نسخة اختبارية محلية — لا يوجد شراء أو جوائز نقدية أو إعلانات في هذه النسخة.</div>
+  </div>
+  <nav class="game-nav" aria-label="التنقل الرئيسي">
+    <button class="nav-btn active" type="button" data-screen="home"><span>🏠</span>الرئيسية</button>
+    <button class="nav-btn" type="button" data-screen="play"><span>🎮</span>العب</button>
+    <button class="nav-btn" type="button" data-screen="daily"><span>⚡</span>تحدّي اليوم</button>
+    <button class="nav-btn" type="button" data-screen="profile"><span>🏆</span>إنجازاتي</button>
+  </nav>
 </main>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
@@ -599,6 +625,13 @@ const supabase = window.iqSupabase || createClient(SUPABASE_URL, SUPABASE_PUBLIS
 window.iqSupabase = supabase;
 
 const $ = id => document.getElementById(id);
+function showAppScreen(name){
+  document.querySelectorAll('.app-screen').forEach(screen=>screen.classList.toggle('active',screen.id==='screen-'+name));
+  document.querySelectorAll('.nav-btn').forEach(button=>button.classList.toggle('active',button.dataset.screen===name));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+window.iqShowScreen=showAppScreen;
+document.querySelectorAll('.nav-btn').forEach(button=>button.addEventListener('click',()=>showAppScreen(button.dataset.screen)));
 let soundEnabled = true;
 let audioContext = null;
 try { soundEnabled = localStorage.getItem('iq-sound-enabled') !== 'false'; } catch {}
@@ -923,7 +956,7 @@ async function submitDailyAnswer(challengeId, letter) {
   playSound(data.is_correct ? 'correct' : 'wrong');
   applyServerStats(data);
   // Move the player to the already-loaded quiz round after completing the daily challenge.
-  $('game').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  showAppScreen('play');
   await loadLeaderboard();
 }
 
