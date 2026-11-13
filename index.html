@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101827">
+<meta name="theme-color" content="#f3f8ff">
 <link rel="manifest" href="/manifest.webmanifest">
 <title>IQ Challenge — تحدّي العقول</title>
 <style>
@@ -25,13 +25,43 @@ h1{font-size:20px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px
 .leaderboard-list{display:grid;gap:9px;margin-top:14px}.leaderboard-item{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;background:#22314b;padding:12px;border-radius:13px}.leaderboard-rank{font-weight:900;color:var(--gold);text-align:center}.leaderboard-name{font-weight:700;overflow-wrap:anywhere}.leaderboard-score{color:var(--mint);font-weight:800;white-space:nowrap}.leaderboard-me{border:1px solid var(--mint)}.auth-grid{display:grid;gap:10px;margin-top:12px}.auth-input{width:100%;padding:13px 14px;border:1px solid #354761;border-radius:12px;background:#101827;color:#f4f7fb;font-size:15px}.auth-note{font-size:13px;color:var(--muted);line-height:1.6;margin:8px 0}.auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.auth-actions .btn{margin-top:0}.account-line{font-size:13px;color:var(--mint);margin-top:8px;overflow-wrap:anywhere}
 .level-progress{height:9px;background:#2b3b54;border-radius:99px;overflow:hidden;margin:10px 0}.level-progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--mint),var(--gold));transition:width .25s}.achievement-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}.achievement{display:flex;align-items:center;gap:9px;padding:11px;background:#22314b;border:1px solid #354761;border-radius:13px;min-width:0}.achievement.locked{opacity:.48;filter:saturate(.45)}.achievement-icon{font-size:25px}.achievement strong{display:block;font-size:13px}.achievement small{display:block;color:var(--muted);font-size:11px;line-height:1.5}.level-caption{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:12px}
 .history-list{display:grid;gap:8px;margin-top:12px}.history-item{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#22314b;padding:11px 13px;border-radius:12px}.history-item strong{font-size:13px}.history-item small{display:block;color:var(--muted);font-size:11px;margin-top:3px}.history-points{color:var(--mint);font-weight:800;white-space:nowrap}
+
+/* Bright, welcoming IQ Challenge theme */
+:root{--bg:#f3f8ff;--panel:#ffffff;--panel2:#f0f6ff;--ink:#24324b;--muted:#65748d;--gold:#ffb938;--mint:#16b89a;--pink:#f06b88}
+body{background:radial-gradient(circle at 8% 3%,#d9f3ff 0,transparent 30%),radial-gradient(circle at 94% 18%,#ffe8d7 0,transparent 27%),linear-gradient(145deg,#f6f9ff,#eef8ff 55%,#fff6ed);color:var(--ink)}
+.logo{background:linear-gradient(135deg,#ffe27a,#ffad70);color:#24324b;box-shadow:0 8px 18px #ffbd7440}
+.score{background:#fff4d8;color:#9a6200;box-shadow:0 5px 16px #e8b94a20}
+.hero{background:linear-gradient(120deg,#dff7ff,#e8e5ff 55%,#fff0dc);border:1px solid #d9e8ff;box-shadow:0 12px 28px #7896c51a;color:#263653}
+.eyebrow{color:#078c82}.hero p{color:#596b85}
+.card,.stat{background:rgba(255,255,255,.94);border:1px solid #e0eaf7;box-shadow:0 8px 24px #7896c514}
+.tag{color:#087d75;background:#e0f8f2}
+.stat b{color:#ed9a18}.stat span,.small,.level-caption{color:#65748d}
+.difficulty-select,.auth-input{background:#f7faff;color:#263653;border-color:#d5e2f2}
+.progress,.level-progress{background:#e5edf8}
+.bar,.level-progress>div{background:linear-gradient(90deg,#36cdb0,#ffc45c,#ff9d85)}
+.answer{background:#f3f7ff;color:#2c3d5b;border:1.5px solid #dce7f6;transition:transform .15s,background .15s,border-color .15s}
+.answer:not(:disabled):active{transform:scale(.985)}
+.answer.correct{border-color:#24b99a;background:#ddf8ef;color:#126c5c}
+.answer.wrong{border-color:#f08098;background:#fff0f3;color:#a53c58}
+.feedback{color:#586a84}
+.btn{background:linear-gradient(110deg,#ffd36b,#ffb45e);color:#49320b;box-shadow:0 5px 13px #eeb85b30}
+.btn.secondary{background:#e8efff;color:#40577f;box-shadow:none}
+.achievement{background:#f5f8ff;border-color:#e1eafa}.achievement.locked{opacity:.58}
+.leaderboard-item,.history-item{background:#f3f7ff}
+.leaderboard-rank{color:#e89a18}.leaderboard-score,.history-points{color:#078e7b}
+.leaderboard-me{border:1.5px solid #28b99b;background:#e8fbf5}
+.footer{color:#7b8aa2}
+.sound-toggle{border:1px solid #dce7f6;border-radius:13px;padding:9px 12px;background:#fff;color:#40577f;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap;box-shadow:0 4px 12px #7896c512}
+.sound-toggle[aria-pressed="false"]{background:#f0f3f8;color:#7a8799}
+.top{flex-wrap:wrap}
+@media(max-width:390px){.wrap{padding-left:12px;padding-right:12px}.hero{padding:18px}.card{padding:16px}.sound-toggle{font-size:12px;padding:8px 10px}}
 </style>
 </head>
 <body>
 <main class="wrap">
   <header class="top">
     <div class="brand"><div class="logo">IQ</div><div><h1>تحدّي العقول</h1><div class="sub">IQ CHALLENGE · النسخة التجريبية 0.1</div></div></div>
-    <div class="score">★ <span id="totalScore">0</span></div>
+    <div class="row" style="gap:8px"><button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true">🔊 الصوت يعمل</button><div class="score">★ <span id="totalScore">0</span></div></div>
   </header>
 
   <section class="hero">
@@ -116,6 +146,47 @@ const supabase = window.iqSupabase || createClient(SUPABASE_URL, SUPABASE_PUBLIS
 window.iqSupabase = supabase;
 
 const $ = id => document.getElementById(id);
+let soundEnabled = true;
+let audioContext = null;
+try { soundEnabled = localStorage.getItem('iq-sound-enabled') !== 'false'; } catch {}
+function updateSoundButton() {
+  const button = $('soundToggle');
+  if (!button) return;
+  button.textContent = soundEnabled ? '🔊 الصوت يعمل' : '🔇 الصوت مكتوم';
+  button.setAttribute('aria-pressed', String(soundEnabled));
+}
+function playSound(kind = 'tap') {
+  if (!soundEnabled) return;
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    audioContext = audioContext || new AudioContextClass();
+    if (audioContext.state === 'suspended') audioContext.resume();
+    const now = audioContext.currentTime;
+    const notes = kind === 'correct' ? [660, 880, 1100] : kind === 'wrong' ? [330, 247] : kind === 'finish' ? [523, 659, 784, 1047] : [520];
+    notes.forEach((frequency, index) => {
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      const start = now + index * (kind === 'wrong' ? 0.12 : 0.10);
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(frequency, start);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.075, start + 0.018);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.19);
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+      oscillator.start(start);
+      oscillator.stop(start + 0.2);
+    });
+  } catch (error) { console.debug('Audio unavailable:', error); }
+}
+$('soundToggle').addEventListener('click', () => {
+  soundEnabled = !soundEnabled;
+  try { localStorage.setItem('iq-sound-enabled', String(soundEnabled)); } catch {}
+  updateSoundButton();
+  if (soundEnabled) playSound('tap');
+});
+updateSoundButton();
 let questions = [], qIndex = 0, earned = 0, locked = false;
 let roundFinished = false, nextTransitioning = false;
 let totalScore = 0, answeredCount = 0, bestRound = 0;
@@ -374,6 +445,7 @@ async function submitDailyAnswer(challengeId, letter) {
   });
   const prefix = data.already_answered ? 'سبق أن أرسلت إجابتك. ' : (data.is_correct ? 'إجابة صحيحة! +' + data.points_awarded + ' نقطة مكافأة. ' : 'إجابة غير صحيحة. ');
   $('dailyFeedback').textContent = prefix + (data.explanation || '') + ' مجموع نقاطك: ' + data.total_score + '.';
+  playSound(data.is_correct ? 'correct' : 'wrong');
   applyServerStats(data);
   // Move the player to the already-loaded quiz round after completing the daily challenge.
   $('game').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -493,6 +565,7 @@ async function chooseAnswer(letter) {
   earned += points;
   applyServerStats(data);
   $('feedback').textContent = (data.is_correct ? 'إجابة صحيحة! +' + points + ' نقاط. ' : 'إجابة غير صحيحة. ') + (data.explanation || '');
+  playSound(data.is_correct ? 'correct' : 'wrong');
   $('nextBtn').textContent = qIndex === questions.length - 1 ? 'عرض النتيجة' : 'السؤال التالي';
   $('nextBtn').classList.remove('hidden');
 }
@@ -509,6 +582,7 @@ function finishRound() {
   $('game').classList.add('hidden');
   $('result').classList.remove('hidden');
   $('resultTitle').textContent = earned >= 40 ? 'ممتاز! أداء رائع' : earned >= 20 ? 'أحسنت، واصل التقدم' : 'بداية جيدة!';
+  playSound('finish');
   $('resultText').textContent = 'حصلت في هذه الجولة على ' + earned + ' نقطة. مجموع نقاط حسابك المحفوظ: ' + totalScore + '.';
   $('againBtn').textContent = 'العب جولة جديدة';
   $('resetBtn').classList.add('hidden');
@@ -519,6 +593,7 @@ $('nextBtn').addEventListener('click', () => {
   nextTransitioning = true;
   if (qIndex < questions.length - 1) {
     qIndex++;
+    playSound('tap');
     renderQuestion();
     nextTransitioning = false;
   } else {
