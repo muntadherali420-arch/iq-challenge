@@ -117,6 +117,7 @@ window.iqSupabase = supabase;
 
 const $ = id => document.getElementById(id);
 let questions = [], qIndex = 0, earned = 0, locked = false;
+let roundFinished = false, nextTransitioning = false;
 let totalScore = 0, answeredCount = 0, bestRound = 0;
 let leaderboardLoadVersion = 0, roundLoadVersion = 0;
 
@@ -381,6 +382,8 @@ async function submitDailyAnswer(challengeId, letter) {
 
 async function loadRound() {
   const loadVersion = ++roundLoadVersion;
+  roundFinished = false;
+  nextTransitioning = false;
   const { data: sessionData } = await supabase.auth.getSession();
   if (loadVersion !== roundLoadVersion) return;
   if (!sessionData.session) {
@@ -436,15 +439,24 @@ function renderQuestion() {
   });
 }
 async function chooseAnswer(letter) {
-  if (locked) return;
-  const { data: submitSession } = await supabase.auth.getSession();
-  const submitUserId = submitSession.session?.user?.id;
-  if (!submitUserId) return;
+  if (locked || roundFinished) return;
+  // Lock and capture the exact question before any await, so rapid taps cannot
+  // submit twice or accidentally target a question from a newly loaded round.
+  locked = true;
   const answerRoundVersion = roundLoadVersion;
   const q = questions[qIndex];
   const answerQuestionId = q?.id;
-  if (!q) return;
-  locked = true;
+  if (!q) { locked = false; return; }
+  const { data: submitSession } = await supabase.auth.getSession();
+  const submitUserId = submitSession.session?.user?.id;
+  if (!submitUserId) {
+    if (answerRoundVersion === roundLoadVersion && questions[qIndex]?.id === answerQuestionId) {
+      locked = false;
+      $('feedback').textContent = 'انتهت الجلسة. سجّل الدخول مجدداً.';
+    }
+    return;
+  }
+  if (answerRoundVersion !== roundLoadVersion || questions[qIndex]?.id !== answerQuestionId) return;
   const buttons = [...$('answers').children];
   buttons.forEach(b => b.disabled = true);
   $('feedback').textContent = 'جارٍ حفظ إجابتك...';
@@ -485,6 +497,9 @@ async function chooseAnswer(letter) {
   $('nextBtn').classList.remove('hidden');
 }
 function finishRound() {
+  if (roundFinished) return;
+  roundFinished = true;
+  nextTransitioning = true;
   saveRoundToHistory(earned);
   bestRound = Math.max(bestRound, earned);
   try { localStorage.setItem(bestRoundStorageKey(), String(bestRound)); } catch (error) {
@@ -500,9 +515,12 @@ function finishRound() {
   $('bar').style.width = '100%';
 }
 $('nextBtn').addEventListener('click', () => {
+  if (nextTransitioning || roundFinished) return;
+  nextTransitioning = true;
   if (qIndex < questions.length - 1) {
     qIndex++;
     renderQuestion();
+    nextTransitioning = false;
   } else {
     finishRound();
   }
