@@ -417,9 +417,36 @@ if (initialSession.session) {
 } else {
   showGameMessage('سجّل الدخول أولاً حتى نحمّل الأسئلة ونحفظ نقاطك بأمان.');
 }
-supabase.auth.onAuthStateChange((_event, session) => {
-  if (session) { loadLeaderboard(); loadDailyChallenge(); loadRound(); }
-  else showGameMessage('سجّل الدخول أولاً حتى نحمّل الأسئلة ونحفظ نقاطك بأمان.');
+let playerRefreshVersion = 0;
+supabase.auth.onAuthStateChange(async (_event, session) => {
+  const refreshVersion = ++playerRefreshVersion;
+  if (session) {
+    setBestRoundPlayer(session.user.id);
+    // Clear the previous account's visible stats while the new account loads.
+    totalScore = 0;
+    answeredCount = 0;
+    updateStats();
+    loadLeaderboard();
+    loadDailyChallenge();
+    loadRound();
+    const { data: stats, error } = await supabase.rpc('get_quiz_stats');
+    if (refreshVersion !== playerRefreshVersion) return;
+    if (error) {
+      console.warn('Could not refresh player stats:', error.message);
+      return;
+    }
+    applyServerStats(stats);
+  } else {
+    setBestRoundPlayer('guest');
+    totalScore = 0;
+    answeredCount = 0;
+    updateStats();
+    $('dailyQuestion').textContent = 'سجّل الدخول لعرض تحدّي اليوم.';
+    $('dailyAnswers').replaceChildren();
+    $('dailyFeedback').textContent = '';
+    $('leaderboardList').textContent = 'سجّل الدخول لعرض لوحة المتصدرين.';
+    showGameMessage('سجّل الدخول أولاً حتى نحمّل الأسئلة ونحفظ نقاطك بأمان.');
+  }
 });
 </script>
 
