@@ -265,6 +265,105 @@ body{background:linear-gradient(145deg,#f6f8ff,#edf2ff 58%,#fff8e8)!important;co
 .difficulty-select,.auth-input{background:#f5f7ff!important;color:#263a78!important;border:1px solid #bdc9ed!important}
 .footer{color:#68759a!important}
 
+
+/* v27 — reference-inspired vivid sky-blue, royal indigo, gold and jewel-tone UI */
+:root{
+ --bg:#159be8;--panel:#fff0d7;--panel2:#e4efff;--ink:#28145d;--muted:#44356f;
+ --gold:#ffd329;--mint:#20c982;--pink:#ff6b82;
+}
+html{background:#168fe3}
+body{
+ color:#29145e;
+ background:
+ radial-gradient(ellipse at 50% 3%,#8ff5ff 0,transparent 34%),
+ radial-gradient(ellipse at 5% 35%,#37d9ff 0,transparent 30%),
+ radial-gradient(ellipse at 95% 58%,#a4f5ff 0,transparent 27%),
+ repeating-conic-gradient(from 8deg at 50% 7%,#ffffff18 0deg 5deg,transparent 5deg 12deg),
+ linear-gradient(160deg,#0871d9 0%,#18b9f2 48%,#4c8cf1 78%,#9b68ee 100%);
+ background-attachment:fixed;
+}
+.wrap{max-width:780px;padding:16px 14px 34px}
+.top{padding:10px 12px;border-radius:24px;background:linear-gradient(110deg,#0646ae,#082b83);border:2px solid #68dfff;box-shadow:0 7px 0 #073a9c88,0 12px 25px #063c9655;color:white;margin-bottom:15px}
+.brand h1{color:#fff;font-size:22px;text-shadow:0 2px 3px #061f69}
+.sub{color:#d9f7ff}
+.logo{width:58px;height:58px;border-radius:50%;background:linear-gradient(145deg,#fff46c,#ffb300 70%,#ff8b18);color:#17317d;border:3px solid #fff4a6;box-shadow:0 0 0 3px #329dff,0 5px 0 #a55b00;font-size:30px}
+.score{background:linear-gradient(110deg,#082d83,#061e62);color:#fff;border:1px solid #5bcaff;border-radius:28px;padding:10px 18px;font-size:20px;box-shadow:inset 0 1px 8px #ffffff24}
+.sound-toggle{background:linear-gradient(145deg,#5e9cff,#263fe2);color:#fff;border:2px solid #b6eaff;border-radius:50px;box-shadow:0 4px 0 #102c9b,0 0 15px #53dfff88}
+.hero{
+ position:relative;overflow:hidden;text-align:center;padding:28px 22px 25px;
+ background:radial-gradient(circle at 50% 5%,#ffed73 0 8%,transparent 9%),linear-gradient(135deg,#0877df 0%,#04b8ef 48%,#2141c6 100%);
+ border:3px solid #b8f3ff;border-radius:28px;color:white;
+ box-shadow:0 7px 0 #093e9e,0 14px 26px #073c9c66;
+}
+.hero:before{content:"🧠 🎓 💡";display:block;font-size:clamp(36px,8vw,66px);line-height:1.2;margin:0 auto 8px;filter:drop-shadow(0 4px 2px #062b8b77)}
+.hero:after{content:"IQ  ✦  IQ CHALLENGE  ✦";display:block;margin:12px auto 0;width:max-content;max-width:100%;padding:8px 22px;border-radius:30px;background:linear-gradient(90deg,#112c9c,#253fba,#102b91);border:1px solid #70dfff;color:#ffe45a;font-weight:1000;letter-spacing:1px;box-shadow:0 4px 0 #09247a}
+.hero h2{font-size:clamp(24px,5vw,34px);color:#fff1a0;text-shadow:0 3px 0 #45207f,0 4px 9px #082d85;margin:10px 0}
+.hero p{color:#fff;font-weight:700;line-height:1.75}
+.eyebrow{color:#fff18a;font-weight:900}
+.card{border-radius:24px;padding:18px;margin-top:14px;box-shadow:0 6px 0 #153d9c55,0 12px 24px #0a3a9a38}
+#authCard{background:linear-gradient(115deg,#4e37c8,#282caa 55%,#4832ba);border:2px solid #8fcaff;color:white}
+#authCard .auth-note,#authCard .account-line{color:#fff}
+#authCard .tag{background:#192f99;color:#fff3a0;border:1px solid #8ccfff}
+.auth-input{background:#fff9ed!important;color:#2d205d!important;border:2px solid #b9caff!important;border-radius:14px}
+.auth-actions .btn:first-child{background:linear-gradient(110deg,#ffe45e,#ffad16);color:#4b2600}
+.auth-actions .btn.secondary,#logoutBtn{background:linear-gradient(110deg,#ff6868,#dc243c);color:white;border:2px solid #ffb0a8;box-shadow:0 4px 0 #a71936}
+.stats{gap:10px;margin:15px 0}
+.stat{border-radius:22px;padding:13px 7px;border:2px solid #fff;box-shadow:0 5px 0 #16469b66,0 8px 16px #063e9844}
+.stats .stat:nth-child(1){background:linear-gradient(145deg,#caffdf,#56e6ad);border-color:#dffff0}
+.stats .stat:nth-child(2){background:linear-gradient(145deg,#ffe8b8,#ff9e3f);border-color:#fff0c8}
+.stats .stat:nth-child(3){background:linear-gradient(145deg,#a9e8ff,#399bfa);border-color:#e3f8ff}
+.stat b{font-size:27px;color:#21105b!important}
+.stat span{color:#26175f!important;font-size:13px;font-weight:900}
+#progressCard{background:linear-gradient(130deg,#1734b5,#2926a5 60%,#4630bd);border:2px solid #91caff;color:white}
+#progressCard strong{color:white}
+#progressCard .small,#progressCard .level-caption{color:#fff}
+#progressCard .tag{background:#ffdb56;color:#4c2a00}
+.level-progress{height:13px;background:#172e85;border:1px solid #8ebaff}
+.level-progress>div{background:linear-gradient(90deg,#00e879,#9cff5c);box-shadow:0 0 10px #1cff8a}
+#progressCard .achievement-grid{gap:8px}
+#progressCard .achievement{background:linear-gradient(145deg,#7139ca,#39228f);border:1px solid #b49cff;color:white;border-radius:16px}
+#progressCard .achievement small{color:#f4eaff}
+#historyCard{background:linear-gradient(135deg,#7136c8,#4225a0);border:2px solid #d5aaff;color:white}
+#historyCard strong,#historyCard .small,#historyCard .level-caption{color:white}
+#historyCard .tag{background:#39218d;color:#ffe47a}
+#historyCard .history-item{background:#fff5e8;border:1px solid #e6c9ff;color:#29145e}
+#dailyCard{background:linear-gradient(125deg,#fff0a8,#ffbd50);border:3px solid #fff2b4;color:#32135d;box-shadow:0 6px 0 #bd6b16,0 12px 24px #073b9c44}
+#dailyCard .small,#dailyCard .feedback{color:#57316d}
+#dailyCard .tag{background:#ffdf79;color:#713600;border:1px solid #fff}
+#game{background:linear-gradient(145deg,#fff4df,#ffe0b6);border:3px solid #fff2bd;color:#2b185f}
+#game .tag{background:#fff0b9;color:#754000}
+#game .small,#game .feedback{color:#59416e}
+.question{font-weight:900;color:#2b185f}
+.answer{background:linear-gradient(145deg,#fff,#dceaff);color:#26185d;border:2px solid #8fc8ff;border-radius:17px;box-shadow:0 4px 0 #7e9fdf;font-weight:800}
+.answer.correct{background:linear-gradient(110deg,#c9ffdf,#67e7a5);color:#075a38;border-color:#20b86d}
+.answer.wrong{background:linear-gradient(110deg,#ffe0e7,#ffb7c6);color:#852342;border-color:#ed6687}
+.progress{height:10px;background:#d7dfff}
+.bar{background:linear-gradient(90deg,#13d985,#ffe24c)}
+.difficulty-select{background:#fff;color:#29145e;border:2px solid #b7c9ff}
+.btn{background:linear-gradient(110deg,#ffe65a,#ffae17);color:#4b2c00;border:2px solid #fff0a8;box-shadow:0 5px 0 #b96b10;font-size:16px}
+.btn.secondary{background:linear-gradient(110deg,#7650df,#3923ae);color:white;border:2px solid #c5aaff;box-shadow:0 5px 0 #271477}
+#leaderboardCard{background:linear-gradient(135deg,#5c2dc1,#351c91);border:2px solid #c5a4ff;color:white}
+#leaderboardCard strong,#leaderboardCard .small{color:white}
+#leaderboardCard .tag{background:#291477;color:#ffe47a}
+.leaderboard-item{background:#fff4e2;border:1px solid #c8a5ff;color:#29145e}
+.leaderboard-rank{color:#d18b00}
+.leaderboard-score,.history-points{color:#07834d}
+.leaderboard-me{background:#caffdf;border:2px solid #19b978}
+#result{background:linear-gradient(135deg,#fff0c5,#ffcf77);border:3px solid #fff4b8;color:#32135d}
+#result .small{color:#55346f}
+.footer{color:#e7f8ff;text-shadow:0 1px 3px #123b94;font-weight:700}
+@media(max-width:520px){
+ .wrap{padding:10px 10px 28px}
+ .top{gap:8px;padding:9px}
+ .brand{gap:7px}.brand h1{font-size:18px}.sub{font-size:10px}
+ .logo{width:48px;height:48px;font-size:24px}
+ .score{font-size:17px;padding:8px 12px}
+ .hero{padding:20px 14px}
+ .card{padding:14px}
+ .stats{gap:7px}.stat span{font-size:11px}
+ .achievement-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
 </style>
 </head>
 <body>
