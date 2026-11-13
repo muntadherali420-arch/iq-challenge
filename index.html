@@ -179,8 +179,8 @@ function showGameMessage(message) {
 }
 function applyServerStats(data) {
   if (!data) return;
-  totalScore = Number(data.total_score || 0);
-  answeredCount = Number(data.answered_count || 0);
+  if (data.total_score !== undefined && data.total_score !== null) totalScore = Number(data.total_score) || 0;
+  if (data.answered_count !== undefined && data.answered_count !== null) answeredCount = Number(data.answered_count) || 0;
   updateStats();
 }
 async function loadLeaderboard() {
@@ -382,6 +382,7 @@ function finishRound() {
   try { localStorage.setItem(bestRoundStorageKey(), String(bestRound)); } catch (error) {
     console.warn('Could not save local best round:', error);
   }
+  updateStats();
   $('game').classList.add('hidden');
   $('result').classList.remove('hidden');
   $('resultTitle').textContent = earned >= 40 ? 'ممتاز! أداء رائع' : earned >= 20 ? 'أحسنت، واصل التقدم' : 'بداية جيدة!';
