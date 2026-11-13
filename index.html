@@ -638,6 +638,27 @@ body{
 @media(max-width:390px){.scholar-feature{gap:8px;padding:8px 10px 8px 7px;min-height:101px}.scholar-art-wrap,.scholar-art-wrap svg{width:92px;height:92px}.scholar-art-wrap{flex-basis:92px}.scholar-art-wrap:before{width:76px;height:76px}.scholar-copy strong{font-size:14px}.scholar-copy small{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.scholar-art-wrap,.scholar-spark,.cartoon-eye,.cartoon-hair{animation:none!important}}
 
+
+/* v40 — animated trick-puzzle mascot and score */
+.puzzle-score{background:linear-gradient(135deg,#fff0b8,#f6c85d);color:#543700;border-radius:12px;padding:6px 10px;font-size:12px;font-weight:900;box-shadow:0 3px 0 #b98132}
+.puzzle-scene{position:relative;display:flex;align-items:center;justify-content:center;gap:12px;overflow:hidden}
+.puzzle-scene:before,.puzzle-scene:after{content:"";position:absolute;width:120px;height:120px;border:1px solid #ffffff22;border-radius:50%;animation:puzzleOrbit 9s linear infinite}
+.puzzle-scene:after{width:170px;height:170px;animation-direction:reverse}
+.puzzle-mascot{width:112px;height:112px;position:relative;z-index:1;animation:puzzleBob 2.2s ease-in-out infinite;filter:drop-shadow(0 7px 7px #07132d55)}
+.puzzle-mascot svg{width:100%;height:100%;overflow:visible}
+.puzzle-mascot-icon{position:absolute;right:-9px;top:2px;font-size:29px;animation:puzzleIconFloat 2.8s ease-in-out infinite}
+.puzzle-celebrate .puzzle-mascot{animation:puzzleWin .65s ease-in-out 2}
+.puzzle-wrong{animation:puzzleShake .38s ease}
+.puzzle-answer{transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
+.puzzle-answer:not(:disabled):active{transform:scale(.97)}
+.puzzle-answer.correct{animation:puzzleCorrect .45s ease}
+@keyframes puzzleBob{0%,100%{transform:translateY(3px) rotate(-2deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+@keyframes puzzleIconFloat{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-8px) rotate(10deg)}}
+@keyframes puzzleOrbit{to{transform:rotate(360deg)}}
+@keyframes puzzleWin{0%,100%{transform:scale(1) rotate(0)}35%{transform:scale(1.16) rotate(-9deg)}70%{transform:scale(1.1) rotate(9deg)}}
+@keyframes puzzleShake{0%,100%{transform:translateX(0)}25%{transform:translateX(5px)}75%{transform:translateX(-5px)}}
+@keyframes puzzleCorrect{0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.puzzle-mascot,.puzzle-mascot-icon,.puzzle-scene:before,.puzzle-scene:after{animation:none!important}}
 </style>
 </head>
 <body>
@@ -709,13 +730,13 @@ body{
   </div>
   <div class="app-screen" id="screen-puzzles">
     <section class="card puzzle-shell">
-      <div class="puzzle-head"><div><span class="eyebrow">🧩 تحدّي التفكير الجانبي</span><h2>الأحجيات المخادعة</h2><p class="small">لا تستعجل… أحياناً الجواب مو مثل ما تتوقع!</p></div><div class="puzzle-level" id="puzzleLevel">1 / 5</div></div>
+      <div class="puzzle-head"><div><span class="eyebrow">🧩 تحدّي التفكير الجانبي</span><h2>الأحجيات المخادعة</h2><p class="small">لا تستعجل… أحياناً الجواب مو مثل ما تتوقع!</p></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:7px"><div class="puzzle-level" id="puzzleLevel">1 / 20</div><div class="puzzle-score" id="puzzleScore">⭐ 0 نقطة</div></div></div>
       <div class="puzzle-progress"><div id="puzzleProgressBar"></div></div>
       <div class="puzzle-scene" id="puzzleScene">🔍</div><div class="puzzle-tag" id="puzzleTag">لغز البداية</div>
       <h3 class="puzzle-question" id="puzzleQuestion">جارٍ تجهيز اللغز...</h3>
       <div class="puzzle-answers" id="puzzleAnswers"></div><div class="puzzle-feedback" id="puzzleFeedback" aria-live="polite"></div>
       <div class="puzzle-actions"><button class="btn secondary" id="puzzleHintBtn" type="button">💡 تلميح</button><button class="btn hidden" id="puzzleNextBtn" type="button">اللغز التالي ←</button></div>
-      <p class="small puzzle-foot">تقدّم الألغاز يُحفظ على هذا الجهاز بشكل مستقل عن نقاط المسابقة.</p>
+      <p class="small puzzle-foot">كل إجابة صحيحة تمنحك 10 نقاط. تقدّمك ونقاطك محفوظة على هذا الجهاز.</p>
     </section>
   </div>
   <div class="app-screen" id="screen-play">
@@ -1475,24 +1496,78 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
 <script>
 (()=> {
  const puzzles=[
-  {tag:'لغز البداية',icon:'🕳️',q:'شيء كلما أخذت منه يكبر… ما هو؟',a:['البالون','الحفرة','العمر','الظل'],correct:1,hint:'تخيّل أنك تحفر في الأرض.',why:'صحيح! كلما أزلت التراب من الحفرة، أصبحت أكبر.'},
+  {tag:'لغز البداية',icon:'🕳️',q:'شيء كلما أخذت منه يكبر… ما هو؟',a:['البالون','الحفرة','العمر','الظل'],correct:1,hint:'تخيّل أنك تحفر في الأرض.',why:'كلما أزلت التراب من الحفرة، أصبحت أكبر.'},
   {tag:'فخّ في صياغة السؤال',icon:'👨‍👧‍👦',q:'أم لديها أربع بنات، ولكل بنت أخ واحد. كم عدد أطفالها؟',a:['4','5','8','9'],correct:1,hint:'هل لكل بنت أخ مختلف، أم أنهن يشتركن بالأخ نفسه؟',why:'الأخ واحد مشترك بين البنات الأربع؛ المجموع خمسة أطفال.'},
   {tag:'فكّر بالمعنى',icon:'🪮',q:'ما الشيء الذي له أسنان لكنه لا يعض؟',a:['التمساح','المشط','المنشار','السمكة'],correct:1,hint:'تستخدمه لترتيب شعرك.',why:'المشط له أسنان، لكنه لا يعض!'},
   {tag:'خدعة سباق',icon:'🏃',q:'في سباق، تجاوزتَ المتسابق الذي بالمركز الثاني. ما مركزك الآن؟',a:['الأول','الثاني','الثالث','الرابع'],correct:1,hint:'أنت أخذت مكان الشخص الذي تجاوزته مباشرة.',why:'أصبحت بالمركز الثاني، لأنك أخذت مكان صاحب المركز الثاني.'},
-  {tag:'انتبه للتفاصيل',icon:'🐓',q:'ديك وقف فوق سطح مائل ووضع بيضة. إلى أي جهة ستتدحرج؟',a:['يميناً','يساراً','إلى الأسفل','لا جهة'],correct:3,hint:'هل الديك أصلاً يبيض؟',why:'ولا جهة! الديك لا يبيض.'}
+  {tag:'انتبه للتفاصيل',icon:'🐓',q:'ديك وقف فوق سطح مائل ووضع بيضة. إلى أي جهة ستتدحرج؟',a:['يميناً','يساراً','إلى الأسفل','لا جهة'],correct:3,hint:'هل الديك أصلاً يبيض؟',why:'ولا جهة! الديك لا يبيض.'},
+  {tag:'كل الشهور',icon:'📅',q:'كم شهراً في السنة يحتوي على 28 يوماً؟',a:['شهر واحد','شهران','ستة أشهر','كل الشهور'],correct:3,hint:'هل السؤال يقول 28 يوماً بالضبط أم على الأقل؟',why:'كل شهور السنة فيها 28 يوماً على الأقل.'},
+  {tag:'مفارقة بسيطة',icon:'🧺',q:'ما الشيء الذي ينشفك كلما أصبح أكثر بللاً؟',a:['الإسفنجة','المنشفة','الشمس','المروحة'],correct:1,hint:'تستخدمه بعد الاستحمام.',why:'المنشفة تمتص الماء فتجففك.'},
+  {tag:'لا تتسرع',icon:'⛰️',q:'ما أعلى جبل في العالم حتى لو لم يكتشفه أحد بعد؟',a:['إيفرست','كي 2','الجبل المجهول','لا يوجد'],correct:0,hint:'عدم اكتشاف الجبل لا يغيّر حقيقة ارتفاعه.',why:'جبل إيفرست هو الأعلى، سواء عرفه الناس أم لم يعرفوه.'},
+  {tag:'قطار هادئ',icon:'🚆',q:'قطار كهربائي يسير شمالاً والريح تهب جنوباً. إلى أين يتجه دخانه؟',a:['الشمال','الجنوب','الشرق','لا يوجد دخان'],correct:3,hint:'تذكّر نوع القطار.',why:'القطار كهربائي، لذلك لا يخرج منه دخان.'},
+  {tag:'احسبها صح',icon:'🍎',q:'لديك ثلاث تفاحات، أخذتَ منها تفاحتين. كم تفاحة أصبحت معك؟',a:['واحدة','اثنتان','ثلاث','صفر'],correct:1,hint:'السؤال يسأل عمّا أصبح معك بعد أن أخذت.',why:'أخذت تفاحتين، إذن أصبحت معك تفاحتان.'},
+  {tag:'الميزان العادل',icon:'⚖️',q:'أيهما أثقل: كيلوغرام من الحديد أم كيلوغرام من القطن؟',a:['الحديد','القطن','متساويان','حسب الحجم'],correct:2,hint:'انتبه إلى وحدة القياس المذكورة.',why:'كلاهما كيلوغرام واحد، فالوزن متساوٍ.'},
+  {tag:'من صاحب السفينة؟',icon:'🛶',q:'كم حيواناً أخذ موسى معه في السفينة؟',a:['زوجين من كل نوع','اثنين','لم يأخذ أي حيوان','أربعة'],correct:2,hint:'تذكّر من الشخصية المذكورة في قصة السفينة.',why:'الذي أخذ الحيوانات هو نوح، وليس موسى.'},
+  {tag:'شيء بلا رأس',icon:'🍾',q:'ما الشيء الذي له رقبة وليس له رأس؟',a:['الزرافة','القميص','القنينة','الإنسان'],correct:2,hint:'قد تجده على مائدة الطعام.',why:'القنينة لها رقبة ولا تملك رأساً.'},
+  {tag:'اتجاه واحد',icon:'🎂',q:'ما الشيء الذي يزيد دائماً ولا ينقص؟',a:['العمر','الطول','الحرارة','المال'],correct:0,hint:'كل يوم يمر يضيف سنة إلى شيء واحد.',why:'العمر يزداد مع مرور الوقت.'},
+  {tag:'مرة واحدة فقط',icon:'🔟',q:'كم مرة تستطيع طرح الرقم 10 من 100؟',a:['مرة واحدة','عشر مرات','خمس مرات','إلى ما لا نهاية'],correct:0,hint:'بعد أول عملية طرح، لن يبقى الرقم 100.',why:'مرة واحدة؛ بعدها تطرح من 90 وليس من 100.'},
+  {tag:'ثلاثة أشخاص',icon:'👨‍👦‍👦',q:'أبوان وابنان ذهبوا في رحلة، وكانوا ثلاثة أشخاص فقط. كيف؟',a:['أحدهم اختفى','جد وأب وابن','توأمان','السؤال مستحيل'],correct:1,hint:'قد يكون الشخص أباً وابناً في الوقت نفسه.',why:'هم الجد والأب والابن؛ ثلاثة أشخاص يمثلون أبوين وابنين.'},
+  {tag:'خذ نفساً',icon:'🌬️',q:'ما الشيء الذي تستطيع أن تحبسه دون أن تلمسه بيدك؟',a:['الماء','النور','أنفاسك','الهواء في غرفة'],correct:2,hint:'تستطيع فعل ذلك لثوانٍ.',why:'يمكنك حبس أنفاسك.'},
+  {tag:'مفاتيح غريبة',icon:'🎹',q:'ما الشيء الذي يملك مفاتيح كثيرة لكنه لا يفتح أي باب؟',a:['حلقة المفاتيح','البيانو','الباب','الخزانة'],correct:1,hint:'تسمع صوته في الموسيقى.',why:'البيانو يحتوي على مفاتيح موسيقية.'},
+  {tag:'مدن بلا بيوت',icon:'🗺️',q:'ما الشيء الذي يحتوي على مدن وأنهار وجبال، لكنه بلا بيوت أو ماء؟',a:['الكتاب','الخريطة','الصورة','الحلم'],correct:1,hint:'تستعمله لمعرفة الطرق والاتجاهات.',why:'الخريطة تعرض رموز المدن والأنهار والجبال.'},
+  {tag:'كلمة مخادعة',icon:'📖',q:'ما الكلمة التي تُكتب خطأ في كل القواميس؟',a:['الصواب','خطأ','القاموس','اللغة'],correct:1,hint:'خذ معنى الكلمة حرفياً.',why:'كلمة «خطأ» هي التي تُكتب خطأ في السؤال.'}
  ];
- const key='iq-tricky-puzzle-progress-v1';let level=0,solved=false;
- try{level=Math.max(0,Math.min(puzzles.length,Number(localStorage.getItem(key)||0)))}catch{}
+ const key='iq-tricky-puzzle-progress-v2';
+ let level=0,totalPoints=0,solved=false,roundPoints=0;
+ try{const saved=JSON.parse(localStorage.getItem(key)||'{}');level=Math.max(0,Math.min(puzzles.length,Number(saved.level)||0));totalPoints=Math.max(0,Number(saved.totalPoints)||0);roundPoints=Math.max(0,Number(saved.roundPoints)||0)}catch{}
  const $=id=>document.getElementById(id);
- function render(){
-  if(level>=puzzles.length){$('puzzleLevel').textContent='5 / 5';$('puzzleProgressBar').style.width='100%';$('puzzleScene').textContent='🏆';$('puzzleTag').textContent='اكتملت المجموعة';$('puzzleQuestion').textContent='رائع! حلّيت كل الأحجيات المتاحة حالياً.';$('puzzleAnswers').replaceChildren();$('puzzleFeedback').textContent='أحسنت! مجموعة جديدة من الألغاز ستضاف بالتحديثات القادمة.';$('puzzleHintBtn').classList.add('hidden');$('puzzleNextBtn').classList.remove('hidden');$('puzzleNextBtn').textContent='إعادة حل الألغاز';solved=true;return;}
-  const p=puzzles[level];solved=false;$('puzzleLevel').textContent=(level+1)+' / '+puzzles.length;$('puzzleProgressBar').style.width=(level/puzzles.length*100)+'%';$('puzzleScene').textContent=p.icon;$('puzzleTag').textContent=p.tag;$('puzzleQuestion').textContent=p.q;$('puzzleFeedback').textContent='';$('puzzleAnswers').replaceChildren();
-  p.a.forEach((answer,i)=>{const b=document.createElement('button');b.type='button';b.className='puzzle-answer';b.textContent=['أ','ب','ج','د'][i]+' · '+answer;b.addEventListener('click',()=>choose(i));$('puzzleAnswers').appendChild(b)});
-  $('puzzleHintBtn').classList.remove('hidden');$('puzzleHintBtn').disabled=false;$('puzzleNextBtn').classList.add('hidden');$('puzzleNextBtn').textContent='اللغز التالي ←';
+ function save(){try{localStorage.setItem(key,JSON.stringify({level,totalPoints,roundPoints}))}catch{}}
+ function mascot(icon){
+  return '<div class="puzzle-mascot" aria-hidden="true"><svg viewBox="0 0 120 112"><ellipse cx="60" cy="103" rx="31" ry="6" fill="#080d2b" opacity=".2"/><path d="M28 91Q18 62 31 35Q42 9 61 17Q85 10 94 42Q104 72 87 94Z" fill="#ffd36b" stroke="#a66b31" stroke-width="3"/><path d="M35 34L22 16L48 25M83 27L101 13L91 41" fill="#ffd36b" stroke="#a66b31" stroke-width="3" stroke-linejoin="round"/><ellipse cx="47" cy="51" rx="12" ry="15" fill="#fff"/><ellipse cx="75" cy="51" rx="12" ry="15" fill="#fff"/><circle cx="50" cy="53" r="5" fill="#29345f"/><circle cx="72" cy="53" r="5" fill="#29345f"/><path d="M54 68L61 76L68 68Z" fill="#f28b48"/><path d="M42 84Q60 95 78 84" fill="none" stroke="#a66b31" stroke-width="3" stroke-linecap="round"/><path d="M24 62L13 57M96 62L107 57" stroke="#ffd36b" stroke-width="5" stroke-linecap="round"/></svg><span class="puzzle-mascot-icon">'+icon+'</span></div>';
  }
- function choose(i){if(solved)return;const p=puzzles[level],buttons=[...$('puzzleAnswers').children];if(i!==p.correct){buttons[i].classList.add('wrong');$('puzzleFeedback').textContent='مو هذا الجواب… جرّب مرة ثانية وفكّر بهدوء.';return;}solved=true;buttons.forEach((b,j)=>{b.disabled=true;if(j===p.correct)b.classList.add('correct')});$('puzzleFeedback').textContent=p.why;$('puzzleNextBtn').classList.remove('hidden');$('puzzleHintBtn').classList.add('hidden');level++;try{localStorage.setItem(key,String(level))}catch{}}
+ function render(){
+  if(level>=puzzles.length){
+   $('puzzleLevel').textContent=puzzles.length+' / '+puzzles.length;
+   $('puzzleProgressBar').style.width='100%';
+   $('puzzleScene').innerHTML=mascot('🏆');
+   $('puzzleTag').textContent='اكتملت المجموعة';
+   $('puzzleQuestion').textContent='ممتاز! أنهيت كل الأحجيات العشرين.';
+   $('puzzleAnswers').replaceChildren();
+   $('puzzleFeedback').textContent='جمعت '+roundPoints+' نقطة في هذه المجموعة. مجموع نقاط الأحجيات: '+totalPoints+'.';
+   $('puzzleHintBtn').classList.add('hidden');
+   $('puzzleNextBtn').classList.remove('hidden');
+   $('puzzleNextBtn').textContent='ابدأ مجموعة جديدة';
+   solved=true;updateScore();save();return;
+  }
+  const p=puzzles[level];solved=false;
+  $('puzzleLevel').textContent=(level+1)+' / '+puzzles.length;
+  $('puzzleProgressBar').style.width=(level/puzzles.length*100)+'%';
+  $('puzzleScene').innerHTML=mascot(p.icon);
+  $('puzzleTag').textContent=p.tag;
+  $('puzzleQuestion').textContent=p.q;
+  $('puzzleFeedback').textContent='';
+  $('puzzleAnswers').replaceChildren();
+  p.a.forEach((answer,i)=>{const b=document.createElement('button');b.type='button';b.className='puzzle-answer';b.textContent=['أ','ب','ج','د'][i]+' · '+answer;b.addEventListener('click',()=>choose(i));$('puzzleAnswers').appendChild(b)});
+  $('puzzleHintBtn').classList.remove('hidden');$('puzzleHintBtn').disabled=false;
+  $('puzzleNextBtn').classList.add('hidden');$('puzzleNextBtn').textContent='اللغز التالي ←';
+  updateScore();
+ }
+ function updateScore(){
+  const badge=$('puzzleScore');if(badge)badge.textContent='⭐ '+totalPoints+' نقطة';
+ }
+ function choose(i){
+  if(solved)return;
+  const p=puzzles[level],buttons=[...$('puzzleAnswers').children];
+  if(i!==p.correct){buttons[i].classList.add('wrong');buttons[i].disabled=true;$('puzzleFeedback').textContent='مو هذا الجواب… جرّب خياراً آخر!';$('puzzleScene').classList.add('puzzle-wrong');setTimeout(()=>$('puzzleScene').classList.remove('puzzle-wrong'),450);return;}
+  solved=true;buttons.forEach((b,j)=>{b.disabled=true;if(j===p.correct)b.classList.add('correct')});
+  totalPoints+=10;roundPoints+=10;level++;save();updateScore();
+  $('puzzleFeedback').textContent='🎉 أحسنت! +10 نقاط. '+p.why;
+  $('puzzleScene').classList.add('puzzle-celebrate');
+  $('puzzleNextBtn').classList.remove('hidden');$('puzzleHintBtn').classList.add('hidden');
+  $('puzzleNextBtn').textContent=level>=puzzles.length?'عرض النتيجة':'اللغز التالي ←';
+ }
  $('puzzleHintBtn').addEventListener('click',()=>{if(level<puzzles.length)$('puzzleFeedback').textContent='💡 تلميح: '+puzzles[level].hint;$('puzzleHintBtn').disabled=true});
- $('puzzleNextBtn').addEventListener('click',()=>{if(level>=puzzles.length){level=0;try{localStorage.setItem(key,'0')}catch{}}render()});
+ $('puzzleNextBtn').addEventListener('click',()=>{if(level>=puzzles.length){level=0;roundPoints=0;save()}render()});
  render();
 })();
 </script>
