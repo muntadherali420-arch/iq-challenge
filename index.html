@@ -55,6 +55,47 @@ body{background:radial-gradient(circle at 8% 3%,#d9f3ff 0,transparent 30%),radia
 .sound-toggle[aria-pressed="false"]{background:#f0f3f8;color:#7a8799}
 .top{flex-wrap:wrap}
 @media(max-width:390px){.wrap{padding-left:12px;padding-right:12px}.hero{padding:18px}.card{padding:16px}.sound-toggle{font-size:12px;padding:8px 10px}}
+
+/* IQ Challenge joyful, high-contrast palette */
+:root{--bg:#38b9ed;--panel:#fff0d8;--panel2:#e4efff;--ink:#30245d;--muted:#514b78;--gold:#ffcf3f;--mint:#20c989;--pink:#ff7897}
+body{background:radial-gradient(circle at 8% 4%,#8ceaff 0,transparent 32%),radial-gradient(circle at 92% 16%,#b9a3ff 0,transparent 31%),linear-gradient(145deg,#139ce4 0%,#47c7f0 52%,#a5e8f7 100%);color:#30245d}
+.wrap{max-width:760px}
+.logo{width:62px;height:62px;border-radius:17px;background:linear-gradient(145deg,#fff1a8,#ffbd4a);color:#34205f;box-shadow:0 5px 0 #d47d31,0 9px 20px #153d8a55;font-size:28px}
+.hero{background:linear-gradient(125deg,#174dc5,#4430a6 60%,#742ac2);border:2px solid #8edfff;box-shadow:0 10px 0 #153b9b55,0 15px 26px #173c9150;color:#fff}
+.hero h2{color:#fff3a8}.hero p{color:#fff}
+.eyebrow{color:#ffe47a}
+.card,.stat{background:linear-gradient(145deg,#fff2dc,#ffdda9);border:2px solid #fff1d1;box-shadow:0 6px 0 #d78c4c55,0 10px 24px #164c9c30;color:#30245d}
+.card .small,.card .level-caption,.card .feedback{color:#51436f}
+.tag{background:#fff0b9;color:#704300}
+.score{background:linear-gradient(135deg,#173b9d,#09266d);color:#ffe36b;border:1px solid #6ebaff}
+.sound-toggle{background:linear-gradient(135deg,#fff0b9,#ffd26d);border:1px solid #fff;color:#533500}
+.stats .stat:nth-child(1){background:linear-gradient(135deg,#c5ffe7,#64e3b2);border-color:#dffff1}
+.stats .stat:nth-child(2){background:linear-gradient(135deg,#ffe7bd,#ffad57);border-color:#fff0d4}
+.stats .stat:nth-child(3){background:linear-gradient(135deg,#bfeaff,#54b9ff);border-color:#e3f6ff}
+.stat b{color:#30245d}.stat span{color:#40366a}
+#progressCard{background:linear-gradient(135deg,#1839ad,#3824a0 65%,#5332b9);border:2px solid #8abaff;color:#fff}
+#progressCard .small,#progressCard .level-caption{color:#f4f0ff}
+#progressCard .tag{background:#ffdc77;color:#5d3700}
+.level-progress{background:#203c89}
+.level-progress>div{background:linear-gradient(90deg,#38ef9b,#b7ff70)}
+#progressCard .achievement{background:linear-gradient(145deg,#7138c7,#38218f);border:1px solid #a78bff;color:#fff}
+#progressCard .achievement small{color:#eee4ff}
+#historyCard{background:linear-gradient(135deg,#f1e8ff,#d9e7ff)}
+#historyCard .history-item{background:#fff;border-color:#d9d5fa}
+#dailyCard{background:linear-gradient(135deg,#ffe99a,#ffbd62);border-color:#fff2bc}
+#dailyCard .tag{background:#fff7d6;color:#775000}
+#leaderboardCard{background:linear-gradient(135deg,#e7e4ff,#d4eaff)}
+.leaderboard-item,.history-item{background:#fff;border:1px solid #d7e4fa;color:#30245d}
+.leaderboard-me{background:#d9fff0;border-color:#20b989}
+.answer{background:linear-gradient(135deg,#f5f8ff,#dceaff);color:#26345e;border:2px solid #c4d9fa;box-shadow:0 3px 0 #9bb9e8}
+.answer.correct{background:#caffdf;color:#075d42;border-color:#17b77a}
+.answer.wrong{background:#ffe0e7;color:#8e2947;border-color:#f06b88}
+.difficulty-select,.auth-input{background:#fff8eb;color:#30245d;border:1.5px solid #d7b9e8}
+.btn{background:linear-gradient(110deg,#ffdf64,#ffad42);color:#4b2b00;box-shadow:0 4px 0 #d47a25}
+.btn.secondary{background:linear-gradient(110deg,#7145df,#4924ad);color:#fff;box-shadow:0 4px 0 #32147d}
+.footer{color:#123c79}
+@media(max-width:390px){.logo{width:54px;height:54px}.hero h2{font-size:23px}}
+
 </style>
 </head>
 <body>
@@ -149,6 +190,22 @@ const $ = id => document.getElementById(id);
 let soundEnabled = true;
 let audioContext = null;
 try { soundEnabled = localStorage.getItem('iq-sound-enabled') !== 'false'; } catch {}
+function playVictoryCelebration() {
+  playSound('victory');
+  if (!soundEnabled || !('speechSynthesis' in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    const cheer = new SpeechSynthesisUtterance('هييييي! مبروك! فوز رائع!');
+    cheer.lang = 'ar';
+    cheer.rate = 1.08;
+    cheer.pitch = 1.35;
+    cheer.volume = 1;
+    const voices = window.speechSynthesis.getVoices();
+    const arabicVoice = voices.find(voice => voice.lang && voice.lang.toLowerCase().startsWith('ar'));
+    if (arabicVoice) cheer.voice = arabicVoice;
+    window.speechSynthesis.speak(cheer);
+  } catch (error) { console.debug('Speech unavailable:', error); }
+}
 function updateSoundButton() {
   const button = $('soundToggle');
   if (!button) return;
@@ -164,26 +221,25 @@ function playSound(kind = 'tap') {
     if (audioContext.state === 'suspended') audioContext.resume();
     const now = audioContext.currentTime;
     const melodies = {
-      correct: { notes:[660,880,1100], step:0.10, duration:0.22, volume:0.065, wave:'sine' },
-      wrong: { notes:[330,247], step:0.18, duration:0.30, volume:0.045, wave:'triangle' },
-      victory: { notes:[523,659,784,1047,1318], step:0.16, duration:0.34, volume:0.075, wave:'triangle' },
-      defeat: { notes:[392,349,294,262], step:0.25, duration:0.42, volume:0.045, wave:'sine' },
-      tap: { notes:[520], step:0.10, duration:0.13, volume:0.035, wave:'sine' }
+      correct:{notes:[660,880,1100],step:.10,duration:.22,volume:.06,wave:'sine'},
+      wrong:{notes:[330,247],step:.18,duration:.30,volume:.04,wave:'triangle'},
+      victory:{notes:[523,659,784,1047,1318,1568,1318,1568],step:.17,duration:.40,volume:.075,wave:'triangle'},
+      defeat:{notes:[392,349,294,262],step:.25,duration:.42,volume:.04,wave:'sine'},
+      tap:{notes:[520],step:.10,duration:.13,volume:.03,wave:'sine'}
     };
-    const melody = melodies[kind] || melodies.tap;
-    melody.notes.forEach((frequency, index) => {
-      const oscillator = audioContext.createOscillator();
-      const gain = audioContext.createGain();
-      const start = now + index * melody.step;
-      oscillator.type = melody.wave;
-      oscillator.frequency.setValueAtTime(frequency, start);
-      gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(melody.volume, start + 0.025);
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + melody.duration);
-      oscillator.connect(gain);
-      gain.connect(audioContext.destination);
-      oscillator.start(start);
-      oscillator.stop(start + melody.duration + 0.02);
+    const melody=melodies[kind]||melodies.tap;
+    melody.notes.forEach((frequency,index)=>{
+      const start=now+index*melody.step;
+      [1,1.25,1.5].forEach((ratio,layer)=>{
+        const oscillator=audioContext.createOscillator(),gain=audioContext.createGain();
+        oscillator.type=melody.wave;
+        oscillator.frequency.setValueAtTime(frequency*ratio,start);
+        gain.gain.setValueAtTime(.0001,start);
+        gain.gain.exponentialRampToValueAtTime(melody.volume/(layer+1),start+.025);
+        gain.gain.exponentialRampToValueAtTime(.0001,start+melody.duration);
+        oscillator.connect(gain);gain.connect(audioContext.destination);
+        oscillator.start(start);oscillator.stop(start+melody.duration+.02);
+      });
     });
   } catch (error) { console.debug('Audio unavailable:', error); }
 }
@@ -591,7 +647,7 @@ function finishRound() {
   const won = earned >= 30;
   $('resultTitle').textContent = won ? '🎉 فوز رائع! أحسنت' : '💪 لا بأس، حاول مرة أخرى';
   $('result').querySelector('.big').textContent = won ? '🏆🎊' : '🌱✨';
-  playSound(won ? 'victory' : 'defeat');
+  if (won) playVictoryCelebration(); else { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); playSound('defeat'); }
   $('resultText').textContent = (won ? 'أحسنت! حققت الفوز في هذه الجولة. ' : 'هذه الجولة لم تكن فوزاً، لكن كل محاولة فرصة للتعلّم. ') + 'حصلت على ' + earned + ' نقطة. مجموع نقاط حسابك المحفوظ: ' + totalScore + '.';
   $('againBtn').textContent = 'العب جولة جديدة';
   $('resetBtn').classList.add('hidden');
@@ -706,13 +762,3 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
 
 <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));}</script>
 </body></html>
-/* Calm lavender and aqua surfaces: softer than pure white, with clear contrast */
-:root{--bg:#e9e6ff;--panel:#e8e6fa;--panel2:#dceafa;--ink:#243052;--muted:#52627f}
-body{background:radial-gradient(circle at 8% 3%,#d5f3f2 0,transparent 32%),radial-gradient(circle at 94% 18%,#f4ddf4 0,transparent 28%),linear-gradient(145deg,#e9e6ff,#e0effa 58%,#f3e8f5);color:var(--ink)}
-.card,.stat{background:rgba(232,230,250,.96);border-color:#d0d3ed;box-shadow:0 8px 24px #6f78a51c}
-.answer{background:#dceafa;color:#263756;border-color:#c4d5ed}
-.difficulty-select,.auth-input{background:#e4eafa;color:#263653;border-color:#c7d4e9}
-.leaderboard-item,.history-item,.achievement{background:#dfe7f7;border-color:#cbd8ed}
-.score{background:#e9e2c9;color:#78510b}
-.sound-toggle{background:#e5eafa;border-color:#cbd7eb;color:#40577f}
-.logo{background:linear-gradient(135deg,#8ee4dc,#b5a5ff);color:#243052;box-shadow:0 8px 18px #8a9de050;font-size:29px}
