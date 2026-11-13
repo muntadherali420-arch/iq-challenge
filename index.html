@@ -162,9 +162,9 @@ function updateStats() {
   $('levelStat').textContent = level;
   const progress = level >= 100 ? 100 : (answeredCount % 10) * 10;
   $('levelProgressBar').style.width = progress + '%';
-  $('levelProgressText').textContent = level >= 100 ? 'وصلت إلى أعلى مستوى!' : 'المستوى ' + level + ' — التالي: ' + (level + 1);
-  $('levelProgressCount').textContent = level >= 100 ? '100 / 100 مستوى' : (answeredCount % 10) + ' / 10 إجابات';
-  $('levelProgressHint').textContent = level >= 100 ? 'إنجاز رائع! أكملت جميع المستويات.' : 'باقي ' + (10 - (answeredCount % 10)) + ' إجابات محفوظة للمستوى التالي.';
+  $('levelProgressText').textContent = level >= 100 ? 'وصلت إلى أعلى مستوى!' : 'أنت الآن في المستوى ' + level;
+  $('levelProgressCount').textContent = level >= 100 ? 'اكتملت المستويات الـ100' : 'المتبقي: ' + (10 - (answeredCount % 10)) + ' إجابات';
+  $('levelProgressHint').textContent = level >= 100 ? 'إنجاز رائع! أكملت جميع المستويات.' : 'أكمل ' + (10 - (answeredCount % 10)) + ' إجابات محفوظة حتى تصل إلى المستوى التالي.';
   renderAchievements();
 }
 function showGameMessage(message) {
