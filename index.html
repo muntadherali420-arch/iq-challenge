@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#e9e6ff">
+<meta name="theme-color" content="#17172f">
 <link rel="manifest" href="/manifest.webmanifest">
 <title>IQ Challenge — تحدّي العقول</title>
 <style>
@@ -95,6 +95,60 @@ body{background:radial-gradient(circle at 8% 4%,#8d9cff 0,transparent 32%),radia
 .btn.secondary{background:linear-gradient(110deg,#7145df,#4924ad);color:#fff;box-shadow:0 4px 0 #32147d}
 .footer{color:#123c79}
 @media(max-width:390px){.logo{width:54px;height:54px}.hero h2{font-size:23px}}
+
+
+/* v23 — cohesive premium midnight-indigo and champagne-gold theme */
+:root{
+ --bg:#17172f;--panel:#242442;--panel2:#303052;--ink:#f5f2ff;--muted:#c2bfd8;
+ --gold:#f2c879;--mint:#a99af5;--pink:#f08da5;
+}
+body{
+ background:
+ radial-gradient(ellipse at 12% 0%,#37305f 0,transparent 38%),
+ radial-gradient(ellipse at 92% 14%,#30294d 0,transparent 34%),
+ linear-gradient(145deg,#17172f 0%,#20203d 52%,#28213f 100%);
+ color:var(--ink)
+}
+.logo{background:linear-gradient(145deg,#f7d99b,#d5b16b);color:#24213b;box-shadow:0 5px 0 #9a7742,0 10px 22px #09091d88}
+.score{background:#302b4c;color:#f6d99b;border:1px solid #685887}
+.hero{background:linear-gradient(125deg,#29294d,#35305d 58%,#493b66);border:1px solid #74618e;box-shadow:0 12px 30px #08081766;color:#fff}
+.hero h2{color:#f7d99b}.hero p{color:#e0dced}.eyebrow{color:#d9c18c}
+.card,.stat{background:linear-gradient(145deg,#292946,#242440);border:1px solid #494566;box-shadow:0 8px 24px #08081755;color:#f5f2ff}
+.card .small,.card .level-caption,.card .feedback,.stat span{color:#c5c1da}
+.stat b{color:#f2d18e}
+.tag{background:#393354;color:#e8d3a5}
+.progress,.level-progress{background:#3a3859}
+.bar,.level-progress>div{background:linear-gradient(90deg,#a99af5,#e7c98e)}
+.answer{background:linear-gradient(135deg,#353454,#302e50);color:#f6f2ff;border:1px solid #625b83;box-shadow:0 3px 0 #19192f}
+.answer:not(:disabled):active{transform:scale(.985)}
+.answer.correct{background:#24483f;color:#d8ffec;border-color:#70c7a3}
+.answer.wrong{background:#512f43;color:#ffe4ed;border-color:#dc829d}
+.difficulty-select,.auth-input{background:#302f50;color:#fff;border:1px solid #625b83}
+.difficulty-select option{background:#302f50;color:#fff}
+.btn{background:linear-gradient(110deg,#f2d49a,#dcb66f);color:#29213a;box-shadow:0 4px 0 #967744}
+.btn.secondary{background:linear-gradient(110deg,#514878,#3c365f);color:#fff;box-shadow:0 4px 0 #25213d}
+.sound-toggle{background:#393453;border:1px solid #71628e;color:#f4dfb2;box-shadow:0 4px 12px #08081755}
+.sound-toggle[aria-pressed="false"]{background:#292941;color:#c1bdd0}
+.stats .stat:nth-child(1),.stats .stat:nth-child(2),.stats .stat:nth-child(3){background:linear-gradient(145deg,#302e50,#282743);border-color:#5a5377}
+.stats .stat b{color:#f1d294}
+#progressCard{background:linear-gradient(135deg,#302b52,#252440 75%);border:1px solid #78648e;color:#fff}
+#progressCard .small,#progressCard .level-caption{color:#d5d0e7}
+#progressCard .tag{background:#51466b;color:#f6dfad}
+#progressCard .achievement{background:linear-gradient(145deg,#40385f,#30294d);border:1px solid #665b83;color:#fff}
+#progressCard .achievement small{color:#d0c9e2}
+.achievement{background:#302f4e;border-color:#514c70}
+.achievement small{color:#c8c3db}
+#historyCard{background:linear-gradient(135deg,#292744,#242440);border-color:#514b70}
+#historyCard .history-item{background:#34324f;border-color:#575174;color:#fff}
+#dailyCard{background:linear-gradient(135deg,#514333,#3e3444);border-color:#806b55;color:#fff}
+#dailyCard .tag{background:#6a563d;color:#ffe6b5}
+#leaderboardCard{background:linear-gradient(135deg,#292744,#252541);border-color:#514b70}
+.leaderboard-item,.history-item{background:#34324f;border:1px solid #514d70;color:#f5f2ff}
+.leaderboard-me{background:#35344f;border:1px solid #d2b777}
+.leaderboard-rank{color:#f2d18e}.leaderboard-score,.history-points{color:#c4b6ff}
+.footer{color:#aaa5c4}
+.feedback{color:#d0cbe0}
+@media(max-width:390px){.wrap{padding-left:12px;padding-right:12px}.hero{padding:18px}.card{padding:16px}}
 
 </style>
 </head>
@@ -195,7 +249,7 @@ function playVictoryCelebration() {
   if (!soundEnabled || !('speechSynthesis' in window)) return;
   try {
     window.speechSynthesis.cancel();
-    const cheer = new SpeechSynthesisUtterance('مبروك! فوزاً رائعاً!');
+    const cheer = new SpeechSynthesisUtterance('فوز رائع');
     cheer.lang = 'ar';
     cheer.rate = 1.08;
     cheer.pitch = 1.35;
@@ -645,7 +699,7 @@ function finishRound() {
   $('game').classList.add('hidden');
   $('result').classList.remove('hidden');
   const won = earned >= 30;
-  $('resultTitle').textContent = won ? '🎉 فوز رائع! أحسنت' : '💪 لا بأس، حاول مرة أخرى';
+  $('resultTitle').textContent = won ? 'فوز رائع' : 'لا بأس، حاول مرة أخرى';
   $('result').querySelector('.big').textContent = won ? '🏆🎊' : '🌱✨';
   if (won) playVictoryCelebration(); else { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); playSound('defeat'); }
   $('resultText').textContent = (won ? 'أحسنت! حققت الفوز في هذه الجولة. ' : 'هذه الجولة لم تكن فوزاً، لكن كل محاولة فرصة للتعلّم. ') + 'حصلت على ' + earned + ' نقطة. مجموع نقاط حسابك المحفوظ: ' + totalScore + '.';
