@@ -836,7 +836,7 @@ function updateSoundButton() {
   button.setAttribute('aria-label', button.title);
   button.setAttribute('aria-pressed', String(soundEnabled));
 }
-/* v44 — extended multi-section original IQ Challenge Flash Theme (~2m 40s) */
+/* v45 — six-minute original IQ Challenge Flash Theme with evolving sections */
 let backgroundMusicTimer = null;
 let backgroundMusicGain = null;
 let backgroundMusicStarting = false;
@@ -884,14 +884,15 @@ async function startBackgroundMusic(){
   master.gain.setValueAtTime(.0001,audioContext.currentTime);master.gain.setTargetAtTime(.075,audioContext.currentTime,.9);master.connect(audioContext.destination);
   const tick=()=>{
    if(!soundEnabled||window.iqCurrentScreen!=='home'||document.hidden||!backgroundMusicGain||audioContext.state!=='running'){stopBackgroundMusic();return;}
-   const step=backgroundMusicStep%1024,bar=Math.floor(step/16),section=Math.floor(step/128),beat=step%16;
+   const step=backgroundMusicStep%2304,bar=Math.floor(step/16),section=Math.floor(step/128),beat=step%16;
+   const cycle=Math.floor(section/8),transpose=[1,1.05946,.94387][cycle%3];
    const chord=musicChords[bar%musicChords.length],melody=musicMelodies[section%musicMelodies.length],now=audioContext.currentTime+.025;
-   if(beat===0)chord.forEach(n=>musicTone(n,now,3.65,.0055,'sine'));
-   if(beat%2===0)musicTone(melody[beat],now,.48,.012,'triangle');
-   if(beat===0||beat===8)musicTone(chord[0]/2,now,.62,.013,'sine');
-   if(beat===12)musicTone(chord[1]*1.5,now,.32,.0045,'sine');
-   if(beat===4&&section%2===1)musicTone(chord[2]*2,now,.24,.0035,'sine');
-   backgroundMusicStep=(step+1)%1024;
+   if(beat===0)chord.forEach(n=>musicTone(n*transpose,now,3.65,.0055,'sine'));
+   if(beat%2===0)musicTone(melody[beat]*transpose,now,.48,.012,'triangle');
+   if(beat===0||beat===8)musicTone(chord[0]*transpose/2,now,.62,.013,'sine');
+   if(beat===12)musicTone(chord[1]*transpose*1.5,now,.32,.0045,'sine');
+   if(beat===4&&section%2===1)musicTone(chord[2]*transpose*2,now,.24,.0035,'sine');
+   backgroundMusicStep=(step+1)%2304;
   };
   tick();backgroundMusicTimer=setInterval(tick,musicTickMs);
  }catch(error){console.debug('Background music unavailable:',error);}
