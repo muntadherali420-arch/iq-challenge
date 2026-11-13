@@ -69,8 +69,9 @@ h1{font-size:20px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px
 
   <section class="card" id="historyCard">
     <div class="row"><strong>📚 سجل إنجازاتي</strong><span class="tag">على هذا الجهاز</span></div>
-    <p class="small">آخر الجولات التي أكملتها، محفوظة محلياً على جهازك لكل حساب.</p>
-    <div class="history-list" id="roundHistory"><div class="small">أكمل جولة حتى يظهر إنجازك هنا.</div></div>
+    <p class="small">ملخص إنجازات حسابك، وآخر الجولات المسجلة على هذا الجهاز.</p>
+    <div class="level-caption" id="historySummary"><span>الجولات المكتملة: 0</span><span>المسجلة هنا: 0</span></div>
+    <div class="history-list" id="roundHistory"><div class="small">لا توجد جولات مسجلة بعد.</div></div>
   </section>
 
   <section class="card" id="dailyCard">
@@ -169,9 +170,12 @@ function historyStorageKey() {
 function loadRoundHistory() {
   try {
     const saved = JSON.parse(localStorage.getItem(historyStorageKey()) || '[]');
-    renderRoundHistory(Array.isArray(saved) ? saved : []);
+    const items = Array.isArray(saved) ? saved : [];
+    renderRoundHistory(items);
+    updateHistorySummary(items);
   } catch {
     renderRoundHistory([]);
+    updateHistorySummary([]);
   }
 }
 function renderRoundHistory(items) {
@@ -181,7 +185,7 @@ function renderRoundHistory(items) {
   if (!items.length) {
     const empty = document.createElement('div');
     empty.className = 'small';
-    empty.textContent = 'أكمل جولة حتى يظهر إنجازك هنا.';
+    empty.textContent = 'السجل بدأ من تاريخ إضافة هذه الميزة. جولاتك السابقة محفوظة ضمن إجمالي الإنجازات، أما تفاصيل الجولات الجديدة فستظهر هنا.';
     list.appendChild(empty);
     return;
   }
@@ -201,6 +205,18 @@ function renderRoundHistory(items) {
     item.append(details, points);
     list.appendChild(item);
   });
+}
+function updateHistorySummary(items) {
+  const summary = $('historySummary');
+  if (!summary) return;
+  const tracked = Array.isArray(items) ? items.length : 0;
+  const completed = Math.floor(answeredCount / 5);
+  summary.innerHTML = '';
+  const lifetime = document.createElement('span');
+  lifetime.textContent = 'الجولات المكتملة: ' + completed;
+  const local = document.createElement('span');
+  local.textContent = 'المسجلة هنا: ' + tracked + ' / ' + ROUND_HISTORY_LIMIT;
+  summary.append(lifetime, local);
 }
 function saveRoundToHistory(points) {
   try {
@@ -225,6 +241,12 @@ function updateStats() {
   $('levelProgressCount').textContent = level >= 100 ? 'اكتملت المستويات الـ100' : 'المتبقي: ' + (10 - (answeredCount % 10)) + ' إجابات';
   $('levelProgressHint').textContent = level >= 100 ? 'إنجاز رائع! أكملت جميع المستويات.' : 'أكمل ' + (10 - (answeredCount % 10)) + ' إجابات محفوظة حتى تصل إلى المستوى التالي.';
   renderAchievements();
+  try {
+    const history = JSON.parse(localStorage.getItem(historyStorageKey()) || '[]');
+    updateHistorySummary(Array.isArray(history) ? history : []);
+  } catch {
+    updateHistorySummary([]);
+  }
 }
 function showGameMessage(message) {
   $('game').classList.remove('hidden');
