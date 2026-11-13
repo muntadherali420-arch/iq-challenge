@@ -109,6 +109,11 @@ function loadBestRound() {
   bestRound = Number(localStorage.getItem(bestRoundStorageKey()) || 0);
   updateStats();
 }
+function setBestRoundPlayer(userId) {
+  window.iqCurrentUserId = userId || 'guest';
+  loadBestRound();
+}
+window.iqSetBestRoundPlayer = setBestRoundPlayer;
 
 function updateStats() {
   $('totalScore').textContent = totalScore;
@@ -354,8 +359,7 @@ $('resetBtn').classList.add('hidden');
 
 const { data: initialSession } = await supabase.auth.getSession();
 if (initialSession.session) {
-  window.iqCurrentUserId = initialSession.session.user.id;
-  loadBestRound();
+  setBestRoundPlayer(initialSession.session.user.id);
 }
 await loadLeaderboard();
 if (initialSession.session) {
@@ -382,7 +386,7 @@ async function showSession(session){
   const user=session?.user;
   if(!user){status.textContent='غير مسجّل الدخول';el('logoutBtn').classList.add('hidden');return;}
   const username=(user.user_metadata?.username || user.email || 'لاعب').toString();
-  window.iqCurrentUserId=user.id;
+  window.iqSetBestRoundPlayer?.(user.id);
   status.textContent='مسجّل الدخول: '+username;
   el('logoutBtn').classList.remove('hidden');
   el('authForm').classList.add('hidden');
