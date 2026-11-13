@@ -58,7 +58,7 @@ body{background:radial-gradient(circle at 8% 3%,#d9f3ff 0,transparent 30%),radia
 
 /* IQ Challenge joyful, high-contrast palette */
 :root{--bg:#38b9ed;--panel:#fff0d8;--panel2:#e4efff;--ink:#30245d;--muted:#514b78;--gold:#ffcf3f;--mint:#20c989;--pink:#ff7897}
-body{background:radial-gradient(circle at 8% 4%,#8ceaff 0,transparent 32%),radial-gradient(circle at 92% 16%,#b9a3ff 0,transparent 31%),linear-gradient(145deg,#139ce4 0%,#47c7f0 52%,#a5e8f7 100%);color:#30245d}
+body{background:radial-gradient(circle at 8% 4%,#8d9cff 0,transparent 32%),radial-gradient(circle at 92% 16%,#e6a7ff 0,transparent 31%),linear-gradient(145deg,#173b9e 0%,#3657c9 48%,#7650c9 100%);color:#30245d}
 .wrap{max-width:760px}
 .logo{width:62px;height:62px;border-radius:17px;background:linear-gradient(145deg,#fff1a8,#ffbd4a);color:#34205f;box-shadow:0 5px 0 #d47d31,0 9px 20px #153d8a55;font-size:28px}
 .hero{background:linear-gradient(125deg,#174dc5,#4430a6 60%,#742ac2);border:2px solid #8edfff;box-shadow:0 10px 0 #153b9b55,0 15px 26px #173c9150;color:#fff}
@@ -195,7 +195,7 @@ function playVictoryCelebration() {
   if (!soundEnabled || !('speechSynthesis' in window)) return;
   try {
     window.speechSynthesis.cancel();
-    const cheer = new SpeechSynthesisUtterance('هييييي! مبروك! فوز رائع!');
+    const cheer = new SpeechSynthesisUtterance('مبروك! فوزاً رائعاً!');
     cheer.lang = 'ar';
     cheer.rate = 1.08;
     cheer.pitch = 1.35;
