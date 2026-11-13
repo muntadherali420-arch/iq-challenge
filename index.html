@@ -697,6 +697,7 @@ function updateSoundButton() {
 }
 let backgroundMusicTimer = null;
 let backgroundMusicGain = null;
+let backgroundMusicStarting = false;
 let backgroundMusicStep = 0;
 const backgroundMusicNotes = [261.63,329.63,392,493.88,392,329.63,293.66,349.23,440,523.25,440,349.23];
 function stopBackgroundMusic() {
@@ -709,55 +710,64 @@ function stopBackgroundMusic() {
     backgroundMusicGain = null;
     try {
       gain.gain.cancelScheduledValues(audioContext.currentTime);
-      gain.gain.setTargetAtTime(0, audioContext.currentTime, .12);
-      setTimeout(() => { try { gain.disconnect(); } catch {} }, 650);
+      gain.gain.setTargetAtTime(0, audioContext.currentTime, .08);
+      setTimeout(() => { try { gain.disconnect(); } catch {} }, 500);
     } catch {}
   }
 }
-function startBackgroundMusic() {
-  if (!soundEnabled || backgroundMusicTimer || document.hidden) return;
+async function startBackgroundMusic() {
+  if (!soundEnabled || backgroundMusicTimer || backgroundMusicStarting || document.hidden || window.iqCurrentScreen !== 'home') return;
+  backgroundMusicStarting = true;
   try {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     if (!AudioContextClass) return;
     audioContext = audioContext || new AudioContextClass();
-    if (audioContext.state === 'suspended') audioContext.resume();
-    backgroundMusicGain = audioContext.createGain();
-    backgroundMusicGain.gain.setValueAtTime(.0001, audioContext.currentTime);
-    backgroundMusicGain.gain.setTargetAtTime(.12, audioContext.currentTime, .8);
-    backgroundMusicGain.connect(audioContext.destination);
+    if (audioContext.state === 'suspended') await audioContext.resume();
+    if (!soundEnabled || document.hidden || window.iqCurrentScreen !== 'home' || audioContext.state !== 'running') return;
+    const master = audioContext.createGain();
+    backgroundMusicGain = master;
+    master.gain.setValueAtTime(.0001, audioContext.currentTime);
+    master.gain.setTargetAtTime(.48, audioContext.currentTime, .25);
+    master.connect(audioContext.destination);
     const playNextNote = () => {
-      if (!soundEnabled || window.iqCurrentScreen !== 'home' || document.hidden || !backgroundMusicGain) {
+      if (!soundEnabled || window.iqCurrentScreen !== 'home' || document.hidden || !backgroundMusicGain || audioContext.state !== 'running') {
         stopBackgroundMusic();
         return;
       }
       const now = audioContext.currentTime;
       const frequency = backgroundMusicNotes[backgroundMusicStep++ % backgroundMusicNotes.length];
-      const oscillator = audioContext.createOscillator();
-      const envelope = audioContext.createGain();
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(frequency, now);
-      envelope.gain.setValueAtTime(.0001, now);
-      envelope.gain.exponentialRampToValueAtTime(.20, now + .07);
-      envelope.gain.exponentialRampToValueAtTime(.0001, now + .52);
-      oscillator.connect(envelope);
-      envelope.connect(backgroundMusicGain);
-      oscillator.start(now);
-      oscillator.stop(now + .55);
+      [1, 1.5].forEach((ratio, layer) => {
+        const oscillator = audioContext.createOscillator();
+        const envelope = audioContext.createGain();
+        oscillator.type = layer ? 'triangle' : 'sine';
+        oscillator.frequency.setValueAtTime(frequency * ratio, now);
+        envelope.gain.setValueAtTime(.0001, now);
+        envelope.gain.exponentialRampToValueAtTime(layer ? .12 : .22, now + .06);
+        envelope.gain.exponentialRampToValueAtTime(.0001, now + .48);
+        oscillator.connect(envelope);
+        envelope.connect(master);
+        oscillator.start(now);
+        oscillator.stop(now + .5);
+      });
     };
     playNextNote();
-    backgroundMusicTimer = setInterval(playNextNote, 560);
-  } catch (error) { console.debug('Background music unavailable:', error); }
+    backgroundMusicTimer = setInterval(playNextNote, 520);
+  } catch (error) {
+    console.debug('Background music unavailable:', error);
+  } finally {
+    backgroundMusicStarting = false;
+  }
 }
 function syncBackgroundMusic() {
   if (soundEnabled && window.iqCurrentScreen === 'home' && !document.hidden) startBackgroundMusic();
   else stopBackgroundMusic();
 }
 document.addEventListener('pointerdown', () => {
-  if (soundEnabled && window.iqCurrentScreen === 'home') syncBackgroundMusic();
-}, { once: true });
+  if (soundEnabled && window.iqCurrentScreen === 'home') startBackgroundMusic();
+});
 document.addEventListener('keydown', () => {
-  if (soundEnabled && window.iqCurrentScreen === 'home') syncBackgroundMusic();
-}, { once: true });
+  if (soundEnabled && window.iqCurrentScreen === 'home') startBackgroundMusic();
+});
 document.addEventListener('visibilitychange', syncBackgroundMusic);
 function playSound(kind = 'tap') {
   if (!soundEnabled) return;
@@ -796,7 +806,7 @@ $('soundToggle').addEventListener('click', () => {
   updateSoundButton();
   if (soundEnabled) {
     playSound('tap');
-    syncBackgroundMusic();
+    if (window.iqCurrentScreen === 'home') startBackgroundMusic();
   } else {
     stopBackgroundMusic();
   }
