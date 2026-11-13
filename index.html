@@ -126,11 +126,6 @@ function applyServerStats(data) {
 }
 async function loadLeaderboard() {
   const list = $('leaderboardList');
-  const { data: sessionData } = await supabase.auth.getSession();
-  if (!sessionData.session) {
-    list.innerHTML = '<div class="small">سجّل الدخول لعرض لوحة المتصدرين.</div>';
-    return;
-  }
   list.innerHTML = '<div class="small">جارٍ تحميل الترتيب...</div>';
   const { data, error } = await supabase.rpc('get_quiz_leaderboard');
   if (error) {
@@ -339,10 +334,10 @@ $('difficultySelect').addEventListener('change', loadRound);
 $('resetBtn').classList.add('hidden');
 
 const { data: initialSession } = await supabase.auth.getSession();
+await loadLeaderboard();
 if (initialSession.session) {
   const { data: stats } = await supabase.rpc('get_quiz_stats');
   applyServerStats(stats);
-  await loadLeaderboard();
   await loadDailyChallenge();
   await loadRound();
 } else {
