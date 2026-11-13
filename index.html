@@ -118,6 +118,7 @@ window.iqSupabase = supabase;
 const $ = id => document.getElementById(id);
 let questions = [], qIndex = 0, earned = 0, locked = false;
 let totalScore = 0, answeredCount = 0, bestRound = 0;
+let leaderboardLoadVersion = 0, roundLoadVersion = 0;
 
 function bestRoundStorageKey() {
   return 'iq-best-round:' + (window.iqCurrentUserId || 'guest');
@@ -265,9 +266,11 @@ function applyServerStats(data) {
   updateStats();
 }
 async function loadLeaderboard() {
+  const loadVersion = ++leaderboardLoadVersion;
   const list = $('leaderboardList');
   list.innerHTML = '<div class="small">جارٍ تحميل الترتيب...</div>';
   const { data, error } = await supabase.rpc('get_quiz_leaderboard');
+  if (loadVersion !== leaderboardLoadVersion) return;
   if (error) {
     list.textContent = 'تعذّر تحميل لوحة المتصدرين. تأكد من تنفيذ ملف إعداد اللوحة.';
     return;
@@ -345,6 +348,9 @@ async function loadDailyChallenge() {
   });
 }
 async function submitDailyAnswer(challengeId, letter) {
+  const { data: submitSession } = await supabase.auth.getSession();
+  const submitUserId = submitSession.session?.user?.id;
+  if (!submitUserId) return;
   const buttons = [...$('dailyAnswers').children];
   buttons.forEach(button => button.disabled = true);
   $('dailyFeedback').textContent = 'جارٍ حفظ إجابتك...';
@@ -352,6 +358,8 @@ async function submitDailyAnswer(challengeId, letter) {
     p_challenge_id: challengeId,
     p_selected_option: letter
   });
+  const { data: latestSession } = await supabase.auth.getSession();
+  if (latestSession.session?.user?.id !== submitUserId) return;
   if (error) {
     buttons.forEach(button => button.disabled = false);
     $('dailyFeedback').textContent = 'تعذّر حفظ الإجابة: ' + error.message;
@@ -371,7 +379,9 @@ async function submitDailyAnswer(challengeId, letter) {
 }
 
 async function loadRound() {
+  const loadVersion = ++roundLoadVersion;
   const { data: sessionData } = await supabase.auth.getSession();
+  if (loadVersion !== roundLoadVersion) return;
   if (!sessionData.session) {
     showGameMessage('سجّل الدخول أولاً حتى نحمّل الأسئلة ونحفظ نقاطك بأمان.');
     return;
@@ -379,6 +389,9 @@ async function loadRound() {
   showGameMessage('جارٍ تحميل الأسئلة...');
   const selectedDifficulty = $('difficultySelect').value;
   const { data, error } = await supabase.rpc('get_quiz_questions_by_difficulty', { p_difficulty: selectedDifficulty });
+  if (loadVersion !== roundLoadVersion) return;
+  const { data: latestSession } = await supabase.auth.getSession();
+  if (loadVersion !== roundLoadVersion || latestSession.session?.user?.id !== sessionData.session.user.id) return;
   if (error) {
     showGameMessage('تعذّر تحميل الأسئلة. تأكد من تنفيذ ملف إعداد Supabase SQL ثم أعد المحاولة.');
     $('feedback').textContent = error.message;
@@ -423,6 +436,9 @@ function renderQuestion() {
 }
 async function chooseAnswer(letter) {
   if (locked) return;
+  const { data: submitSession } = await supabase.auth.getSession();
+  const submitUserId = submitSession.session?.user?.id;
+  if (!submitUserId) return;
   locked = true;
   const buttons = [...$('answers').children];
   buttons.forEach(b => b.disabled = true);
@@ -432,6 +448,8 @@ async function chooseAnswer(letter) {
     p_question_id: q.id,
     p_selected_option: letter
   });
+  const { data: latestSession } = await supabase.auth.getSession();
+  if (latestSession.session?.user?.id !== submitUserId) return;
   if (error) {
     locked = false;
     buttons.forEach(b => b.disabled = false);
