@@ -881,7 +881,7 @@ async function startBackgroundMusic(){
   audioContext=audioContext||new AudioContextClass();if(audioContext.state==='suspended')await audioContext.resume();
   if(!soundEnabled||document.hidden||window.iqCurrentScreen!=='home'||audioContext.state!=='running')return;
   const master=audioContext.createGain();backgroundMusicGain=master;
-  master.gain.setValueAtTime(.0001,audioContext.currentTime);master.gain.setTargetAtTime(.96,audioContext.currentTime,1.25);master.connect(audioContext.destination);
+  master.gain.setValueAtTime(.0001,audioContext.currentTime);master.gain.setTargetAtTime(1.92,audioContext.currentTime,1.25);master.connect(audioContext.destination);
   const tick=()=>{
    if(!soundEnabled||window.iqCurrentScreen!=='home'||document.hidden||!backgroundMusicGain||audioContext.state!=='running'){stopBackgroundMusic();return;}
    const step=backgroundMusicStep%3072,bar=Math.floor(step/16),section=Math.floor(step/128),beat=step%16;
