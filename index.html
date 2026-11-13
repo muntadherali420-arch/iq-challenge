@@ -558,6 +558,41 @@ body{
 .launch-note{font-size:11px;color:#b9c9ed;margin-top:19px}
 @keyframes riverLoad{to{width:100%}}@keyframes riverFlow{to{transform:translateX(28px)}}@keyframes launchFloat{50%{transform:translateY(-9px) rotate(2deg)}}@keyframes launchOrbit{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){#launchScreen *,#launchScreen *:before{animation-duration:.01ms!important}}
+
+/* Polished motion language: subtle, smooth, and responsive */
+.app-screen.active{animation:iqScreenEnter .38s cubic-bezier(.2,.75,.25,1) both}
+@keyframes iqScreenEnter{from{opacity:0;transform:translateY(13px) scale(.992);filter:blur(2px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+.hero{position:relative;isolation:isolate;overflow:hidden}
+.hero:before{animation:iqHeroFloat 4.8s ease-in-out infinite;transform-origin:center}
+.hero:after{animation:iqGlowPulse 3.6s ease-in-out infinite}
+@keyframes iqHeroFloat{0%,100%{translate:0 0;rotate:-1deg}50%{translate:0 -7px;rotate:1deg}}
+@keyframes iqGlowPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.16)}}
+.card,.mode-card{transition:transform .24s ease,box-shadow .24s ease,filter .24s ease}
+.mode-card{isolation:isolate}
+.mode-card:before{content:"";position:absolute;z-index:-1;inset:-60% auto -60% -45%;width:35%;transform:rotate(22deg);background:linear-gradient(90deg,transparent,#ffffff30,transparent);animation:iqCardShine 5.5s ease-in-out infinite}
+@keyframes iqCardShine{0%,58%{left:-55%}82%,100%{left:130%}}
+.mode-card:active,.btn:active,.nav-btn:active{transform:scale(.965)}
+.btn{transition:transform .16s ease,filter .16s ease,box-shadow .16s ease}
+.btn:not(:disabled):active{filter:brightness(.96)}
+.answer,.puzzle-answer{transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}
+.answers .answer,.puzzle-answers .puzzle-answer{animation:iqAnswerIn .32s both}
+.answers .answer:nth-child(2),.puzzle-answers .puzzle-answer:nth-child(2){animation-delay:.045s}
+.answers .answer:nth-child(3),.puzzle-answers .puzzle-answer:nth-child(3){animation-delay:.09s}
+.answers .answer:nth-child(4),.puzzle-answers .puzzle-answer:nth-child(4){animation-delay:.135s}
+@keyframes iqAnswerIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+.answer:not(:disabled):active,.puzzle-answer:not(:disabled):active{transform:scale(.975)}
+.answer.correct,.puzzle-answer.correct{animation:iqCorrect .42s ease}
+.answer.wrong,.puzzle-answer.wrong{animation:iqWrong .28s ease}
+@keyframes iqCorrect{0%,100%{transform:scale(1)}45%{transform:scale(1.025)}}
+@keyframes iqWrong{0%,100%{translate:0 0}25%{translate:5px 0}75%{translate:-5px 0}}
+.progress .bar,.puzzle-progress>div,.level-progress>div{position:relative;overflow:hidden}
+.progress .bar:after,.puzzle-progress>div:after,.level-progress>div:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent,#ffffff70,transparent);transform:translateX(-100%);animation:iqProgressShine 2.4s linear infinite}
+@keyframes iqProgressShine{to{transform:translateX(100%)}}
+.nav-btn{transition:transform .2s ease,background .2s ease,color .2s ease}
+.nav-btn.active{animation:iqNavPop .28s ease}
+@keyframes iqNavPop{50%{transform:translateY(-4px) scale(1.035)}}
+@media(hover:hover){.mode-card:hover,.card:hover{transform:translateY(-3px);box-shadow:0 15px 32px #08132625}.answer:not(:disabled):hover,.puzzle-answer:not(:disabled):hover{transform:translateY(-2px);filter:brightness(1.035)}}
+@media(prefers-reduced-motion:reduce){.app-screen.active,.hero:before,.hero:after,.mode-card:before,.answers .answer,.puzzle-answers .puzzle-answer,.answer.correct,.answer.wrong,.nav-btn.active{animation:none!important}.card,.mode-card,.btn,.answer,.puzzle-answer,.nav-btn{transition:none!important}}
 </style>
 </head>
 <body>
@@ -734,33 +769,18 @@ let backgroundMusicStep = 0;
 const musicTempo = 112;
 const musicTickMs = 60000 / musicTempo / 4;
 const musicChords = [
- [261.63,329.63,392.00], [196.00,246.94,392.00],
+ [261.63,329.63,392.00], [246.94,293.66,392.00],
  [220.00,261.63,329.63], [174.61,220.00,261.63]
 ];
-const musicArpeggio = [0,1,2,1,0,1,2,1,0,1,2,1,2,1,0,1];
-function musicTone(frequency,at,duration,volume,type='sine',endFrequency=null){
+const musicMelody = [523.25,659.25,783.99,659.25,587.33,659.25,783.99,987.77,880,783.99,659.25,587.33,523.25,587.33,659.25,783.99];
+function musicTone(frequency,at,duration,volume,type='sine'){
  const osc=audioContext.createOscillator(),amp=audioContext.createGain(),filter=audioContext.createBiquadFilter();
  osc.type=type;osc.frequency.setValueAtTime(frequency,at);
- if(endFrequency)osc.frequency.exponentialRampToValueAtTime(endFrequency,at+duration);
- filter.type='lowpass';filter.frequency.setValueAtTime(type==='sawtooth'?1500:3200,at);
- amp.gain.setValueAtTime(.0001,at);amp.gain.exponentialRampToValueAtTime(volume,at+.025);
- amp.gain.exponentialRampToValueAtTime(.0001,at+duration);
+ filter.type='lowpass';filter.frequency.setValueAtTime(type==='triangle'?2400:1800,at);
+ amp.gain.setValueAtTime(.0001,at);amp.gain.exponentialRampToValueAtTime(volume,at+.045);
+ amp.gain.setTargetAtTime(.0001,at+duration-.08,.045);
  osc.connect(filter);filter.connect(amp);amp.connect(backgroundMusicGain);
- osc.start(at);osc.stop(at+duration+.03);
-}
-function musicKick(at){
- const osc=audioContext.createOscillator(),amp=audioContext.createGain();
- osc.type='sine';osc.frequency.setValueAtTime(125,at);osc.frequency.exponentialRampToValueAtTime(42,at+.16);
- amp.gain.setValueAtTime(.0001,at);amp.gain.exponentialRampToValueAtTime(.34,at+.008);amp.gain.exponentialRampToValueAtTime(.0001,at+.19);
- osc.connect(amp);amp.connect(backgroundMusicGain);osc.start(at);osc.stop(at+.2);
-}
-function musicNoise(at,duration,volume,highpass){
- const size=Math.max(1,Math.floor(audioContext.sampleRate*duration)),buffer=audioContext.createBuffer(1,size,audioContext.sampleRate),data=buffer.getChannelData(0);
- for(let i=0;i<size;i++)data[i]=(Math.random()*2-1);
- const src=audioContext.createBufferSource(),filter=audioContext.createBiquadFilter(),amp=audioContext.createGain();
- src.buffer=buffer;filter.type='highpass';filter.frequency.value=highpass;
- amp.gain.setValueAtTime(volume,at);amp.gain.exponentialRampToValueAtTime(.0001,at+duration);
- src.connect(filter);filter.connect(amp);amp.connect(backgroundMusicGain);src.start(at);src.stop(at+duration);
+ osc.start(at);osc.stop(at+duration+.08);
 }
 function stopBackgroundMusic(){
  if(backgroundMusicTimer){clearInterval(backgroundMusicTimer);backgroundMusicTimer=null;}
@@ -777,12 +797,12 @@ async function startBackgroundMusic(){
   master.gain.setValueAtTime(.0001,audioContext.currentTime);master.gain.setTargetAtTime(.72,audioContext.currentTime,.45);master.connect(audioContext.destination);
   const tick=()=>{
    if(!soundEnabled||window.iqCurrentScreen!=='home'||document.hidden||!backgroundMusicGain||audioContext.state!=='running'){stopBackgroundMusic();return;}
-   const step=backgroundMusicStep%64,bar=Math.floor(step/16),beat=Math.floor((step%16)/4),chord=musicChords[bar%4],now=audioContext.currentTime+.015;
-   if(step%16===0)chord.forEach((n,i)=>musicTone(n/2,now,2.05,.026,'sawtooth'));
-   if(step%2===0){const note=chord[musicArpeggio[Math.floor((step%16)/2)%8]%3]*2;musicTone(note,now,.22,.075,'triangle');}
-   if(step%4===0){musicTone(chord[0]/2,now,.34,.13,'sine');if(beat===0||beat===2)musicKick(now);else musicNoise(now,.13,.045,1300);}
-   if(step%2===0)musicNoise(now,.035,.012,7200);
-   backgroundMusicStep=(step+1)%64;
+   const step=backgroundMusicStep%64,bar=Math.floor(step/16),chord=musicChords[bar%4],now=audioContext.currentTime+.02;
+    if(step%16===0)chord.forEach(n=>musicTone(n,now,1.95,.018,'sine'));
+    if(step%2===0)musicTone(musicMelody[step%16],now,.34,.052,'triangle');
+    if(step%4===0)musicTone(chord[0]/2,now,.42,.075,'sine');
+    if(step%8===4)musicTone(chord[1]*2,now,.20,.018,'sine');
+    backgroundMusicStep=(step+1)%64;
   };
   tick();backgroundMusicTimer=setInterval(tick,musicTickMs);
  }catch(error){console.debug('Background music unavailable:',error);}
