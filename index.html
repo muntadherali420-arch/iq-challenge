@@ -791,7 +791,16 @@ body{
     <button class="nav-btn" type="button" data-screen="daily"><span>⚡</span>تحدّي اليوم</button>
     <button class="nav-btn" type="button" data-screen="profile"><span>🏆</span>إنجازاتي</button>
   </nav>
-</main>
+</main>\n
+<section id="coachGuide" class="coach-guide hidden" role="dialog" aria-modal="true" aria-labelledby="coachTitle">
+ <div class="coach-card">
+  <div class="coach-top"><span class="coach-step" id="coachStep">1 / 5</span><button type="button" id="coachClose" class="coach-close" aria-label="إغلاق الإرشاد">×</button></div>
+  <div class="coach-hand" id="coachHand" aria-hidden="true">👆</div><div class="coach-icon" id="coachIcon">🏆</div>
+  <h2 id="coachTitle">أهلاً بك في تحدّي العقول!</h2><p id="coachText">خلّينا نعرّفك على طريقة اللعب بخطوات بسيطة.</p>
+  <div class="coach-progress" id="coachProgress"><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="coach-actions"><button type="button" id="coachSkip" class="coach-skip">تخطي الشرح</button><button type="button" id="coachNext" class="btn">التالي ←</button></div>
+ </div>
+</section>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const SUPABASE_URL = 'https://dkaoptjafnilyztlznmk.supabase.co';
@@ -810,6 +819,20 @@ function showAppScreen(name){
 window.iqShowScreen=showAppScreen;
 document.querySelectorAll('.nav-btn').forEach(button=>button.addEventListener('click',()=>showAppScreen(button.dataset.screen)));
 document.querySelectorAll('[data-open-screen]').forEach(button=>button.addEventListener('click',()=>showAppScreen(button.dataset.openScreen)));
+const COACH_STEPS=[
+ {icon:'🏆',title:'ابدأ من هنا',text:'اضغط على «المسابقة الكبرى» حتى تبدأ رحلة التحدّي وتدخل عالم الأسئلة.'},
+ {icon:'🧠',title:'اقرأ السؤال',text:'اقرأ السؤال جيداً، وشاهد الخيارات الأربعة. خذ وقتك بالتفكير قبل الاختيار.'},
+ {icon:'👆',title:'اختر إجابتك',text:'اضغط على الخيار الذي تعتقد أنه صحيح. ستظهر لك الإجابة الصحيحة والتفسير.'},
+ {icon:'➡️',title:'انتقل للسؤال التالي',text:'بعد ظهور التفسير، اضغط «السؤال التالي» لمواصلة الجولة حتى السؤال الخامس.'},
+ {icon:'🏅',title:'اجمع النقاط وتقدّم',text:'كل إجابة صحيحة تمنحك 10 نقاط. تابع مستواك وإنجازاتك واستمتع بالتحدّي!'}
+];
+let coachIndex=0;
+function closeCoach(markSeen=true){const modal=$('coachGuide');if(!modal)return;modal.classList.add('hidden');if(markSeen){try{localStorage.setItem('iq-coach-guide-v1','seen');}catch{}}}
+function renderCoachStep(){const step=COACH_STEPS[coachIndex];if(!step)return;$('coachStep').textContent=(coachIndex+1)+' / '+COACH_STEPS.length;$('coachIcon').textContent=step.icon;$('coachTitle').textContent=step.title;$('coachText').textContent=step.text;$('coachNext').textContent=coachIndex===COACH_STEPS.length-1?'ابدأ اللعب 🎮':'التالي ←';$('coachProgress').querySelectorAll('i').forEach((dot,i)=>dot.classList.toggle('done',i<=coachIndex));$('coachHand').textContent=coachIndex===0?'👆':coachIndex===2?'☝️':'👇';}
+function startCoachGuide(){try{if(localStorage.getItem('iq-coach-guide-v1')==='seen')return;}catch{}coachIndex=0;renderCoachStep();$('coachGuide').classList.remove('hidden');}
+$('coachNext').addEventListener('click',()=>{if(coachIndex<COACH_STEPS.length-1){coachIndex++;renderCoachStep();return;}closeCoach(true);showAppScreen('play');});
+$('coachSkip').addEventListener('click',()=>closeCoach(true));$('coachClose').addEventListener('click',()=>closeCoach(true));
+
 let soundEnabled = true;
 let audioContext = null;
 try { soundEnabled = localStorage.getItem('iq-sound-enabled') !== 'false'; } catch {}
@@ -964,6 +987,7 @@ window.iqCurrentScreen = document.querySelector('.app-screen.active')?.id?.repla
  button.addEventListener('click',async()=>{
   button.disabled=true;button.textContent='لحظة ونبدأ…';
   if(soundEnabled){await startBackgroundMusic();}
+  startCoachGuide();
   screen.classList.add('launch-hidden');
   setTimeout(()=>screen.remove(),650);
  });
@@ -1635,4 +1659,15 @@ if("serviceWorker" in navigator){
 .streak-meter.streak-hot{border-color:#f0a84d;background:linear-gradient(110deg,#ffe4a8,#ffd7c9);color:#803d19;box-shadow:0 0 0 3px #ffcf6b33;animation:streakPulse .65s ease-in-out}
 @keyframes streakPulse{0%{transform:scale(.97)}55%{transform:scale(1.025)}100%{transform:scale(1)}}
 @media(prefers-reduced-motion:reduce){.streak-meter.streak-hot{animation:none}}
+</style>
+
+<style>
+/* v54 — first-time hand-pointer onboarding */
+.coach-guide{position:fixed;inset:0;z-index:10020;display:grid;place-items:center;padding:22px;background:#07132edb;backdrop-filter:blur(8px)}.coach-guide.hidden{display:none}
+.coach-card{width:min(420px,100%);position:relative;overflow:hidden;padding:22px 20px 18px;border:1px solid #ffffff38;border-radius:25px;background:linear-gradient(150deg,#182f69,#101d49 70%,#29265e);color:#fff;text-align:center;box-shadow:0 22px 70px #0009}
+.coach-top{display:flex;align-items:center;justify-content:space-between}.coach-step{font-size:12px;font-weight:850;color:#ffe18a}.coach-close{width:34px;height:34px;border:1px solid #ffffff40;border-radius:50%;background:#ffffff16;color:white;font-size:24px;line-height:1}
+.coach-hand{height:66px;margin:6px auto 0;font-size:53px;filter:drop-shadow(0 5px 5px #0006);animation:coachPoint 1s ease-in-out infinite}.coach-icon{font-size:35px;margin:4px auto}.coach-card h2{margin:8px 0;color:#ffe18a;font-size:22px}.coach-card p{min-height:66px;margin:0 auto 16px;max-width:330px;color:#e4edff;font-size:15px;line-height:1.9}
+.coach-progress{display:flex;justify-content:center;gap:7px;margin:10px 0 18px}.coach-progress i{width:23px;height:5px;border-radius:9px;background:#ffffff35}.coach-progress i.done{background:#ffd66b}
+.coach-actions{display:flex;align-items:center;justify-content:space-between;gap:10px}.coach-actions .btn{flex:1}.coach-skip{border:0;background:transparent;color:#d7e2ff;font:700 13px system-ui;padding:12px 8px}
+@keyframes coachPoint{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(9px) rotate(5deg)}}@media(prefers-reduced-motion:reduce){.coach-hand{animation:none}}
 </style>
