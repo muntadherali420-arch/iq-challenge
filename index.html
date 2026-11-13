@@ -538,9 +538,41 @@ body{
 .puzzle-answer:disabled{opacity:.75;cursor:default}.puzzle-answer.correct{background:#17694f;border-color:#62e6bd}.puzzle-answer.wrong{background:#783c50;border-color:#ff8fab}
 .puzzle-feedback{min-height:45px;line-height:1.7;margin-top:12px;color:#ffdc91;font-size:13px}.puzzle-actions{display:flex;gap:9px;flex-wrap:wrap}.puzzle-actions .btn{flex:1}.puzzle-foot{margin-top:15px;opacity:.75}
 @media(max-width:390px){.mode-grid{grid-template-columns:1fr}.mode-card{min-height:150px}.puzzle-answers{grid-template-columns:1fr}}
+
+/* Cinematic launch screen */
+#launchScreen{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:26px;background:radial-gradient(ellipse at 50% 28%,#285acb 0%,#142d79 42%,#07152f 100%);color:#fff;overflow:hidden;transition:opacity .55s ease,visibility .55s ease}
+#launchScreen.launch-hidden{opacity:0;visibility:hidden;pointer-events:none}
+#launchScreen:before,#launchScreen:after{content:"";position:absolute;width:78vw;height:78vw;border:1px solid #78d9ff22;border-radius:50%;animation:launchOrbit 18s linear infinite}
+#launchScreen:after{width:112vw;height:112vw;animation-direction:reverse;border-color:#ffd66a18}
+.launch-content{width:min(440px,100%);text-align:center;position:relative;z-index:1}
+.launch-mark{width:112px;height:112px;margin:0 auto 22px;border-radius:34px;display:grid;place-items:center;font-size:62px;background:linear-gradient(145deg,#ffe58b,#ffad49);box-shadow:0 12px 0 #a85d2c,0 22px 60px #0007;animation:launchFloat 3s ease-in-out infinite}
+.launch-title{font-size:clamp(30px,8vw,42px);font-weight:950;letter-spacing:-1px;margin:0;text-shadow:0 4px 20px #0005}
+.launch-sub{font-size:12px;letter-spacing:3px;color:#9eeaff;font-weight:800;margin-top:8px}
+.launch-tagline{margin:28px 0 22px;font-size:15px;color:#e6edff}
+.launch-river{height:17px;width:min(330px,88%);margin:0 auto;border:1px solid #8edfff77;border-radius:99px;overflow:hidden;background:#071b4e;box-shadow:0 0 24px #29cfff30;position:relative}
+.launch-river-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#26d9f4,#56f0c1,#ffe17b,#fff);box-shadow:0 0 18px #5eeeff;animation:riverLoad 2.7s cubic-bezier(.18,.72,.25,1) forwards;position:relative}
+.launch-river-fill:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(110deg,transparent 0 13px,#ffffff55 14px 18px,transparent 19px 29px);animation:riverFlow .7s linear infinite}
+.launch-percent{font-size:12px;color:#b8caff;margin:11px 0 22px;font-variant-numeric:tabular-nums}
+#launchStart{width:min(330px,88%);border:1px solid #fff4c4;border-radius:18px;padding:16px 20px;background:linear-gradient(110deg,#ffe27a,#ffb64e);color:#26305e;font:900 17px system-ui;box-shadow:0 7px 0 #9c632f,0 14px 30px #0005;opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s}
+#launchStart.ready{opacity:1;transform:translateY(0)}
+.launch-note{font-size:11px;color:#b9c9ed;margin-top:19px}
+@keyframes riverLoad{to{width:100%}}@keyframes riverFlow{to{transform:translateX(28px)}}@keyframes launchFloat{50%{transform:translateY(-9px) rotate(2deg)}}@keyframes launchOrbit{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){#launchScreen *,#launchScreen *:before{animation-duration:.01ms!important}}
 </style>
 </head>
 <body>
+<div id="launchScreen" role="dialog" aria-label="شاشة بداية تحدّي العقول">
+ <div class="launch-content">
+  <div class="launch-mark">🧠</div>
+  <h1 class="launch-title">تحدّي العقول</h1>
+  <div class="launch-sub">IQ CHALLENGE</div>
+  <p class="launch-tagline">استعدّ… اختبر ذكاءك واصنع إنجازك</p>
+  <div class="launch-river"><div class="launch-river-fill"></div></div>
+  <div class="launch-percent" id="launchPercent">جارٍ تجهيز عالم التحدّي…</div>
+  <button id="launchStart" type="button">ابدأ التحدّي 🎮</button>
+  <div class="launch-note">الموسيقى تبدأ عند الضغط على زر البدء</div>
+ </div>
+</div>
 <main class="wrap">
   <header class="top">
     <div class="brand"><div class="logo" aria-label="شعار الدماغ">🧠</div><div><h1>تحدّي العقول</h1><div class="sub">IQ CHALLENGE · النسخة التجريبية 0.1</div></div></div>
@@ -699,64 +731,62 @@ let backgroundMusicTimer = null;
 let backgroundMusicGain = null;
 let backgroundMusicStarting = false;
 let backgroundMusicStep = 0;
-const backgroundMusicNotes = [261.63,329.63,392,493.88,392,329.63,293.66,349.23,440,523.25,440,349.23];
-function stopBackgroundMusic() {
-  if (backgroundMusicTimer) {
-    clearInterval(backgroundMusicTimer);
-    backgroundMusicTimer = null;
-  }
-  if (backgroundMusicGain && audioContext) {
-    const gain = backgroundMusicGain;
-    backgroundMusicGain = null;
-    try {
-      gain.gain.cancelScheduledValues(audioContext.currentTime);
-      gain.gain.setTargetAtTime(0, audioContext.currentTime, .08);
-      setTimeout(() => { try { gain.disconnect(); } catch {} }, 500);
-    } catch {}
-  }
+const musicTempo = 112;
+const musicTickMs = 60000 / musicTempo / 4;
+const musicChords = [
+ [261.63,329.63,392.00], [196.00,246.94,392.00],
+ [220.00,261.63,329.63], [174.61,220.00,261.63]
+];
+const musicArpeggio = [0,1,2,1,0,1,2,1,0,1,2,1,2,1,0,1];
+function musicTone(frequency,at,duration,volume,type='sine',endFrequency=null){
+ const osc=audioContext.createOscillator(),amp=audioContext.createGain(),filter=audioContext.createBiquadFilter();
+ osc.type=type;osc.frequency.setValueAtTime(frequency,at);
+ if(endFrequency)osc.frequency.exponentialRampToValueAtTime(endFrequency,at+duration);
+ filter.type='lowpass';filter.frequency.setValueAtTime(type==='sawtooth'?1500:3200,at);
+ amp.gain.setValueAtTime(.0001,at);amp.gain.exponentialRampToValueAtTime(volume,at+.025);
+ amp.gain.exponentialRampToValueAtTime(.0001,at+duration);
+ osc.connect(filter);filter.connect(amp);amp.connect(backgroundMusicGain);
+ osc.start(at);osc.stop(at+duration+.03);
 }
-async function startBackgroundMusic() {
-  if (!soundEnabled || backgroundMusicTimer || backgroundMusicStarting || document.hidden || window.iqCurrentScreen !== 'home') return;
-  backgroundMusicStarting = true;
-  try {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) return;
-    audioContext = audioContext || new AudioContextClass();
-    if (audioContext.state === 'suspended') await audioContext.resume();
-    if (!soundEnabled || document.hidden || window.iqCurrentScreen !== 'home' || audioContext.state !== 'running') return;
-    const master = audioContext.createGain();
-    backgroundMusicGain = master;
-    master.gain.setValueAtTime(.0001, audioContext.currentTime);
-    master.gain.setTargetAtTime(.48, audioContext.currentTime, .25);
-    master.connect(audioContext.destination);
-    const playNextNote = () => {
-      if (!soundEnabled || window.iqCurrentScreen !== 'home' || document.hidden || !backgroundMusicGain || audioContext.state !== 'running') {
-        stopBackgroundMusic();
-        return;
-      }
-      const now = audioContext.currentTime;
-      const frequency = backgroundMusicNotes[backgroundMusicStep++ % backgroundMusicNotes.length];
-      [1, 1.5].forEach((ratio, layer) => {
-        const oscillator = audioContext.createOscillator();
-        const envelope = audioContext.createGain();
-        oscillator.type = layer ? 'triangle' : 'sine';
-        oscillator.frequency.setValueAtTime(frequency * ratio, now);
-        envelope.gain.setValueAtTime(.0001, now);
-        envelope.gain.exponentialRampToValueAtTime(layer ? .12 : .22, now + .06);
-        envelope.gain.exponentialRampToValueAtTime(.0001, now + .48);
-        oscillator.connect(envelope);
-        envelope.connect(master);
-        oscillator.start(now);
-        oscillator.stop(now + .5);
-      });
-    };
-    playNextNote();
-    backgroundMusicTimer = setInterval(playNextNote, 520);
-  } catch (error) {
-    console.debug('Background music unavailable:', error);
-  } finally {
-    backgroundMusicStarting = false;
-  }
+function musicKick(at){
+ const osc=audioContext.createOscillator(),amp=audioContext.createGain();
+ osc.type='sine';osc.frequency.setValueAtTime(125,at);osc.frequency.exponentialRampToValueAtTime(42,at+.16);
+ amp.gain.setValueAtTime(.0001,at);amp.gain.exponentialRampToValueAtTime(.34,at+.008);amp.gain.exponentialRampToValueAtTime(.0001,at+.19);
+ osc.connect(amp);amp.connect(backgroundMusicGain);osc.start(at);osc.stop(at+.2);
+}
+function musicNoise(at,duration,volume,highpass){
+ const size=Math.max(1,Math.floor(audioContext.sampleRate*duration)),buffer=audioContext.createBuffer(1,size,audioContext.sampleRate),data=buffer.getChannelData(0);
+ for(let i=0;i<size;i++)data[i]=(Math.random()*2-1);
+ const src=audioContext.createBufferSource(),filter=audioContext.createBiquadFilter(),amp=audioContext.createGain();
+ src.buffer=buffer;filter.type='highpass';filter.frequency.value=highpass;
+ amp.gain.setValueAtTime(volume,at);amp.gain.exponentialRampToValueAtTime(.0001,at+duration);
+ src.connect(filter);filter.connect(amp);amp.connect(backgroundMusicGain);src.start(at);src.stop(at+duration);
+}
+function stopBackgroundMusic(){
+ if(backgroundMusicTimer){clearInterval(backgroundMusicTimer);backgroundMusicTimer=null;}
+ if(backgroundMusicGain&&audioContext){const g=backgroundMusicGain;backgroundMusicGain=null;try{g.gain.cancelScheduledValues(audioContext.currentTime);g.gain.setTargetAtTime(0,audioContext.currentTime,.1);setTimeout(()=>{try{g.disconnect();}catch{}},700);}catch{}}
+}
+async function startBackgroundMusic(){
+ if(!soundEnabled||backgroundMusicTimer||backgroundMusicStarting||document.hidden||window.iqCurrentScreen!=='home')return;
+ backgroundMusicStarting=true;
+ try{
+  const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass)return;
+  audioContext=audioContext||new AudioContextClass();if(audioContext.state==='suspended')await audioContext.resume();
+  if(!soundEnabled||document.hidden||window.iqCurrentScreen!=='home'||audioContext.state!=='running')return;
+  const master=audioContext.createGain();backgroundMusicGain=master;
+  master.gain.setValueAtTime(.0001,audioContext.currentTime);master.gain.setTargetAtTime(.72,audioContext.currentTime,.45);master.connect(audioContext.destination);
+  const tick=()=>{
+   if(!soundEnabled||window.iqCurrentScreen!=='home'||document.hidden||!backgroundMusicGain||audioContext.state!=='running'){stopBackgroundMusic();return;}
+   const step=backgroundMusicStep%64,bar=Math.floor(step/16),beat=Math.floor((step%16)/4),chord=musicChords[bar%4],now=audioContext.currentTime+.015;
+   if(step%16===0)chord.forEach((n,i)=>musicTone(n/2,now,2.05,.026,'sawtooth'));
+   if(step%2===0){const note=chord[musicArpeggio[Math.floor((step%16)/2)%8]%3]*2;musicTone(note,now,.22,.075,'triangle');}
+   if(step%4===0){musicTone(chord[0]/2,now,.34,.13,'sine');if(beat===0||beat===2)musicKick(now);else musicNoise(now,.13,.045,1300);}
+   if(step%2===0)musicNoise(now,.035,.012,7200);
+   backgroundMusicStep=(step+1)%64;
+  };
+  tick();backgroundMusicTimer=setInterval(tick,musicTickMs);
+ }catch(error){console.debug('Background music unavailable:',error);}
+ finally{backgroundMusicStarting=false;}
 }
 function syncBackgroundMusic() {
   if (soundEnabled && window.iqCurrentScreen === 'home' && !document.hidden) startBackgroundMusic();
@@ -813,6 +843,17 @@ $('soundToggle').addEventListener('click', () => {
 });
 updateSoundButton();
 window.iqCurrentScreen = document.querySelector('.app-screen.active')?.id?.replace('screen-','') || 'home';
+(()=>{
+ const screen=document.getElementById('launchScreen'),button=document.getElementById('launchStart'),percent=document.getElementById('launchPercent');
+ if(!screen||!button)return;
+ setTimeout(()=>{percent.textContent='اكتمل التجهيز…';button.classList.add('ready');},2750);
+ button.addEventListener('click',async()=>{
+  button.disabled=true;button.textContent='لحظة ونبدأ…';
+  if(soundEnabled){await startBackgroundMusic();playSound('tap');}
+  screen.classList.add('launch-hidden');
+  setTimeout(()=>screen.remove(),650);
+ });
+})();
 let questions = [], qIndex = 0, earned = 0, locked = false;
 let roundFinished = false, nextTransitioning = false;
 let totalScore = 0, answeredCount = 0, bestRound = 0;
