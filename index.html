@@ -749,6 +749,7 @@ body{
     <select id="difficultySelect" class="difficulty-select"><option value="all">كل المستويات</option><option value="easy">سهل</option><option value="medium">متوسط</option><option value="hard">صعب</option><option value="expert">خبير</option><option value="genius">عبقري</option></select>
     <div class="progress"><div class="bar" id="bar"></div></div>
     <div class="row small"><span id="counter">السؤال 1 من 5</span><span>10 نقاط للإجابة الصحيحة</span></div>
+    <div class="streak-meter" id="streakMeter" aria-live="polite">🔥 سلسلة الإجابات الصحيحة: 0</div>
     <div class="scholar-feature hidden" id="scholarFeature" aria-live="polite">
  <div class="scholar-art-wrap" id="scholarArt" aria-hidden="true"></div>
  <div class="scholar-copy"><span class="scholar-kicker" id="scholarKicker">ضيف السؤال</span><strong id="scholarName">عالِم التحدّي</strong><small id="scholarFact"></small></div>
@@ -969,6 +970,14 @@ window.iqCurrentScreen = document.querySelector('.app-screen.active')?.id?.repla
 })();
 let questions = [], qIndex = 0, earned = 0, locked = false;
 let roundFinished = false, nextTransitioning = false;
+let currentStreak = 0, bestStreak = 0;
+function updateStreakDisplay() {
+  const el = $('streakMeter');
+  if (!el) return;
+  el.textContent = '🔥 سلسلة الإجابات الصحيحة: ' + currentStreak;
+  el.classList.toggle('streak-hot', currentStreak >= 2);
+  el.setAttribute('aria-label', 'سلسلة الإجابات الصحيحة: ' + currentStreak);
+}
 let totalScore = 0, answeredCount = 0, bestRound = 0;
 let leaderboardLoadVersion = 0, roundLoadVersion = 0;
 
@@ -1256,6 +1265,9 @@ async function loadRound() {
   questions = Array.isArray(data) ? data : [];
   qIndex = 0;
   earned = 0;
+  currentStreak = 0;
+  bestStreak = 0;
+  updateStreakDisplay();
   if (!questions.length) {
     $('game').classList.add('hidden');
     $('result').classList.remove('hidden');
@@ -1381,6 +1393,13 @@ async function chooseAnswer(letter) {
   });
   const points = Number(data.points_awarded || 0);
   earned += points;
+  if (data.is_correct) {
+    currentStreak++;
+    bestStreak = Math.max(bestStreak, currentStreak);
+  } else {
+    currentStreak = 0;
+  }
+  updateStreakDisplay();
   applyServerStats(data);
   $('feedback').textContent = (data.is_correct ? 'إجابة صحيحة! +' + points + ' نقاط. ' : 'إجابة غير صحيحة. ') + (data.explanation || '');
   playSound(data.is_correct ? 'correct' : 'wrong');
@@ -1403,7 +1422,7 @@ function finishRound() {
   $('resultTitle').textContent = won ? 'فوز رائع' : 'لا بأس، حاول مرة أخرى';
   $('result').querySelector('.big').textContent = won ? '🏆🎊' : '🌱✨';
   if (won) playVictoryCelebration(); else { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); playSound('defeat'); }
-  $('resultText').textContent = (won ? 'أحسنت! حققت الفوز في هذه الجولة. ' : 'هذه الجولة لم تكن فوزاً، لكن كل محاولة فرصة للتعلّم. ') + 'حصلت على ' + earned + ' نقطة. مجموع نقاط حسابك المحفوظ: ' + totalScore + '.';
+  $('resultText').textContent = (won ? 'أحسنت! حققت الفوز في هذه الجولة. ' : 'هذه الجولة لم تكن فوزاً، لكن كل محاولة فرصة للتعلّم. ') + 'حصلت على ' + earned + ' نقطة. أفضل سلسلة إجابات صحيحة: ' + bestStreak + '. مجموع نقاط حسابك المحفوظ: ' + totalScore + '.';
   $('againBtn').textContent = 'العب جولة جديدة';
   $('resetBtn').classList.add('hidden');
   $('bar').style.width = '100%';
@@ -1610,3 +1629,10 @@ if("serviceWorker" in navigator){
 }
 </script>
 </body></html>
+<style>
+/* v53 — encouraging correct-answer streak indicator */
+.streak-meter{margin:12px 0 4px;padding:10px 13px;border:1px solid #d8c58c;border-radius:13px;background:linear-gradient(110deg,#fff6df,#f2ecff);color:#68502a;font-size:13px;font-weight:850;text-align:center;transition:transform .2s,box-shadow .2s}
+.streak-meter.streak-hot{border-color:#f0a84d;background:linear-gradient(110deg,#ffe4a8,#ffd7c9);color:#803d19;box-shadow:0 0 0 3px #ffcf6b33;animation:streakPulse .65s ease-in-out}
+@keyframes streakPulse{0%{transform:scale(.97)}55%{transform:scale(1.025)}100%{transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.streak-meter.streak-hot{animation:none}}
+</style>
