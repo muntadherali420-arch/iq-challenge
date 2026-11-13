@@ -836,7 +836,7 @@ function updateSoundButton() {
   button.setAttribute('aria-label', button.title);
   button.setAttribute('aria-pressed', String(soundEnabled));
 }
-/* v43 — original IQ Challenge Flash Theme: calm electronic news-opening mood */
+/* v44 — extended multi-section original IQ Challenge Flash Theme (~2m 40s) */
 let backgroundMusicTimer = null;
 let backgroundMusicGain = null;
 let backgroundMusicStarting = false;
@@ -845,11 +845,19 @@ const musicTempo = 96;
 const musicTickMs = 60000 / musicTempo / 4;
 const musicChords = [
  [293.66,369.99,440.00], [261.63,329.63,392.00],
- [220.00,293.66,369.99], [246.94,311.13,369.99]
+ [220.00,293.66,369.99], [246.94,311.13,369.99],
+ [293.66,349.23,440.00], [220.00,277.18,329.63],
+ [261.63,329.63,392.00], [246.94,311.13,369.99]
 ];
-const musicMelody = [
- 587.33,0,698.46,880,783.99,0,698.46,587.33,
- 659.25,0,783.99,987.77,880,0,783.99,659.25
+const musicMelodies = [
+ [587.33,0,698.46,880,783.99,0,698.46,587.33,659.25,0,783.99,987.77,880,0,783.99,659.25],
+ [659.25,0,783.99,987.77,880,0,783.99,659.25,587.33,0,659.25,783.99,698.46,0,659.25,587.33],
+ [523.25,0,659.25,783.99,698.46,0,659.25,523.25,587.33,0,698.46,880,783.99,0,698.46,587.33],
+ [587.33,0,698.46,880,987.77,0,880,698.46,659.25,0,783.99,987.77,880,0,783.99,659.25],
+ [783.99,0,880,1046.5,987.77,0,880,783.99,698.46,0,783.99,987.77,880,0,783.99,698.46],
+ [659.25,0,783.99,880,783.99,0,698.46,659.25,587.33,0,659.25,783.99,698.46,0,659.25,587.33],
+ [523.25,0,587.33,698.46,659.25,0,587.33,523.25,587.33,0,659.25,783.99,698.46,0,659.25,587.33],
+ [587.33,0,698.46,880,783.99,0,698.46,587.33,659.25,0,783.99,880,987.77,0,880,783.99]
 ];
 function musicTone(frequency,at,duration,volume,type='sine'){
  if(!frequency)return;
@@ -876,12 +884,14 @@ async function startBackgroundMusic(){
   master.gain.setValueAtTime(.0001,audioContext.currentTime);master.gain.setTargetAtTime(.075,audioContext.currentTime,.9);master.connect(audioContext.destination);
   const tick=()=>{
    if(!soundEnabled||window.iqCurrentScreen!=='home'||document.hidden||!backgroundMusicGain||audioContext.state!=='running'){stopBackgroundMusic();return;}
-   const step=backgroundMusicStep%64,bar=Math.floor(step/16),beat=step%16,chord=musicChords[bar%4],now=audioContext.currentTime+.025;
+   const step=backgroundMusicStep%1024,bar=Math.floor(step/16),section=Math.floor(step/128),beat=step%16;
+   const chord=musicChords[bar%musicChords.length],melody=musicMelodies[section%musicMelodies.length],now=audioContext.currentTime+.025;
    if(beat===0)chord.forEach(n=>musicTone(n,now,3.65,.0055,'sine'));
-   if(beat%2===0)musicTone(musicMelody[beat],now,.48,.012,'triangle');
+   if(beat%2===0)musicTone(melody[beat],now,.48,.012,'triangle');
    if(beat===0||beat===8)musicTone(chord[0]/2,now,.62,.013,'sine');
    if(beat===12)musicTone(chord[1]*1.5,now,.32,.0045,'sine');
-   backgroundMusicStep=(step+1)%64;
+   if(beat===4&&section%2===1)musicTone(chord[2]*2,now,.24,.0035,'sine');
+   backgroundMusicStep=(step+1)%1024;
   };
   tick();backgroundMusicTimer=setInterval(tick,musicTickMs);
  }catch(error){console.debug('Background music unavailable:',error);}
