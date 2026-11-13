@@ -355,10 +355,8 @@ supabase.auth.onAuthStateChange((_event, session) => {
 </script>
 
 <script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-const SUPABASE_URL = 'https://dkaoptjafnilyztlznmk.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_wzAJmA21MoRZhkokNj2RFw_lLqi8U9C';
-const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+// Reuse the same Supabase client as the quiz module so auth state and game data stay in sync.
+const supabase = window.iqSupabase;
 const el = id => document.getElementById(id);
 const status = el('accountStatus');
 function setBusy(b){ el('signupBtn').disabled=b; el('loginBtn').disabled=b; }
