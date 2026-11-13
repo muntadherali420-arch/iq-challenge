@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#f3f8ff">
+<meta name="theme-color" content="#e9e6ff">
 <link rel="manifest" href="/manifest.webmanifest">
 <title>IQ Challenge — تحدّي العقول</title>
 <style>
@@ -60,7 +60,7 @@ body{background:radial-gradient(circle at 8% 3%,#d9f3ff 0,transparent 30%),radia
 <body>
 <main class="wrap">
   <header class="top">
-    <div class="brand"><div class="logo">IQ</div><div><h1>تحدّي العقول</h1><div class="sub">IQ CHALLENGE · النسخة التجريبية 0.1</div></div></div>
+    <div class="brand"><div class="logo" aria-label="شعار الدماغ">🧠</div><div><h1>تحدّي العقول</h1><div class="sub">IQ CHALLENGE · النسخة التجريبية 0.1</div></div></div>
     <div class="row" style="gap:8px"><button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true">🔊 الصوت يعمل</button><div class="score">★ <span id="totalScore">0</span></div></div>
   </header>
 
@@ -163,20 +163,27 @@ function playSound(kind = 'tap') {
     audioContext = audioContext || new AudioContextClass();
     if (audioContext.state === 'suspended') audioContext.resume();
     const now = audioContext.currentTime;
-    const notes = kind === 'correct' ? [660, 880, 1100] : kind === 'wrong' ? [330, 247] : kind === 'finish' ? [523, 659, 784, 1047] : [520];
-    notes.forEach((frequency, index) => {
+    const melodies = {
+      correct: { notes:[660,880,1100], step:0.10, duration:0.22, volume:0.065, wave:'sine' },
+      wrong: { notes:[330,247], step:0.18, duration:0.30, volume:0.045, wave:'triangle' },
+      victory: { notes:[523,659,784,1047,1318], step:0.16, duration:0.34, volume:0.075, wave:'triangle' },
+      defeat: { notes:[392,349,294,262], step:0.25, duration:0.42, volume:0.045, wave:'sine' },
+      tap: { notes:[520], step:0.10, duration:0.13, volume:0.035, wave:'sine' }
+    };
+    const melody = melodies[kind] || melodies.tap;
+    melody.notes.forEach((frequency, index) => {
       const oscillator = audioContext.createOscillator();
       const gain = audioContext.createGain();
-      const start = now + index * (kind === 'wrong' ? 0.12 : 0.10);
-      oscillator.type = 'sine';
+      const start = now + index * melody.step;
+      oscillator.type = melody.wave;
       oscillator.frequency.setValueAtTime(frequency, start);
       gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(0.075, start + 0.018);
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.19);
+      gain.gain.exponentialRampToValueAtTime(melody.volume, start + 0.025);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + melody.duration);
       oscillator.connect(gain);
       gain.connect(audioContext.destination);
       oscillator.start(start);
-      oscillator.stop(start + 0.2);
+      oscillator.stop(start + melody.duration + 0.02);
     });
   } catch (error) { console.debug('Audio unavailable:', error); }
 }
@@ -581,9 +588,11 @@ function finishRound() {
   updateStats();
   $('game').classList.add('hidden');
   $('result').classList.remove('hidden');
-  $('resultTitle').textContent = earned >= 40 ? 'ممتاز! أداء رائع' : earned >= 20 ? 'أحسنت، واصل التقدم' : 'بداية جيدة!';
-  playSound('finish');
-  $('resultText').textContent = 'حصلت في هذه الجولة على ' + earned + ' نقطة. مجموع نقاط حسابك المحفوظ: ' + totalScore + '.';
+  const won = earned >= 30;
+  $('resultTitle').textContent = won ? '🎉 فوز رائع! أحسنت' : '💪 لا بأس، حاول مرة أخرى';
+  $('result').querySelector('.big').textContent = won ? '🏆🎊' : '🌱✨';
+  playSound(won ? 'victory' : 'defeat');
+  $('resultText').textContent = (won ? 'أحسنت! حققت الفوز في هذه الجولة. ' : 'هذه الجولة لم تكن فوزاً، لكن كل محاولة فرصة للتعلّم. ') + 'حصلت على ' + earned + ' نقطة. مجموع نقاط حسابك المحفوظ: ' + totalScore + '.';
   $('againBtn').textContent = 'العب جولة جديدة';
   $('resetBtn').classList.add('hidden');
   $('bar').style.width = '100%';
@@ -697,3 +706,13 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
 
 <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));}</script>
 </body></html>
+/* Calm lavender and aqua surfaces: softer than pure white, with clear contrast */
+:root{--bg:#e9e6ff;--panel:#e8e6fa;--panel2:#dceafa;--ink:#243052;--muted:#52627f}
+body{background:radial-gradient(circle at 8% 3%,#d5f3f2 0,transparent 32%),radial-gradient(circle at 94% 18%,#f4ddf4 0,transparent 28%),linear-gradient(145deg,#e9e6ff,#e0effa 58%,#f3e8f5);color:var(--ink)}
+.card,.stat{background:rgba(232,230,250,.96);border-color:#d0d3ed;box-shadow:0 8px 24px #6f78a51c}
+.answer{background:#dceafa;color:#263756;border-color:#c4d5ed}
+.difficulty-select,.auth-input{background:#e4eafa;color:#263653;border-color:#c7d4e9}
+.leaderboard-item,.history-item,.achievement{background:#dfe7f7;border-color:#cbd8ed}
+.score{background:#e9e2c9;color:#78510b}
+.sound-toggle{background:#e5eafa;border-color:#cbd7eb;color:#40577f}
+.logo{background:linear-gradient(135deg,#8ee4dc,#b5a5ff);color:#243052;box-shadow:0 8px 18px #8a9de050;font-size:29px}
