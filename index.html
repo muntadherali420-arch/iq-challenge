@@ -185,18 +185,24 @@ async function loadDailyChallenge() {
     return;
   }
   $('dailyDate').textContent = 'تحدّي يوم ' + new Date(challenge.challenge_date + 'T00:00:00').toLocaleDateString('ar-IQ');
+  if (challenge.already_answered) {
+    // Do not present a completed daily challenge as if its answer buttons were playable.
+    questionEl.textContent = 'اكتمل تحدّي اليوم بنجاح! 🌟';
+    answersEl.replaceChildren();
+    feedbackEl.textContent = 'أكملت تحدّي اليوم مسبقاً. مكافأتك: ' + Number(challenge.points_awarded || 0) + ' نقطة. عُد غداً لتحدٍّ جديد.';
+    return;
+  }
+  questionEl.classList.remove('hidden');
+  answersEl.classList.remove('hidden');
+  feedbackEl.textContent = '';
   questionEl.textContent = challenge.question;
   ['A','B','C','D'].forEach(letter => {
     const button = document.createElement('button');
     button.className = 'answer';
     button.textContent = letter + ' — ' + (challenge.options?.[letter] ?? '');
-    button.disabled = !!challenge.already_answered;
     button.addEventListener('click', () => submitDailyAnswer(challenge.id, letter));
     answersEl.appendChild(button);
   });
-  if (challenge.already_answered) {
-    feedbackEl.textContent = 'أكملت تحدّي اليوم مسبقاً. مكافأتك: ' + Number(challenge.points_awarded || 0) + ' نقطة. عُد غداً لتحدٍّ جديد.';
-  }
 }
 async function submitDailyAnswer(challengeId, letter) {
   const buttons = [...$('dailyAnswers').children];
