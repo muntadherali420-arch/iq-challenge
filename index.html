@@ -219,6 +219,8 @@ async function submitDailyAnswer(challengeId, letter) {
   const prefix = data.already_answered ? 'سبق أن أرسلت إجابتك. ' : (data.is_correct ? 'إجابة صحيحة! +' + data.points_awarded + ' نقطة مكافأة. ' : 'إجابة غير صحيحة. ');
   $('dailyFeedback').textContent = prefix + (data.explanation || '') + ' مجموع نقاطك: ' + data.total_score + '.';
   applyServerStats(data);
+  // Move the player to the already-loaded quiz round after completing the daily challenge.
+  $('game').scrollIntoView({ behavior: 'smooth', block: 'start' });
   await loadLeaderboard();
 }
 
