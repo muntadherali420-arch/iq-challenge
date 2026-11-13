@@ -18,7 +18,7 @@
 <path d="M256 143c18-29 58-29 77-4 34-8 62 20 58 52 29 19 31 59 6 81 14 34-5 69-38 77-8 34-42 51-74 35-12 14-20 19-29 19z" fill="url(#pink)" stroke="#a72e76" stroke-width="10"/>
 <path d="M256 146v254M178 184q-26 26 0 50m-47 34q35-2 39 31m-22 42q30-12 47 16m139-173q26 26 0 50m47 34q-35-2-39 31m22 42q-30-12-47 16" fill="none" stroke="#d64f91" stroke-width="9" stroke-linecap="round"/>
 <!-- glasses and happy face -->
-<g fill="none" stroke="#31245e" stroke-width="12"><circle cx="205" cy="263" r="42"/><circle cx="307" cy="263" r="42/><path d="M247 260q9-12 18 0"/></g>
+<g fill="none" stroke="#31245e" stroke-width="12"><circle cx="205" cy="263" r="42"/><circle cx="307" cy="263" r="42"/><path d="M247 260q9-12 18 0"/></g>
 <g fill="#fff"><ellipse cx="207" cy="263" rx="13" ry="19"/><ellipse cx="307" cy="263" rx="13" ry="19"/></g>
 <g fill="#31245e"><circle cx="211" cy="266" r="7"/><circle cx="311" cy="266" r="7"/></g>
 <path d="M224 324q32 33 64 0" fill="none" stroke="#9c245d" stroke-width="12" stroke-linecap="round"/>
