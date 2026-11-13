@@ -620,6 +620,24 @@ body{
 @keyframes cardSoftEnter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes sceneSparkle{0%,100%{opacity:.35;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
 @media(prefers-reduced-motion:reduce){.scholar-feature,.scholar-feature:after,#screen-play .question,#screen-daily .card,#screen-profile .card,#screen-home .card,#screen-puzzles .puzzle-shell,#screen-puzzles .puzzle-scene:after{animation:none!important}}
+
+/* v38 — playful animated cartoon scientists, shown only in quiz questions */
+.scholar-feature{min-height:116px;gap:13px;padding:10px 15px 10px 10px;border-radius:22px;background:linear-gradient(115deg,#243d78,#5b4a9a 65%,#8a5d9c);border:2px solid #e6d5ff66;box-shadow:0 8px 0 #171e4a22,0 13px 25px #151d4a25;isolation:isolate}
+.scholar-art-wrap{width:108px;height:108px;flex:0 0 108px;display:grid;place-items:center;position:relative;z-index:1;animation:cartoonBob 2.7s ease-in-out infinite;transform-origin:50% 85%}
+.scholar-art-wrap:before{content:"";position:absolute;width:88px;height:88px;border-radius:50%;background:linear-gradient(145deg,#fff0b5,#ffc56e);box-shadow:inset 0 -5px 0 #e9a54d55,0 5px 15px #111c4b55}
+.scholar-art-wrap svg{width:108px;height:108px;position:relative;overflow:visible;filter:drop-shadow(0 5px 2px #17214a33)}
+.scholar-copy{flex:1;gap:5px}.scholar-copy strong{font-size:16px;color:#fff5d7}.scholar-copy small{font-size:11px;color:#f2edff;line-height:1.55}
+.scholar-kicker{display:inline-flex;width:max-content;max-width:100%;padding:4px 8px;border-radius:99px;background:#ffffff20;color:#ffe49b;font-size:10px}
+.scholar-spark{position:absolute;left:12px;top:9px;color:#ffe58a;font-size:20px;animation:cartoonTwinkle 1.8s ease-in-out infinite;z-index:2}
+.cartoon-eye{transform-box:fill-box;transform-origin:center;animation:cartoonBlink 4.2s infinite}
+.cartoon-hair{transform-origin:50% 100%;animation:cartoonHair 2.7s ease-in-out infinite}
+@keyframes cartoonBob{0%,100%{transform:translateY(1px) rotate(-2deg)}50%{transform:translateY(-6px) rotate(2deg)}}
+@keyframes cartoonBlink{0%,43%,47%,100%{transform:scaleY(1)}45%{transform:scaleY(.12)}}
+@keyframes cartoonHair{0%,100%{transform:rotate(-1deg)}50%{transform:rotate(2deg)}}
+@keyframes cartoonTwinkle{0%,100%{opacity:.45;transform:scale(.8) rotate(0)}50%{opacity:1;transform:scale(1.2) rotate(18deg)}}
+@media(max-width:390px){.scholar-feature{gap:8px;padding:8px 10px 8px 7px;min-height:101px}.scholar-art-wrap,.scholar-art-wrap svg{width:92px;height:92px}.scholar-art-wrap{flex-basis:92px}.scholar-art-wrap:before{width:76px;height:76px}.scholar-copy strong{font-size:14px}.scholar-copy small{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.scholar-art-wrap,.scholar-spark,.cartoon-eye,.cartoon-hair{animation:none!important}}
+
 </style>
 </head>
 <body>
@@ -708,8 +726,9 @@ body{
     <div class="progress"><div class="bar" id="bar"></div></div>
     <div class="row small"><span id="counter">السؤال 1 من 5</span><span>10 نقاط للإجابة الصحيحة</span></div>
     <div class="scholar-feature hidden" id="scholarFeature" aria-live="polite">
- <div class="scholar-portrait-wrap"><img id="scholarPortrait" alt="" loading="lazy"><span class="scholar-symbol" id="scholarSymbol">✦</span></div>
- <div class="scholar-copy"><span class="scholar-kicker" id="scholarKicker">شخصية علمية</span><strong id="scholarName">عبقري غيّر العالم</strong><small id="scholarFact"></small></div>
+ <div class="scholar-art-wrap" id="scholarArt" aria-hidden="true"></div>
+ <div class="scholar-copy"><span class="scholar-kicker" id="scholarKicker">ضيف السؤال</span><strong id="scholarName">عالِم التحدّي</strong><small id="scholarFact"></small></div>
+ <span class="scholar-spark" aria-hidden="true">✦</span>
 </div>
 <div class="question" id="question">...</div>
     <div class="answers" id="answers"></div>
@@ -1210,26 +1229,39 @@ async function loadRound() {
   renderQuestion();
 }
 const IQ_SCHOLARS = [
- {keys:['نسبية','اينشتاين','أينشتاين','فيزياء','طاقة','ذرة','سرعة الضوء'],name:'ألبرت أينشتاين',field:'الفيزياء · النسبية',fact:'أفكاره غيّرت فهمنا للزمان والطاقة والكون',image:'https://commons.wikimedia.org/wiki/Special:FilePath/Einstein_1921_portrait2.jpg',symbol:'E=mc²'},
- {keys:['كيمياء','عنصر','عناصر','مختبر','إشعاع','راديوم'],name:'ماري كوري',field:'الكيمياء والفيزياء',fact:'من رائدات البحث في النشاط الإشعاعي',image:'https://commons.wikimedia.org/wiki/Special:FilePath/Marie_Curie_(1900).jpg',symbol:'⚗️'},
- {keys:['جاذبية','نيوتن','حركة','قوة','تفاحة','مدار'],name:'إسحاق نيوتن',field:'الرياضيات والفيزياء',fact:'أسهم في صياغة قوانين الحركة والجاذبية',image:'',symbol:'🍎'},
- {keys:['رياضيات','معادلة','أرقام','حساب','هندسة'],name:'علماء الرياضيات',field:'عالم الأرقام والمنطق',fact:'كل مسألة فرصة لاكتشاف نمط جديد',image:'',symbol:'∑'},
- {keys:['فضاء','كوكب','نجوم','فلك','مجرة'],name:'علماء الفلك',field:'استكشاف الكون',fact:'من خلال العلم نقترب أكثر من أسرار الكون',image:'',symbol:'🪐'}
+ {keys:['نسبية','اينشتاين','أينشتاين','فيزياء','طاقة','ذرة','سرعة الضوء'],name:'ألبرت أينشتاين',field:'عبقري الفيزياء',fact:'أفكاره غيّرت فهمنا للزمان والطاقة والكون',kind:'einstein',hair:'#f4f0df',coat:'#e9f5ff',accent:'#ffcf69'},
+ {keys:['كيمياء','عنصر','عناصر','مختبر','إشعاع','راديوم','ماري كوري'],name:'ماري كوري',field:'عالمة الكيمياء والفيزياء',fact:'من رائدات البحث في النشاط الإشعاعي',kind:'curie',hair:'#563a32',coat:'#f5f4ff',accent:'#91e2ce'},
+ {keys:['جاذبية','نيوتن','حركة','قوة','تفاحة','مدار'],name:'إسحاق نيوتن',field:'عالم الحركة والجاذبية',fact:'أسهم في صياغة قوانين الحركة والجاذبية',kind:'newton',hair:'#e4e0d7',coat:'#e8efff',accent:'#ffc56b'},
+ {keys:['الخوارزمي','جبر','رياضيات','معادلة','أرقام','حساب','هندسة'],name:'محمد الخوارزمي',field:'رائد علم الجبر',fact:'كان لإسهاماته أثر كبير في تطور الرياضيات',kind:'khwarizmi',hair:'#342d39',coat:'#e8f0ff',accent:'#8ee0cf'},
+ {keys:['فضاء','كوكب','نجوم','فلك','مجرة','غاليليو','جاليليو','تلسكوب'],name:'غاليليو غاليلي',field:'رائد علم الفلك',fact:'استخدم الرصد والتلسكوب لدراسة السماء',kind:'galileo',hair:'#d8d2c8',coat:'#e7f2ff',accent:'#ffcf69'}
 ];
+function cartoonScientistSVG(s){
+ const hair=s.hair,coat=s.coat,accent=s.accent;
+ const hairShape=s.kind==='einstein'
+  ? '<path class="cartoon-hair" d="M28 47Q13 39 22 25Q12 11 31 12Q34 -1 48 10Q62 -1 70 13Q89 7 88 26Q99 39 82 49L75 38Q57 29 37 40Z" fill="'+hair+'" stroke="#b5ad9d" stroke-width="2"/>'
+  : s.kind==='curie'
+  ? '<path class="cartoon-hair" d="M28 47Q19 16 43 12Q72 7 79 34L76 57L66 42Q50 32 35 45Z" fill="'+hair+'"/><circle cx="76" cy="22" r="12" fill="'+hair+'"/>'
+  : s.kind==='newton'||s.kind==='galileo'
+  ? '<path class="cartoon-hair" d="M26 47Q17 18 42 11Q70 4 82 30L76 56L67 39Q48 31 34 46Z" fill="'+hair+'"/><path d="M35 59Q53 77 71 58L69 75Q51 91 36 74Z" fill="'+hair+'" opacity=".95"/>'
+  : '<path class="cartoon-hair" d="M27 48Q19 16 44 11Q71 6 81 34L75 54L67 40Q48 30 35 45Z" fill="'+hair+'"/>';
+ const beard=(s.kind==='newton'||s.kind==='galileo')?'<path d="M34 60Q51 74 69 60Q68 83 51 87Q35 80 34 60Z" fill="'+hair+'" opacity=".95"/>':'';
+ const glasses=s.kind==='einstein'||s.kind==='galileo'?'<g fill="none" stroke="#43375d" stroke-width="3"><circle cx="41" cy="48" r="10"/><circle cx="65" cy="48" r="10"/><path d="M51 48h4"/></g>':'';
+ const headwear=s.kind==='khwarizmi'?'<path d="M27 36Q30 10 54 12Q77 11 80 36Q57 27 27 36Z" fill="#334c86" stroke="#25376c" stroke-width="2"/><path d="M34 26Q53 15 74 27" fill="none" stroke="#f3d58f" stroke-width="3"/>':'';
+ const coatDetails=s.kind==='curie'?'<path d="M43 88L51 105L60 88" fill="none" stroke="'+accent+'" stroke-width="4"/><circle cx="71" cy="95" r="5" fill="'+accent+'"/>':'<path d="M43 87L51 105L60 87" fill="none" stroke="'+accent+'" stroke-width="4"/>';
+ return '<svg viewBox="0 0 108 108" role="img" aria-label="شخصية عالم كرتونية"><ellipse cx="54" cy="99" rx="30" ry="5" fill="#1a2857" opacity=".18"/><path d="M17 108Q18 79 38 77L68 77Q91 81 92 108Z" fill="'+coat+'" stroke="#d7e4f4" stroke-width="2"/>'+coatDetails+'<rect x="44" y="67" width="20" height="17" rx="8" fill="#f2bd91"/><ellipse cx="54" cy="48" rx="27" ry="31" fill="#f5c9a4" stroke="#d99b78" stroke-width="1.5"/>'+hairShape+headwear+'<g class="cartoon-eye"><ellipse cx="42" cy="49" rx="2.7" ry="3.8" fill="#302d48"/><ellipse cx="66" cy="49" rx="2.7" ry="3.8" fill="#302d48"/></g>'+glasses+'<path d="M48 62Q54 67 61 61" fill="none" stroke="#a94f55" stroke-width="2.5" stroke-linecap="round"/>'+beard+'<circle cx="31" cy="57" r="3" fill="#efaa8f" opacity=".65"/><circle cx="77" cy="57" r="3" fill="#efaa8f" opacity=".65"/><path d="M20 91Q10 78 15 69" fill="none" stroke="'+accent+'" stroke-width="4" stroke-linecap="round"/><circle cx="14" cy="67" r="4" fill="'+accent+'"/><path d="M88 31l4-7 4 7 7 4-7 4-4 7-4-7-7-4Z" fill="'+accent+'"/></svg>';
+}
 function showScholarForQuestion(q){
- const box=$('scholarFeature'),img=$('scholarPortrait'),symbol=$('scholarSymbol');
- if(!box)return;
+ const box=$('scholarFeature'),art=$('scholarArt');
+ if(!box||!art)return;
  const text=((q?.question_text||'')+' '+(q?.category||'')+' '+(q?.explanation||'')).toLowerCase();
- const scholar=IQ_SCHOLARS.find(item=>item.keys.some(key=>text.includes(key)));
- if(!scholar){box.classList.add('hidden');return;}
+ const scholar=IQ_SCHOLARS.find(item=>item.keys.some(key=>text.includes(key))) || {
+  name:'عالِم التحدّي',field:'فكّر مثل العلماء!',fact:'كل سؤال جديد هو فرصة لاكتشاف فكرة مدهشة',kind:'einstein',hair:'#f4f0df',coat:'#e9f5ff',accent:'#ffcf69'
+ };
  $('scholarName').textContent=scholar.name;
  $('scholarKicker').textContent=scholar.field;
  $('scholarFact').textContent=scholar.fact;
- symbol.textContent=scholar.symbol;
- img.classList.remove('loaded');img.alt=scholar.name;
- img.onerror=()=>{img.classList.remove('loaded');};
- img.onload=()=>{img.classList.add('loaded');};
- if(scholar.image){img.src=scholar.image;}else{img.removeAttribute('src');}
+ art.innerHTML=cartoonScientistSVG(scholar);
+ art.style.animation='none';void art.offsetWidth;art.style.animation='';
  box.classList.remove('hidden');
 }
 function renderQuestion() {
