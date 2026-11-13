@@ -827,9 +827,9 @@ const COACH_STEPS=[
  {icon:'🏅',title:'اجمع النقاط وتقدّم',text:'كل إجابة صحيحة تمنحك 10 نقاط. تابع مستواك وإنجازاتك واستمتع بالتحدّي!'}
 ];
 let coachIndex=0;
-function closeCoach(markSeen=true){const modal=$('coachGuide');if(!modal)return;modal.classList.add('hidden');if(markSeen){try{localStorage.setItem('iq-coach-guide-v1','seen');}catch{}}}
+function closeCoach(markSeen=true){const modal=$('coachGuide');if(!modal)return;modal.classList.add('hidden');if(markSeen){try{localStorage.setItem('iq-coach-guide-v2','seen');}catch{}}}
 function renderCoachStep(){const step=COACH_STEPS[coachIndex];if(!step)return;$('coachStep').textContent=(coachIndex+1)+' / '+COACH_STEPS.length;$('coachIcon').textContent=step.icon;$('coachTitle').textContent=step.title;$('coachText').textContent=step.text;$('coachNext').textContent=coachIndex===COACH_STEPS.length-1?'ابدأ اللعب 🎮':'التالي ←';$('coachProgress').querySelectorAll('i').forEach((dot,i)=>dot.classList.toggle('done',i<=coachIndex));$('coachHand').textContent=coachIndex===0?'👆':coachIndex===2?'☝️':'👇';}
-function startCoachGuide(){try{if(localStorage.getItem('iq-coach-guide-v1')==='seen')return;}catch{}coachIndex=0;renderCoachStep();$('coachGuide').classList.remove('hidden');}
+function startCoachGuide(){try{if(localStorage.getItem('iq-coach-guide-v2')==='seen')return;}catch{}coachIndex=0;renderCoachStep();$('coachGuide').classList.remove('hidden');}window.iqStartCoachGuide=startCoachGuide;
 $('coachNext').addEventListener('click',()=>{if(coachIndex<COACH_STEPS.length-1){coachIndex++;renderCoachStep();return;}closeCoach(true);showAppScreen('play');});
 $('coachSkip').addEventListener('click',()=>closeCoach(true));$('coachClose').addEventListener('click',()=>closeCoach(true));
 
@@ -987,9 +987,11 @@ window.iqCurrentScreen = document.querySelector('.app-screen.active')?.id?.repla
  button.addEventListener('click',async()=>{
   button.disabled=true;button.textContent='لحظة ونبدأ…';
   if(soundEnabled){await startBackgroundMusic();}
-  startCoachGuide();
   screen.classList.add('launch-hidden');
-  setTimeout(()=>screen.remove(),650);
+  setTimeout(()=>{
+   screen.remove();
+   if(typeof window.iqStartCoachGuide==='function') window.iqStartCoachGuide();
+  },700);
  });
 })();
 let questions = [], qIndex = 0, earned = 0, locked = false;
