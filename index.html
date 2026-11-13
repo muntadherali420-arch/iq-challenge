@@ -661,6 +661,8 @@ const $ = id => document.getElementById(id);
 function showAppScreen(name){
   document.querySelectorAll('.app-screen').forEach(screen=>screen.classList.toggle('active',screen.id==='screen-'+name));
   document.querySelectorAll('.nav-btn').forEach(button=>button.classList.toggle('active',button.dataset.screen===name));
+  window.iqCurrentScreen = name;
+  if (typeof syncBackgroundMusic === 'function') syncBackgroundMusic();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 window.iqShowScreen=showAppScreen;
@@ -688,9 +690,75 @@ function playVictoryCelebration() {
 function updateSoundButton() {
   const button = $('soundToggle');
   if (!button) return;
-  button.textContent = soundEnabled ? '🔊 الصوت يعمل' : '🔇 الصوت مكتوم';
+  button.textContent = soundEnabled ? '🔊' : '🔇';
+  button.title = soundEnabled ? 'إيقاف الموسيقى والأصوات' : 'تشغيل الموسيقى والأصوات';
+  button.setAttribute('aria-label', button.title);
   button.setAttribute('aria-pressed', String(soundEnabled));
 }
+let backgroundMusicTimer = null;
+let backgroundMusicGain = null;
+let backgroundMusicStep = 0;
+const backgroundMusicNotes = [261.63,329.63,392,493.88,392,329.63,293.66,349.23,440,523.25,440,349.23];
+function stopBackgroundMusic() {
+  if (backgroundMusicTimer) {
+    clearInterval(backgroundMusicTimer);
+    backgroundMusicTimer = null;
+  }
+  if (backgroundMusicGain && audioContext) {
+    const gain = backgroundMusicGain;
+    backgroundMusicGain = null;
+    try {
+      gain.gain.cancelScheduledValues(audioContext.currentTime);
+      gain.gain.setTargetAtTime(0, audioContext.currentTime, .12);
+      setTimeout(() => { try { gain.disconnect(); } catch {} }, 650);
+    } catch {}
+  }
+}
+function startBackgroundMusic() {
+  if (!soundEnabled || backgroundMusicTimer || document.hidden) return;
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    audioContext = audioContext || new AudioContextClass();
+    if (audioContext.state === 'suspended') audioContext.resume();
+    backgroundMusicGain = audioContext.createGain();
+    backgroundMusicGain.gain.setValueAtTime(.0001, audioContext.currentTime);
+    backgroundMusicGain.gain.setTargetAtTime(.12, audioContext.currentTime, .8);
+    backgroundMusicGain.connect(audioContext.destination);
+    const playNextNote = () => {
+      if (!soundEnabled || window.iqCurrentScreen !== 'home' || document.hidden || !backgroundMusicGain) {
+        stopBackgroundMusic();
+        return;
+      }
+      const now = audioContext.currentTime;
+      const frequency = backgroundMusicNotes[backgroundMusicStep++ % backgroundMusicNotes.length];
+      const oscillator = audioContext.createOscillator();
+      const envelope = audioContext.createGain();
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(frequency, now);
+      envelope.gain.setValueAtTime(.0001, now);
+      envelope.gain.exponentialRampToValueAtTime(.20, now + .07);
+      envelope.gain.exponentialRampToValueAtTime(.0001, now + .52);
+      oscillator.connect(envelope);
+      envelope.connect(backgroundMusicGain);
+      oscillator.start(now);
+      oscillator.stop(now + .55);
+    };
+    playNextNote();
+    backgroundMusicTimer = setInterval(playNextNote, 560);
+  } catch (error) { console.debug('Background music unavailable:', error); }
+}
+function syncBackgroundMusic() {
+  if (soundEnabled && window.iqCurrentScreen === 'home' && !document.hidden) startBackgroundMusic();
+  else stopBackgroundMusic();
+}
+document.addEventListener('pointerdown', () => {
+  if (soundEnabled && window.iqCurrentScreen === 'home') syncBackgroundMusic();
+}, { once: true });
+document.addEventListener('keydown', () => {
+  if (soundEnabled && window.iqCurrentScreen === 'home') syncBackgroundMusic();
+}, { once: true });
+document.addEventListener('visibilitychange', syncBackgroundMusic);
 function playSound(kind = 'tap') {
   if (!soundEnabled) return;
   try {
@@ -726,9 +794,15 @@ $('soundToggle').addEventListener('click', () => {
   soundEnabled = !soundEnabled;
   try { localStorage.setItem('iq-sound-enabled', String(soundEnabled)); } catch {}
   updateSoundButton();
-  if (soundEnabled) playSound('tap');
+  if (soundEnabled) {
+    playSound('tap');
+    syncBackgroundMusic();
+  } else {
+    stopBackgroundMusic();
+  }
 });
 updateSoundButton();
+window.iqCurrentScreen = document.querySelector('.app-screen.active')?.id?.replace('screen-','') || 'home';
 let questions = [], qIndex = 0, earned = 0, locked = false;
 let roundFinished = false, nextTransitioning = false;
 let totalScore = 0, answeredCount = 0, bestRound = 0;
