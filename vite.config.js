@@ -8,7 +8,10 @@ export default defineConfig({
     emptyOutDir: true,
     target: 'es2022',
     rollupOptions: {
-      input: 'index.html'
+      input: {
+        game: 'index.html',
+        admin: 'admin.html'
+      }
     }
   }
 });
