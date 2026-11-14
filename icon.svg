@@ -1,32 +1,47 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
 <defs>
- <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#078bdc"/><stop offset=".55" stop-color="#3153c8"/><stop offset="1" stop-color="#782ec1"/></linearGradient>
- <linearGradient id="pink" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffb8d1"/><stop offset="1" stop-color="#f36b9e"/></linearGradient>
- <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff18a"/><stop offset="1" stop-color="#ffad22"/></linearGradient>
- <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="8"/></filter>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071c68"/><stop offset=".52" stop-color="#126bd0"/><stop offset="1" stop-color="#7029b7"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#65efff" stop-opacity=".72"/><stop offset="1" stop-color="#65efff" stop-opacity="0"/></radialGradient>
+ <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8df4ff"/><stop offset=".45" stop-color="#21a9ff"/><stop offset="1" stop-color="#3155dc"/></linearGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff8a8"/><stop offset=".48" stop-color="#ffc83d"/><stop offset="1" stop-color="#f18b13"/></linearGradient>
+ <linearGradient id="violet" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e3a2ff"/><stop offset="1" stop-color="#8b43df"/></linearGradient>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="9"/></filter>
+ <filter id="shine" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3"/></filter>
 </defs>
-<rect width="512" height="512" rx="104" fill="url(#bg)"/>
-<path d="M0 110Q250 10 512 110V0H0Z" fill="#fff" opacity=".10"/>
-<g fill="#fff5a8" opacity=".9"><path d="M66 88l9 20 21 3-16 14 4 21-18-11-19 11 4-21-15-14 21-3z"/><path d="M435 75l7 16 17 2-13 12 3 17-14-9-15 9 3-17-12-12 17-2z"/></g>
-<ellipse cx="256" cy="231" rx="157" ry="137" fill="#092c82" opacity=".35" filter="url(#shadow)"/>
+<rect x="8" y="8" width="496" height="496" rx="112" fill="#06164b"/>
+<rect x="16" y="16" width="480" height="480" rx="102" fill="url(#bg)" stroke="#ffe58a" stroke-width="12"/>
+<circle cx="256" cy="240" r="218" fill="url(#glow)"/>
+<g fill="#fff1a3">
+ <path d="M74 106l9 20 21 3-16 14 4 21-18-11-18 11 4-21-16-14 21-3z"/>
+ <path d="M425 104l7 16 17 2-13 12 3 17-14-9-15 9 3-17-12-12 17-2z"/>
+ <circle cx="91" cy="260" r="6"/><circle cx="426" cy="270" r="6"/>
+</g>
 <!-- graduation cap -->
-<path d="M115 126L252 72l146 54-145 60z" fill="#1a174d" stroke="#ffcf55" stroke-width="10" stroke-linejoin="round"/>
-<path d="M173 151v34q79 53 159 0v-34" fill="#282064" stroke="#ffcf55" stroke-width="8"/>
-<path d="M396 126v70" stroke="#ffcf55" stroke-width="9" stroke-linecap="round"/><circle cx="396" cy="205" r="12" fill="#ffcf55"/>
-<!-- brain -->
-<path d="M256 143c-18-29-58-29-77-4-34-8-62 20-58 52-29 19-31 59-6 81-14 34 5 69 38 77 8 34 42 51 74 35 12 14 20 19 29 19z" fill="url(#pink)" stroke="#a72e76" stroke-width="10"/>
-<path d="M256 143c18-29 58-29 77-4 34-8 62 20 58 52 29 19 31 59 6 81 14 34-5 69-38 77-8 34-42 51-74 35-12 14-20 19-29 19z" fill="url(#pink)" stroke="#a72e76" stroke-width="10"/>
-<path d="M256 146v254M178 184q-26 26 0 50m-47 34q35-2 39 31m-22 42q30-12 47 16m139-173q26 26 0 50m47 34q-35-2-39 31m22 42q-30-12-47 16" fill="none" stroke="#d64f91" stroke-width="9" stroke-linecap="round"/>
-<!-- glasses and happy face -->
-<g fill="none" stroke="#31245e" stroke-width="12"><circle cx="205" cy="263" r="42"/><circle cx="307" cy="263" r="42"/><path d="M247 260q9-12 18 0"/></g>
-<g fill="#fff"><ellipse cx="207" cy="263" rx="13" ry="19"/><ellipse cx="307" cy="263" rx="13" ry="19"/></g>
-<g fill="#31245e"><circle cx="211" cy="266" r="7"/><circle cx="311" cy="266" r="7"/></g>
-<path d="M224 324q32 33 64 0" fill="none" stroke="#9c245d" stroke-width="12" stroke-linecap="round"/>
-<!-- lightbulb -->
-<path d="M410 182q0-36 32-36t32 36q0 19-16 31l-3 18h-27l-3-18q-15-12-15-31" fill="url(#gold)" stroke="#fff1a0" stroke-width="7"/>
-<path d="M430 240h24m-20 11h16" stroke="#fff1a0" stroke-width="7" stroke-linecap="round"/>
-<!-- title plaque -->
-<path d="M54 394Q54 375 75 375H437Q458 375 458 396V480H54Z" fill="#172c87" stroke="#ffd66c" stroke-width="7"/>
-<text x="256" y="444" text-anchor="middle" font-family="Arial,sans-serif" font-size="78" font-weight="900" fill="url(#gold)" stroke="#8b4b00" stroke-width="2">IQ</text>
-<text x="256" y="472" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" font-weight="bold" fill="#fff">تحدّي العقول</text>
+<path d="M118 126L254 70l140 56-140 58z" fill="#171747" stroke="#ffdb6e" stroke-width="10" stroke-linejoin="round"/>
+<path d="M164 150v30q91 57 184 0v-30" fill="#24205c" stroke="#ffdb6e" stroke-width="8"/>
+<path d="M392 126v67" stroke="#ffdb6e" stroke-width="9" stroke-linecap="round"/><circle cx="392" cy="202" r="11" fill="url(#gold)"/>
+<!-- brain shadow -->
+<ellipse cx="256" cy="278" rx="160" ry="145" fill="#06134b" opacity=".4" filter="url(#shadow)"/>
+<!-- left brain hemisphere -->
+<path d="M255 166c-22-30-63-30-83-4-36-8-66 21-62 56-31 21-32 64-6 88-15 37 6 75 42 83 10 34 47 50 79 31 13 15 22 20 30 20z" fill="url(#blue)" stroke="#a6f6ff" stroke-width="9" stroke-linejoin="round"/>
+<!-- right brain hemisphere -->
+<path d="M257 166c22-30 63-30 83-4 36-8 66 21 62 56 31 21 32 64 6 88 15 37-6 75-42 83-10 34-47 50-79 31-13 15-22 20-30 20z" fill="url(#gold)" stroke="#fff0a0" stroke-width="9" stroke-linejoin="round"/>
+<path d="M256 169v248" stroke="#fff4c0" stroke-width="8" stroke-linecap="round"/>
+<!-- brain folds -->
+<g fill="none" stroke-linecap="round" stroke-width="9" opacity=".78">
+ <path d="M178 197q-30 26 0 55m-53 26q38-4 43 35m-25 38q35-13 53 18m-7-136q23 6 25 31m-22 53q-3 27 20 38" stroke="#d4fbff"/>
+ <path d="M334 197q30 26 0 55m53 26q-38-4-43 35m25 38q-35-13-53 18m7-136q-23 6-25 31m22 53q3 27-20 38" stroke="#fff4c5"/>
+</g>
+<!-- lightbulb idea -->
+<path d="M206 259c0-29 22-52 50-52s50 23 50 52c0 18-8 31-21 43-8 7-12 17-13 27h-32c-1-10-5-20-13-27-13-12-21-25-21-43z" fill="#fff8bd" stroke="#ff9f1c" stroke-width="10"/>
+<path d="M232 337h48m-43 17h38m-30 16h22" stroke="#ffcf4d" stroke-width="10" stroke-linecap="round"/>
+<path d="M241 264l15 17 16-17" fill="none" stroke="#f7a21b" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M230 232q25-24 51 0" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity=".85"/>
+<!-- question marks -->
+<text x="91" y="214" font-family="Arial,sans-serif" font-size="70" font-weight="900" fill="url(#gold)" stroke="#9b5a13" stroke-width="2">?</text>
+<text x="386" y="218" font-family="Arial,sans-serif" font-size="68" font-weight="900" fill="url(#violet)" stroke="#512b9d" stroke-width="2">?</text>
+<!-- lower IQ medallion -->
+<path d="M78 426Q78 405 101 405H411Q434 405 434 428V464H78Z" fill="#111d62" stroke="#ffdc72" stroke-width="8"/>
+<text x="256" y="458" text-anchor="middle" font-family="Arial,sans-serif" font-size="43" font-weight="900" letter-spacing="5" fill="url(#gold)" stroke="#8b4b0a" stroke-width="1.5">IQ</text>
+<path d="M70 388l7 16 17 2-13 12 3 17-14-9-15 9 3-17-12-12 17-2zM442 388l7 16 17 2-13 12 3 17-14-9-15 9 3-17-12-12 17-2z" fill="url(#gold)"/>
 </svg>
