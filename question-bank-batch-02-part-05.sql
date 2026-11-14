@@ -101,7 +101,7 @@ with new_questions(question_text, option_a, option_b, option_c, option_d, correc
 ('كم تساوي نسبة 10% من العدد 1940؟', '194', '199', '204', '189', 'A', '10% من 1940 تساوي 194.', 'رياضيات', 'hard'),
 ('كم تساوي نسبة 20% من العدد 980؟', '201', '206', '191', '196', 'D', '20% من 980 تساوي 196.', 'رياضيات', 'hard'),
 ('كم تساوي نسبة 25% من العدد 792؟', '208', '193', '198', '203', 'C', '25% من 792 تساوي 198.', 'رياضيات', 'hard'),
-('كم تساوي نسبة 50% من العدد 400؟', '195', '200', '205', '210', 'B', '50% من 400 تساوي 200.', 'رياضيات', 'hard'),
+('كم تساوي نسبة 50% من العدد 400؟', '195', '200', '205', '210', 'B', '50% من 400 تساوي 200.', 'رياضيات', 'hard')
 )
 insert into public.questions (question_text, option_a, option_b, option_c, option_d, correct_option, explanation, category, difficulty, is_active)
 select n.question_text, n.option_a, n.option_b, n.option_c, n.option_d, n.correct_option, n.explanation, n.category, n.difficulty, true
