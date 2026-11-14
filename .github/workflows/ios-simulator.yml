@@ -1,0 +1,94 @@
+name: iOS simulator build
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'delete-account.html'
+      - 'privacy.html'
+      - 'sw.js'
+      - 'package-lock.json'
+      - 'package.json'
+      - 'capacitor.config.json'
+      - 'vite.config.js'
+      - 'scripts/**'
+      - '.github/workflows/ios-simulator.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'package.json'
+      - 'capacitor.config.json'
+      - 'vite.config.js'
+      - 'scripts/**'
+      - '.github/workflows/ios-simulator.yml'
+
+concurrency:
+  group: iq-ios-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ios-simulator:
+    runs-on: macos-26
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+
+      - name: Verify Xcode 26 SDK
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks | grep -E 'iOS 26|iOS Simulator 26'
+
+      - name: Install JavaScript dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build web assets
+        run: |
+          npm run build
+          test -s www/index.html
+          test -s www/privacy.html
+          test -s www/delete-account.html
+
+      - name: Generate iOS project
+        run: npx cap add ios
+
+      - name: Generate iOS app icons and launch screen
+        run: npx capacitor-assets generate --ios --iconBackgroundColor '#173b9e' --splashBackgroundColor '#173b9e'
+
+      - name: Sync Capacitor
+        run: npx cap sync ios
+
+      - name: Build iOS simulator app
+        run: |
+          xcodebuild \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            -derivedDataPath build/ios \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Package simulator app
+        run: |
+          cd build/ios/Build/Products/Debug-iphonesimulator
+          zip -r "$GITHUB_WORKSPACE/IQ-Challenge-iOS-Simulator.zip" App.app
+
+      - name: Upload simulator build
+        uses: actions/upload-artifact@v4
+        with:
+          name: iq-challenge-ios-simulator
+          path: IQ-Challenge-iOS-Simulator.zip
+          if-no-files-found: error
+          retention-days: 14

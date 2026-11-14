@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#173b9e">
 <meta name="description" content="تحدّي العقول — لعبة أسئلة وذكاء عربية، تحديات يومية ومستويات وإنجازات.">
 <meta name="mobile-web-app-capable" content="yes">
@@ -715,13 +715,15 @@ body{
     <div class="row"><strong>حساب اللاعب</strong><span class="tag">تسجيل آمن</span></div>
     <p class="auth-note">أنشئ حساباً أو سجّل دخولك حتى نربط تقدمك بحسابك. استخدم بريداً إلكترونياً تملكه.</p>
     <div class="auth-grid" id="authForm">
-      <input class="auth-input" id="usernameInput" type="text" autocomplete="nickname" placeholder="اسم اللاعب (للحساب الجديد)">
+      <input class="auth-input" id="usernameInput" type="text" autocomplete="nickname" placeholder="اسم مستعار (لا تكتب بريدك أو معلوماتك الشخصية)">
       <input class="auth-input" id="emailInput" type="email" autocomplete="email" placeholder="البريد الإلكتروني">
       <input class="auth-input" id="passwordInput" type="password" autocomplete="current-password" placeholder="كلمة المرور (6 أحرف على الأقل)">
       <div class="auth-actions"><button class="btn" id="signupBtn">إنشاء حساب</button><button class="btn secondary" id="loginBtn">تسجيل الدخول</button></div>
     </div>
     <div class="account-line" id="accountStatus" aria-live="polite">غير مسجّل الدخول</div>
     <button class="btn secondary hidden" id="logoutBtn">تسجيل الخروج</button>
+    <button class="btn secondary hidden" id="deleteAccountBtn" type="button">🗑️ حذف الحساب نهائياً</button>
+    <p class="small"><a href="/delete-account.html">حذف الحساب والبيانات</a> · <a href="/privacy.html">سياسة الخصوصية</a></p>
   </section>
 
   <section class="stats">
@@ -821,7 +823,9 @@ body{
  </div>
 </section>
 <script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { createClient } from '@supabase/supabase-js';
+import { Capacitor } from '@capacitor/core';
+window.iqIsNative = Capacitor.isNativePlatform();
 const SUPABASE_URL = 'https://dkaoptjafnilyztlznmk.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_wzAJmA21MoRZhkokNj2RFw_lLqi8U9C';
 const supabase = window.iqSupabase || createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
@@ -1553,21 +1557,33 @@ const status = el('accountStatus');
 function setBusy(b){ el('signupBtn').disabled=b; el('loginBtn').disabled=b; }
 async function showSession(session){
   const user=session?.user;
-  if(!user){status.textContent='غير مسجّل الدخول';el('logoutBtn').classList.add('hidden');return;}
-  const username=(user.user_metadata?.username || user.email || 'لاعب').toString();
+  if(!user){
+    status.textContent='غير مسجّل الدخول';
+    el('logoutBtn').classList.add('hidden');
+    el('deleteAccountBtn').classList.add('hidden');
+    return;
+  }
+  const metadataName=(user.user_metadata?.username || '').toString().trim();
+  const {data:profile,error:profileReadError}=await supabase.from('profiles').select('username').eq('id',user.id).maybeSingle();
+  if(profileReadError) console.warn('Profile lookup:',profileReadError.message);
+  const savedName=(profile?.username || '').toString().trim();
+  const candidate=metadataName || savedName;
+  // Never publish an email address as a leaderboard display name.
+  const username=(candidate && !candidate.includes('@') ? candidate : 'لاعب-'+user.id.slice(0,6)).slice(0,32);
   window.iqSetBestRoundPlayer?.(user.id);
   status.textContent='مسجّل الدخول: '+username;
   el('logoutBtn').classList.remove('hidden');
+  el('deleteAccountBtn').classList.remove('hidden');
   el('authForm').classList.add('hidden');
-  // Store the player's display name in their own profile. RLS restricts this to their account.
-  const {error}=await supabase.from('profiles').upsert({id:user.id,username:username.slice(0,32)},{onConflict:'id'});
+  // Only the display name is public; the email remains in Supabase Auth.
+  const {error}=await supabase.from('profiles').upsert({id:user.id,username},{onConflict:'id'});
   if(error) console.warn('Profile setup:',error.message);
 }
 el('signupBtn').addEventListener('click',async()=>{
   const username=el('usernameInput').value.trim();
   const email=el('emailInput').value.trim();
   const password=el('passwordInput').value;
-  if(!username||!email||password.length<6){status.textContent='أدخل اسم اللاعب والبريد وكلمة مرور من 6 أحرف على الأقل.';return;}
+  if(!username||username.length<3||username.length>24||username.includes('@')||!email||password.length<6){status.textContent='اختر اسماً مستعاراً من 3 إلى 24 حرفاً دون بريد إلكتروني، وأدخل بريدك وكلمة مرور من 6 أحرف على الأقل.';return;}
   setBusy(true);status.textContent='جارٍ إنشاء الحساب...';
   const {data,error}=await supabase.auth.signUp({email,password,options:{data:{username}}});
   setBusy(false);
@@ -1584,6 +1600,37 @@ el('loginBtn').addEventListener('click',async()=>{
   await showSession(data.session);
 });
 el('logoutBtn').addEventListener('click',async()=>{const {error}=await supabase.auth.signOut();if(error){status.textContent='تعذّر تسجيل الخروج: '+error.message;return;}el('authForm').classList.remove('hidden');status.textContent='تم تسجيل الخروج.';el('logoutBtn').classList.add('hidden');});
+el('deleteAccountBtn').addEventListener('click',async()=>{
+  if(!window.confirm('هل أنت متأكد من حذف حسابك نهائياً؟ سيتم حذف اسم اللاعب والنقاط ومحاولاتك المرتبطة بالحساب، ولا يمكن التراجع عن ذلك.')) return;
+  const {data:{user},error:userError}=await supabase.auth.getUser();
+  if(userError||!user?.email){status.textContent='تعذّر التحقق من الحساب. سجّل الدخول مجدداً.';return;}
+  const password=window.prompt('للتأكد من هويتك، أدخل كلمة مرور الحساب:');
+  if(!password) return;
+  el('deleteAccountBtn').disabled=true;
+  status.textContent='جارٍ التحقق من كلمة المرور...';
+  const {error:reauthError}=await supabase.auth.signInWithPassword({email:user.email,password});
+  if(reauthError){
+    status.textContent='كلمة المرور غير صحيحة أو تعذّر التحقق. لم يُحذف الحساب.';
+    el('deleteAccountBtn').disabled=false;
+    return;
+  }
+  status.textContent='جارٍ حذف الحساب وبيانات اللعب...';
+  const {data,error}=await supabase.functions.invoke('delete-account',{method:'POST'});
+  if(error||data?.success!==true){
+    status.textContent='تعذّر حذف الحساب الآن. لم نؤكد الحذف؛ حاول مرة أخرى لاحقاً.';
+    el('deleteAccountBtn').disabled=false;
+    return;
+  }
+  localStorage.removeItem('iq-best-round:'+user.id);
+  localStorage.removeItem('iq-round-history:'+user.id);
+  localStorage.removeItem('iq-puzzle-session-v1-'+user.id);
+  localStorage.removeItem('iq-puzzle-session-v2-'+user.id);
+  await supabase.auth.signOut({scope:'local'});
+  el('authForm').classList.remove('hidden');
+  status.textContent='تم حذف الحساب وبيانات اللعب المرتبطة به.';
+  el('deleteAccountBtn').classList.add('hidden');
+});
+
 const {data:{session}}=await supabase.auth.getSession();
 if(session) await showSession(session);
 supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authForm').classList.remove('hidden');showSession(null);}});
@@ -1786,7 +1833,7 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
 </script>
 
 <script>
-if("serviceWorker" in navigator){
+if(location.hostname!=="localhost" && location.hostname!=="127.0.0.1" && "serviceWorker" in navigator){
  let iqRefreshing=false;
  navigator.serviceWorker.addEventListener("controllerchange",()=>{
   if(!iqRefreshing){iqRefreshing=true;window.location.reload();}
