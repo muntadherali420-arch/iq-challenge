@@ -822,6 +822,14 @@ button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
 .visual-feedback{min-height:44px;color:#3b527f;line-height:1.7;margin:12px 0;font-weight:700}
 @media(max-width:390px){.visual-stage-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.visual-answers{grid-template-columns:1fr}}
 </style>
+<style>
+/* Interactive visual puzzle controls */
+.visual-object{border:2px solid rgba(255,255,255,.9);border-radius:16px;background:rgba(255,255,255,.86);padding:8px 12px;font-size:clamp(36px,10vw,58px);box-shadow:0 4px 0 rgba(45,85,145,.18);cursor:pointer;min-width:68px;min-height:68px}
+.visual-object:focus-visible,.visual-answer:focus-visible,.visual-stage:focus-visible{outline:3px solid #f2a900;outline-offset:3px}
+.visual-object.selected{background:#d8f7e8;border-color:#31a879;transform:translateY(-3px)}
+.visual-order-hint{font-size:13px;color:#52658f;margin:6px 0}
+.visual-order-check{grid-column:1/-1}
+</style>
 </head>
 <body>
 <div id="launchScreen" role="dialog" aria-label="شاشة بداية تحدّي العقول">
@@ -2152,7 +2160,7 @@ window.setTimeout(() => {
  }
 })();
 
-// Third mode: visual observation stages (independent progress, saved on this device).
+// Third mode: interactive visual observation stages, saved locally.
 (()=>{
  const stages=[
   {scene:'☁️ 🌹 ☀️',q:'حتى تحصل الزهرة على ضوء الشمس، أي شيء يجب إبعاده عن طريقها؟',a:['الغيمة','الأصيص','الورقة','الجذر'],c:0,why:'الغيمة تحجب ضوء الشمس عن الزهرة.'},
@@ -2164,34 +2172,65 @@ window.setTimeout(() => {
   {scene:'🐟 💧 🫙',q:'أي بيئة يحتاجها السمك ليعيش؟',a:['الماء','الرمل الجاف','الهواء وحده','الثلج'],c:0,why:'السمك يعيش في الماء ويحتاج إلى بيئة مائية مناسبة.'},
   {scene:'🔋 🔦 ✨',q:'ما الذي تحتاجه المصباح اليدوي حتى يعمل؟',a:['بطارية مشحونة','ورقة','ملعقة','خيط'],c:0,why:'البطارية تمد المصباح بالطاقة.'},
   {scene:'🌱 💧 🌞',q:'ما العاملان الظاهران اللذان يساعدان النبتة على النمو؟',a:['الماء وضوء الشمس','الظل والغبار','الصوت والهواء فقط','الحجارة والملح'],c:0,why:'الماء وضوء الشمس من أساسيات نمو معظم النباتات.'},
-  {scene:'🧩 👀 💡',q:'ما أفضل طريقة لحل لغز بصري صعب؟',a:['ملاحظة التفاصيل','اختيار عشوائي','تجاهل الصورة','الإجابة بسرعة'],c:0,why:'ملاحظة التفاصيل وربطها بالسؤال يساعدان على الوصول للحل.'}
+  {scene:'🧩 👀 💡',q:'ما أفضل طريقة لحل لغز بصري صعب؟',a:['ملاحظة التفاصيل','اختيار عشوائي','تجاهل الصورة','الإجابة بسرعة'],c:0,why:'ملاحظة التفاصيل وربطها بالسؤال يساعدان على الوصول للحل.'},
+  {type:'tap',objects:['🍎','🍌','🥕','🍇'],target:2,scene:'🍎  🍌  🥕  🍇',q:'المس الشيء المختلف: أي عنصر ليس فاكهة؟',why:'الجزر من الخضروات، أما البقية فهي فواكه.'},
+  {scene:'⭐ ⭐ 🌙 ⭐ ⭐',q:'كم نجمة تشاهد في الصورة؟',a:['3','4','5','6'],c:2,why:'هناك خمس نجوم في المشهد.'},
+  {scene:'🍎 🍌 🥕 🍇',q:'أي عنصر لا ينتمي إلى مجموعة الفواكه؟',a:['التفاحة','الموزة','الجزر','العنب'],c:2,why:'الجزر خضار وليس فاكهة.'},
+  {type:'order',scene:'🌱  🌿  🌷  🌼',q:'رتّب مراحل نمو النبتة من البداية إلى النهاية بالضغط عليها بالترتيب.',items:['🌰 بذرة','🌱 برعم','🌿 نبتة','🌼 زهرة'],why:'تبدأ النبتة بذرة، ثم تنبت، وتنمو، وبعدها تزهر.'},
+  {type:'tap',objects:['🔵','🟡','🔴','🟢'],target:2,scene:'🔵  🟡  🔴  🟢',q:'المس الدائرة الحمراء في الصورة.',why:'أحسنت، اخترت الدائرة الحمراء.'},
+  {scene:'2️⃣  4️⃣  6️⃣  ❓',q:'ما الرقم الذي يكمل النمط؟',a:['7','8','9','10'],c:1,why:'النمط يزيد بمقدار 2 في كل مرة.'},
+  {scene:'🔺 🔺 🔵 🔺 🔺',q:'كم مثلثاً تشاهد في الصورة؟',a:['2','3','4','5'],c:1,why:'هناك ثلاثة مثلثات في المشهد.'},
+  {type:'order',scene:'🌅  ☀️  🌇  🌙',q:'رتّب أوقات اليوم من الصباح إلى الليل بالضغط عليها بالترتيب.',items:['🌅 الصباح','☀️ الظهر','🌇 المساء','🌙 الليل'],why:'هذا هو الترتيب المعتاد لأوقات اليوم.'},
+  {scene:'🚗 🚲 🚌 🍉',q:'أي عنصر لا يُستخدم للتنقّل؟',a:['السيارة','الدراجة','الحافلة','البطيخة'],c:3,why:'البطيخة طعام وليست وسيلة نقل.'},
+  {scene:'🟡 🔵 🟡 🔵 ❓',q:'أي لون يأتي بعد هذا النمط؟',a:['🟢 أخضر','🟡 أصفر','🔴 أحمر','⚫ أسود'],c:1,why:'النمط يتناوب بين الأصفر والأزرق، لذلك التالي أصفر.'}
  ];
  const key='iq-visual-stages-v1';
- const optionOrders=[[2,0,3,1],[1,3,0,2],[3,2,1,0],[1,0,3,2],[2,3,0,1],[3,1,2,0],[1,2,0,3],[2,0,1,3],[0,3,2,1],[3,0,1,2]];
- let completed=Number(localStorage.getItem(key)||0),current=0,locked=false;
+ const optionOrders=[[2,0,3,1],[1,3,0,2],[3,2,1,0],[1,0,3,2],[2,3,0,1],[3,1,2,0],[1,2,0,3],[2,0,1,3],[0,3,2,1],[3,0,1,2],[2,0,3,1],[1,3,0,2],[3,2,1,0],[2,0,3,1],[1,0,3,2],[3,1,2,0],[1,2,0,3],[2,3,0,1],[0,3,2,1],[3,0,1,2]];
+ let completed=Number(localStorage.getItem(key)||0),current=0,locked=false,orderSelected=[];
  const $v=id=>document.getElementById(id);
  const grid=$v('visualStageGrid'); if(!grid)return;
- function progress(){completed=Math.max(0,Math.min(10,completed));$v('visualProgress').textContent=completed+' / 10 مكتملة';$v('visualProgressBar').style.width=(completed*10)+'%';}
+ function progress(){completed=Math.max(0,Math.min(stages.length,completed));$v('visualProgress').textContent=completed+' / '+stages.length+' مكتملة';$v('visualProgressBar').style.width=(completed/stages.length*100)+'%';}
  function drawGrid(){
   progress();grid.innerHTML='';
   stages.forEach((_,i)=>{const b=document.createElement('button');b.type='button';b.className='visual-stage'+(i<completed?' done':'');b.textContent=(i<completed?'✓ ':'')+(i+1);b.disabled=i>completed;b.setAttribute('aria-label','المرحلة '+(i+1));b.addEventListener('click',()=>openStage(i));grid.appendChild(b);});
   $v('visualStageSelect').classList.remove('hidden');$v('visualPlay').classList.add('hidden');
  }
+ function showRetry(){
+  document.querySelectorAll('.visual-retry').forEach(b=>b.remove());
+  const retry=document.createElement('button');retry.type='button';retry.className='btn secondary visual-retry';retry.textContent='إعادة المحاولة';retry.addEventListener('click',()=>openStage(current));$v('visualAnswers').after(retry);
+ }
+ function success(message){
+  locked=true;completed=Math.max(completed,current+1);localStorage.setItem(key,String(completed));
+  $v('visualFeedback').textContent='ممتاز! '+message;progress();
+  $v('visualNext').classList.remove('hidden');$v('visualNext').textContent=current===stages.length-1?'إنهاء الاختبار ✓':'المرحلة التالية ←';
+ }
+ function fail(message='مو مشكلة! حاول مرة ثانية وركز بالتفاصيل.'){
+  $v('visualFeedback').textContent=message;showRetry();
+ }
  function openStage(i){
-  if(i>completed)return;current=i;locked=false;const x=stages[i];
+  if(i>completed)return;current=i;locked=false;orderSelected=[];const x=stages[i];
   $v('visualStageSelect').classList.add('hidden');$v('visualPlay').classList.remove('hidden');
-  $v('visualStageTitle').textContent='المرحلة '+(i+1);$v('visualStageCount').textContent=(i+1)+' / 10';
-  $v('visualScene').textContent=x.scene;$v('visualQuestion').textContent=x.q;$v('visualFeedback').textContent='اختر الإجابة التي تراها صحيحة.';
+  $v('visualStageTitle').textContent='المرحلة '+(i+1);$v('visualStageCount').textContent=(i+1)+' / '+stages.length;
+  const scene=$v('visualScene');scene.innerHTML='';scene.textContent=x.scene||'';
+  $v('visualQuestion').textContent=x.q;$v('visualFeedback').textContent=x.type==='order'?'اضغط العناصر حسب الترتيب الصحيح.':x.type==='tap'?'المس العنصر المطلوب داخل المشهد.':'اختر الإجابة التي تراها صحيحة.';
   $v('visualNext').classList.add('hidden');$v('visualAnswers').innerHTML='';document.querySelectorAll('.visual-retry').forEach(b=>b.remove());
-  optionOrders[i].forEach(n=>{const b=document.createElement('button');b.type='button';b.className='visual-answer';b.textContent=x.a[n];b.addEventListener('click',()=>choose(n));$v('visualAnswers').appendChild(b);});
+  if(x.type==='tap'){
+   scene.textContent='';
+   x.objects.forEach((obj,n)=>{const b=document.createElement('button');b.type='button';b.className='visual-object';b.textContent=obj;b.setAttribute('aria-label','العنصر '+(n+1));b.addEventListener('click',()=>{if(locked)return;if(n===x.target){b.classList.add('selected');success(x.why);}else{b.classList.add('selected');fail('هذا مو المطلوب، جرّب عنصر ثاني.');}});scene.appendChild(b);});
+  }else if(x.type==='order'){
+   x.items.forEach((item,n)=>{const b=document.createElement('button');b.type='button';b.className='visual-answer';b.textContent=item;b.addEventListener('click',()=>{if(locked||orderSelected.includes(n))return;orderSelected.push(n);b.classList.add('correct');b.disabled=true;$v('visualFeedback').textContent='ترتيبك الحالي: '+orderSelected.map(k=>x.items[k]).join(' ← ');});$v('visualAnswers').appendChild(b);});
+   const check=document.createElement('button');check.type='button';check.className='btn visual-order-check';check.textContent='تحقّق من الترتيب';check.addEventListener('click',()=>{if(locked)return;if(orderSelected.length!==x.items.length){fail('اختَر كل العناصر أولاً، ثم تحقّق من الترتيب.');return;}if(orderSelected.every((n,k)=>n===k))success(x.why);else{locked=true;fail('الترتيب مو صحيح. أعد المحاولة.');}});$v('visualAnswers').appendChild(check);
+  }else{
+   optionOrders[i].forEach(n=>{const b=document.createElement('button');b.type='button';b.className='visual-answer';b.textContent=x.a[n];b.addEventListener('click',()=>choose(n));$v('visualAnswers').appendChild(b);});
+  }
  }
  function choose(n){
-  if(locked)return;locked=true;const x=stages[current],buttons=[...$v('visualAnswers').children];
-  buttons.forEach((b,i)=>{b.disabled=true;if(i===x.c)b.classList.add('correct');else if(i===n)b.classList.add('wrong');});
-  if(n===x.c){completed=Math.max(completed,current+1);localStorage.setItem(key,String(completed));$v('visualFeedback').textContent='ممتاز! '+x.why;progress();$v('visualNext').classList.remove('hidden');$v('visualNext').textContent=current===9?'إنهاء الاختبار ✓':'المرحلة التالية ←';}
-  else{$v('visualFeedback').textContent='مو مشكلة! راجع المشهد وحاول مرة ثانية.';const retry=document.createElement('button');retry.type='button';retry.className='btn secondary visual-retry';retry.textContent='إعادة المحاولة';retry.addEventListener('click',()=>openStage(current));$v('visualAnswers').after(retry);}
+  if(locked)return;const x=stages[current],buttons=[...$v('visualAnswers').children].filter(b=>b.classList.contains('visual-answer'));
+  buttons.forEach(b=>b.disabled=true);
+  if(n===x.c){buttons.forEach((b)=>{if(b.textContent===x.a[x.c])b.classList.add('correct');});success(x.why);}
+  else{const selected=buttons.find(b=>b.textContent===x.a[n]);if(selected)selected.classList.add('wrong');fail();}
  }
- $v('visualNext').addEventListener('click',()=>{if(current<9&&current<completed)openStage(current+1);else drawGrid();});
+ $v('visualNext').addEventListener('click',()=>{if(current<stages.length-1&&current<completed)openStage(current+1);else drawGrid();});
  $v('visualBack').addEventListener('click',drawGrid);
  document.querySelectorAll('[data-open-screen="visual"],.nav-btn[data-screen="visual"]').forEach(b=>b.addEventListener('click',drawGrid));
  drawGrid();
