@@ -854,6 +854,21 @@ button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
 @media(prefers-reduced-motion:no-preference){.daily-launch-icon{animation:dailyStarFloat 3s ease-in-out infinite}@keyframes dailyStarFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}}
 @media(max-width:360px){.daily-launch-card{padding:12px;gap:10px}.daily-launch-icon{width:54px;height:54px;flex-basis:54px;font-size:29px}.daily-launch-copy strong{font-size:16px}}
 </style>
+<style>
+.achievement-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}
+.achievement-stats>div{display:flex;flex-direction:column;align-items:center;gap:3px;padding:12px 5px;border-radius:15px;background:var(--surface-2,#f2f5fb);text-align:center}
+.achievement-stats strong{font-size:24px;font-weight:950;color:var(--primary,#536bd8);font-variant-numeric:tabular-nums}
+.achievement-stats span{font-size:10px;color:var(--muted,#68738b)}
+.achievement-badges{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+.achievement-badge{display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 5px;border:1px solid var(--border,#dce2ed);border-radius:16px;background:var(--surface,#fff);text-align:center;opacity:.62;filter:grayscale(.75)}
+.achievement-badge.unlocked{opacity:1;filter:none;border-color:#e8bd54;background:linear-gradient(160deg,#fff9e8,#fff)}
+.achievement-badge>span{font-size:31px}
+.achievement-badge strong{font-size:12px}
+.achievement-badge small{font-size:9px;color:var(--muted,#68738b)}
+.achievement-badge em{font-style:normal;font-size:9px;font-weight:900;color:#8a6a24}
+.achievement-badge.unlocked em{color:#16845e}
+@media(max-width:350px){.achievement-badges{gap:5px}.achievement-badge{padding:9px 2px}.achievement-badge strong{font-size:10px}}
+</style>
 </head>
 <body>
 <div id="launchScreen" role="dialog" aria-label="شاشة بداية تحدّي العقول">
@@ -987,7 +1002,24 @@ button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
   </section>
   </div>
   <div class="app-screen" id="screen-profile">
-  <section class="card" id="historyCard">
+  <section class="card" <section class="card achievements-center" id="achievementsCenter">
+  <div class="row"><strong>🏅 مركز إنجازاتي</strong><span class="tag">شاراتي</span></div>
+  <p class="small">اجمع الإنجازات بالمشاركة اليومية، وتابع تقدمك نحو الشارات التالية.</p>
+  <div class="achievement-stats">
+    <div><strong id="achievementCurrent">0</strong><span>السلسلة الحالية</span></div>
+    <div><strong id="achievementBest">0</strong><span>أفضل سلسلة</span></div>
+    <div><strong id="achievementTotal">0</strong><span>أيام المشاركة</span></div>
+  </div>
+  <div class="achievement-badges">
+    <article class="achievement-badge" id="badge3"><span>🥉</span><strong>المثابر</strong><small>3 أيام متتالية</small><em>مقفلة</em></article>
+    <article class="achievement-badge" id="badge7"><span>🥈</span><strong>المتقدم</strong><small>7 أيام متتالية</small><em>مقفلة</em></article>
+    <article class="achievement-badge" id="badge30"><span>🏆</span><strong>البطل</strong><small>30 يوماً متتالياً</small><em>مقفلة</em></article>
+  </div>
+  <p class="small" id="achievementNext">ابدأ تحدّي اليوم حتى تسجل أول إنجاز لك.</p>
+  <button class="btn secondary" type="button" id="refreshAchievements">تحديث الإنجازات</button>
+</section>
+
+id="historyCard">
     <div class="row"><strong>📚 سجل إنجازاتي</strong><span class="tag">على هذا الجهاز</span></div>
     <p class="small">ملخص إنجازات حسابك، وآخر الجولات المسجلة على هذا الجهاز.</p>
     <div class="level-caption" id="historySummary"><span>الجولات المكتملة: 0</span><span>المسجلة هنا: 0</span></div>
@@ -1452,19 +1484,41 @@ function updateDailyStreakDisplay(streak) {
   el.textContent = '🔥 سلسلتك: ' + current.toLocaleString('ar-IQ') +
     ' أيام · أفضل سلسلة: ' + best.toLocaleString('ar-IQ') + milestone;
 }
+function renderAchievementCenter(streak) {
+  const current = Math.max(0, Number(streak?.current_streak || 0));
+  const best = Math.max(0, Number(streak?.best_streak || 0));
+  const total = Math.max(0, Number(streak?.total_participation_days || 0));
+  $('achievementCurrent').textContent = current.toLocaleString('ar-IQ');
+  $('achievementBest').textContent = best.toLocaleString('ar-IQ');
+  $('achievementTotal').textContent = total.toLocaleString('ar-IQ');
+  [[3,'badge3'],[7,'badge7'],[30,'badge30']].forEach(([goal,id]) => {
+    const el = $(id);
+    const unlocked = best >= goal;
+    el.classList.toggle('unlocked', unlocked);
+    el.querySelector('em').textContent = unlocked ? '✓ تم فتحها' : 'مقفلة';
+  });
+  const next = [3,7,30].find(goal => best < goal);
+  $('achievementNext').textContent = next
+    ? 'باقي ' + Math.max(0,next-current).toLocaleString('ar-IQ') + ' أيام متتالية للوصول إلى شارة ' + next + ' أيام.'
+    : 'مذهل! فتحت جميع شارات سلسلة التحدّي اليومي.';
+}
 async function loadDailyStreak() {
   const { data: sessionData } = await supabase.auth.getSession();
   if (!sessionData.session) {
     updateDailyStreakDisplay(null);
+    renderAchievementCenter(null);
+    $('achievementNext').textContent = 'سجّل الدخول حتى نعرض إنجازاتك المحفوظة.';
     return;
   }
   const { data, error } = await supabase.rpc('get_daily_challenge_streak');
   if (error || !data) {
     const el = $('dailyHomeStreak');
     if (el) el.textContent = '🔥 تعذّر تحميل سلسلة الإنجازات';
+    $('achievementNext').textContent = 'تعذّر تحميل الإنجازات. حاول التحديث بعد قليل.';
     return;
   }
   updateDailyStreakDisplay(data);
+  renderAchievementCenter(data);
 }
 function refreshDailyCountdown() {
   updateDailyHomeCard();
@@ -1477,6 +1531,7 @@ function refreshDailyCountdown() {
 window.setInterval(refreshDailyCountdown, 1000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshDailyCountdown(); });
 updateDailyHomeCard('login');
+$('refreshAchievements')?.addEventListener('click', loadDailyStreak);
 async function loadDailyChallenge() {
   const loadVersion = ++dailyLoadVersion;
   const questionEl = $('dailyQuestion');
