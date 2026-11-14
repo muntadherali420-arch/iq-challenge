@@ -528,7 +528,7 @@ body{
 .mode-million{background:linear-gradient(145deg,#193c72,#2369a6 58%,#1c3865)}
 .mode-puzzle{background:linear-gradient(145deg,#59347d,#874a9e 58%,#442b71)}
 .mode-icon{font-size:30px}.mode-kicker{font-size:10px;font-weight:800;opacity:.8}.mode-card strong{font-size:18px}.mode-card small{font-size:11px;line-height:1.6;opacity:.9}.mode-go{margin-top:auto;font-size:12px;font-weight:900;color:#ffe39b}
-.puzzle-shell{padding:18px!important}.puzzle-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.puzzle-head h2{margin:5px 0;font-size:23px}
+.puzzle-shell{padding:18px!important}.puzzle-rest-status{margin:8px 0 2px;padding:9px 12px;border:1px solid #d9c58f;border-radius:12px;background:linear-gradient(110deg,#fff4d8,#eeeaff);color:#594779;font-size:12px;font-weight:850;text-align:center}.puzzle-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.puzzle-head h2{margin:5px 0;font-size:23px}
 .puzzle-level{background:#f5d58a;color:#26334a;border-radius:13px;padding:9px 12px;font-weight:900;white-space:nowrap}
 .puzzle-progress{height:8px;background:#ffffff18;border-radius:99px;overflow:hidden;margin:15px 0}#puzzleProgressBar{height:100%;width:0;background:linear-gradient(90deg,#62e6bd,#ffd166);border-radius:99px;transition:width .3s}
 .puzzle-scene{height:150px;border-radius:20px;background:linear-gradient(135deg,#233c64,#394c75);display:grid;place-items:center;font-size:66px;margin:14px 0;box-shadow:inset 0 0 0 1px #ffffff16}
@@ -753,6 +753,7 @@ body{
     <section class="card puzzle-shell">
       <div class="puzzle-head"><div><span class="eyebrow">🧩 تحدّي التفكير الجانبي</span><h2>الأحجيات المخادعة</h2><p class="small">لا تستعجل… أحياناً الجواب مو مثل ما تتوقع!</p></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:7px"><div class="puzzle-level" id="puzzleLevel">1 / 10</div><div class="puzzle-score" id="puzzleScore">⭐ 0 نقطة</div></div></div>
       <div class="puzzle-progress"><div id="puzzleProgressBar"></div></div>
+      <div class="puzzle-rest-status" id="puzzleRestStatus" aria-live="polite">الجولات: 0 / 10 قبل الاستراحة</div>
       <div class="puzzle-scene" id="puzzleScene">🔍</div><div class="puzzle-tag" id="puzzleTag">لغز البداية</div>
       <h3 class="puzzle-question" id="puzzleQuestion">جارٍ تجهيز اللغز...</h3>
       <div class="puzzle-answers" id="puzzleAnswers"></div><div class="puzzle-feedback" id="puzzleFeedback" aria-live="polite"></div>
@@ -985,6 +986,7 @@ function playSound(kind = 'tap') {
     });
   } catch (error) { console.debug('Audio unavailable:', error); }
 }
+window.iqPlaySound = playSound;
 $('soundToggle').addEventListener('click', () => {
   soundEnabled = !soundEnabled;
   try { localStorage.setItem('iq-sound-enabled', String(soundEnabled)); } catch {}
@@ -1592,7 +1594,37 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
  const getClient=()=>window.iqSupabase;
  const $=id=>document.getElementById(id);
  let puzzles=[],puzzleIndex=0,answered=false,submitting=false,roundPoints=0,roundComplete=false,loading=false;
- let totalPuzzlePoints=0;
+ let totalPuzzlePoints=0,currentPuzzleUserId=null,restTimer=null;
+ const ROUNDS_BEFORE_REST=10,REST_DURATION_MS=30*60*1000;
+ const progressKey=()=> 'iq-puzzle-session-v1-'+currentPuzzleUserId;
+ function readProgress(){
+  try{return JSON.parse(localStorage.getItem(progressKey()))||{completedRounds:0,breakUntil:0};}
+  catch{return {completedRounds:0,breakUntil:0};}
+ }
+ function saveProgress(state){
+  try{localStorage.setItem(progressKey(),JSON.stringify(state));}catch(error){console.warn('Puzzle progress storage:',error);}
+ }
+ function formatRemaining(ms){
+  const seconds=Math.max(0,Math.ceil(ms/1000));
+  return String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');
+ }
+ function updateRestStatus(){
+  if(!currentPuzzleUserId)return;
+  const state=readProgress(),now=Date.now(),status=$('puzzleRestStatus'),button=$('puzzleNextBtn');
+  if(state.breakUntil>now){
+   status.textContent='⏸️ استراحة إلزامية بعد 10 جولات · الوقت المتبقي: '+formatRemaining(state.breakUntil-now);
+   if(roundComplete){button.textContent='استراحة — انتظر انتهاء الوقت';button.disabled=true;}
+  }else{
+   if(state.breakUntil&&state.breakUntil<=now){state.breakUntil=0;state.completedRounds=0;saveProgress(state);}
+   status.textContent='الجولات: '+state.completedRounds+' / '+ROUNDS_BEFORE_REST+' قبل الاستراحة';
+   if(roundComplete){button.textContent='ابدأ جولة جديدة';button.disabled=false;}
+  }
+ }
+ function startRestClock(){
+  if(restTimer)clearInterval(restTimer);
+  updateRestStatus();
+  restTimer=setInterval(updateRestStatus,1000);
+ }
  function setMessage(q,feedback){
   $('puzzleQuestion').textContent=q;
   $('puzzleFeedback').textContent=feedback||'';
@@ -1624,7 +1656,7 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
    const b=document.createElement('button');
    b.type='button';b.className='puzzle-answer';
    b.textContent=['أ','ب','ج','د'][i]+' · '+answer;
-   b.addEventListener('click',()=>choose(i));
+   b.addEventListener('click',()=>{window.iqPlaySound?.('tap');choose(i);});
    $('puzzleAnswers').appendChild(b);
   });
   $('puzzleHintBtn').classList.add('hidden');
@@ -1646,6 +1678,20 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
    setMessage('سجّل الدخول أولاً حتى نحفظ محاولاتك ونقاطك بالحساب.','بعد تسجيل الدخول، افتح قسم الأحجيات وابدأ الجولة.');
    showScene('🔐');loading=false;return;
   }
+  currentPuzzleUserId=sessionData.session.user.id;
+  const progress=readProgress();
+  if(progress.breakUntil>Date.now()){
+   roundComplete=true;puzzles=[];
+   showScene('⏸️');
+   $('puzzleLevel').textContent='استراحة';
+   $('puzzleProgressBar').style.width='100%';
+   $('puzzleTag').textContent='استراحة إجبارية';
+   setMessage('أحسنت! أكملت 10 جولات.','نأخذ استراحة 30 دقيقة حتى ترجع بنشاط. لن تضيع نقاطك أو تقدمك.');
+   $('puzzleAnswers').replaceChildren();
+   $('puzzleNextBtn').classList.remove('hidden');$('puzzleNextBtn').disabled=true;
+   startRestClock();loading=false;await refreshScores();return;
+  }
+  startRestClock();
   const {data,error}=await client.rpc('get_puzzle_questions');
   if(error){
    setMessage('تعذّر تحميل الأحجيات.','تحقق من الاتصال ثم حاول مرة أخرى.');
@@ -1696,6 +1742,7 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
   const points=Number(data.points_awarded)||0;
   roundPoints+=points;
   $('puzzleFeedback').textContent=(data.is_correct?'إجابة صحيحة! +10 نقاط. ':'إجابة غير صحيحة؛ لا نقاط هذه المرة. ')+(data.explanation||'');
+  window.iqPlaySound?.(data.is_correct?'correct':'wrong');
   showScene(data.is_correct?'🎉':'🧩');
   if(data.is_correct)$('puzzleScene').classList.add('puzzle-celebrate');
   $('puzzleNextBtn').textContent=puzzleIndex===puzzles.length-1?'عرض نتيجة الجولة':'اللغز التالي ←';
@@ -1703,7 +1750,13 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
   await refreshScores();
  }
  function finishRound(){
+  if(roundComplete)return;
   roundComplete=true;
+  const state=readProgress();
+  state.completedRounds=Math.min(ROUNDS_BEFORE_REST,state.completedRounds+1);
+  if(state.completedRounds>=ROUNDS_BEFORE_REST)state.breakUntil=Date.now()+REST_DURATION_MS;
+  saveProgress(state);
+  window.iqPlaySound?.(roundPoints>=50?'victory':'defeat');
   $('puzzleLevel').textContent=puzzles.length+' / '+puzzles.length;
   $('puzzleProgressBar').style.width='100%';
   showScene('🏆');
@@ -1713,19 +1766,22 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
   $('puzzleFeedback').textContent='نتيجتك: '+roundPoints+' من '+(puzzles.length*10)+' نقطة. نقاط الأحجيات المحفوظة: '+totalPuzzlePoints+'.';
   $('puzzleNextBtn').textContent='ابدأ جولة جديدة';
   $('puzzleNextBtn').classList.remove('hidden');$('puzzleNextBtn').disabled=false;
+  updateRestStatus();
  }
  $('puzzleNextBtn').addEventListener('click',()=>{
   if(loading||submitting)return;
+  if($('puzzleNextBtn').disabled)return;
+  window.iqPlaySound?.('tap');
   if(roundComplete||!puzzles.length){loadRound();return;}
   if(!answered)return;
   if(puzzleIndex<puzzles.length-1){puzzleIndex++;render();}
   else finishRound();
  });
  $('puzzleHintBtn').classList.add('hidden');
- document.querySelectorAll('[data-open-screen="puzzles"],.nav-btn[data-screen="puzzles"]').forEach(b=>b.addEventListener('click',()=>{if(!puzzles.length&&!loading)loadRound();}));
+ document.querySelectorAll('[data-open-screen="puzzles"],.nav-btn[data-screen="puzzles"]').forEach(b=>b.addEventListener('click',()=>{if((!puzzles.length||roundComplete)&&!loading)loadRound();}));
  const client=getClient();
  if(client)client.auth.onAuthStateChange((_event,session)=>{
-  if(session&&window.iqCurrentScreen==='puzzles')loadRound();
+  if(session&&window.iqCurrentScreen==='puzzles'){currentPuzzleUserId=session.user.id;loadRound();}
  });
 })();
 </script>
