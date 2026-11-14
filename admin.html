@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#20213f">
+<title>إدارة تحدّي العقول</title>
+<style>
+:root{color-scheme:dark;--bg:#17172f;--panel:#242442;--panel2:#303052;--ink:#f5f2ff;--muted:#c2bfd8;--gold:#f2c879;--line:#494566;--mint:#a99af5}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 10% 0%,#37305f 0,transparent 38%),linear-gradient(145deg,#17172f,#28213f);color:var(--ink);font-family:system-ui,sans-serif}
+main{width:min(1120px,100%);margin:auto;padding:22px 16px 48px}.head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+h1{font-size:23px;margin:0}.muted{color:var(--muted);font-size:13px;line-height:1.7}.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;margin:14px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}
+label{font-size:13px;color:var(--muted)}input,select,textarea{width:100%;padding:12px;border:1px solid #625b83;border-radius:11px;background:#302f50;color:var(--ink);font:inherit}textarea{min-height:78px;resize:vertical}
+button,.linkbtn{border:0;border-radius:11px;padding:11px 15px;font:700 14px system-ui;cursor:pointer;background:linear-gradient(110deg,#f2d49a,#dcb66f);color:#29213a}
+button.secondary{background:#514878;color:#fff}button.danger{background:#69394c;color:#fff}button:disabled{opacity:.55;cursor:wait}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.toolbar input{flex:1;min-width:180px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:right;padding:11px 8px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--gold)}td.question{min-width:260px;line-height:1.6}.status{padding:10px 12px;border-radius:10px;background:#303052;color:#e9d8aa;white-space:pre-wrap;font-size:13px;line-height:1.6;margin:12px 0}.hidden{display:none!important}.pill{display:inline-block;border-radius:99px;padding:4px 8px;background:#3c365f;color:#e7d6ff;font-size:11px}.count{font-size:25px;color:var(--gold);font-weight:800}.empty{text-align:center;padding:28px;color:var(--muted)}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.field.full{grid-column:auto}.tablewrap{overflow:auto}main{padding:16px 12px 36px}.panel{padding:14px}h1{font-size:20px}}
+</style>
+</head>
+<body>
+<main>
+<header class="head">
+ <div><h1>🛠️ إدارة تحدّي العقول</h1><div class="muted">لوحة خاصة بصاحب التطبيق — لا تظهر للاعبين</div></div>
+ <div class="actions"><a href="/" style="color:#e5d7ff;align-self:center">العودة للعبة</a><button id="logout" class="secondary hidden">تسجيل الخروج</button></div>
+</header>
+<section id="authPanel" class="panel">
+ <h2>تسجيل دخول الإدارة</h2><p class="muted">استخدم حساب الإدارة المعتمد في اللعبة. امتلاك حساب لاعب وحده لا يمنح صلاحية الإدارة.</p>
+ <div class="grid">
+  <div class="field"><label for="email">البريد الإلكتروني</label><input id="email" type="email" autocomplete="username"></div>
+  <div class="field"><label for="password">كلمة المرور</label><input id="password" type="password" autocomplete="current-password"></div>
+ </div>
+ <div class="actions"><button id="login">دخول</button></div>
+ <div id="authStatus" class="status">تحقق من صلاحية الإدارة بعد تسجيل الدخول.</div>
+</section>
+<section id="setupPanel" class="panel hidden">
+ <h2>تفعيل حساب المالك</h2>
+ <p class="muted">تم تسجيل الدخول، لكن هذا الحساب غير مضاف إلى قائمة المشرفين. شغّل ملف <code>admin-dashboard-setup.sql</code> في SQL Editor، ثم أضف معرّف حسابك إلى جدول <code>admin_users</code>. بعد ذلك اضغط إعادة التحقق.</p>
+ <div class="actions"><button id="recheck">إعادة التحقق</button><button id="setupLogout" class="secondary">تسجيل الخروج</button></div>
+ <div id="setupStatus" class="status">لم يتم منح صلاحية الإدارة لهذا الحساب.</div>
+</section>
+<section id="dashboard" class="hidden">
+ <div class="panel">
+  <div class="toolbar"><div><div class="muted">إجمالي الأسئلة في قاعدة البيانات</div><div class="count" id="totalCount">—</div></div><div style="margin-inline-start:auto" class="pill">إدارة بنك الأسئلة</div></div>
+  <p class="muted">تقدر تضيف سؤالاً أو تعدّل سؤالاً موجوداً أو توقف عرضه للاعبين. التعديلات تنحفظ مباشرة في قاعدة البيانات.</p>
+ </div>
+ <section class="panel">
+  <h2 id="formTitle">إضافة سؤال جديد</h2>
+  <form id="questionForm">
+   <input id="questionId" type="hidden">
+   <div class="grid">
+    <div class="field full"><label for="questionText">نص السؤال</label><textarea id="questionText" required maxlength="1200"></textarea></div>
+    <div class="field"><label for="optionA">الخيار A</label><input id="optionA" required maxlength="400"></div>
+    <div class="field"><label for="optionB">الخيار B</label><input id="optionB" required maxlength="400"></div>
+    <div class="field"><label for="optionC">الخيار C</label><input id="optionC" required maxlength="400"></div>
+    <div class="field"><label for="optionD">الخيار D</label><input id="optionD" required maxlength="400"></div>
+    <div class="field"><label for="correct">الإجابة الصحيحة</label><select id="correct"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
+    <div class="field"><label for="category">التصنيف</label><input id="category" required maxlength="80" placeholder="علوم، جغرافية، تاريخ..."></div>
+    <div class="field"><label for="difficulty">الصعوبة</label><select id="difficulty"><option value="easy">سهل</option><option value="medium" selected>متوسط</option><option value="hard">صعب</option><option value="expert">خبير</option><option value="genius">عبقري</option></select></div>
+    <div class="field"><label for="active">حالة السؤال</label><select id="active"><option value="true">نشط</option><option value="false">متوقف</option></select></div>
+    <div class="field full"><label for="explanation">شرح الإجابة (اختياري)</label><textarea id="explanation" maxlength="1200"></textarea></div>
+   </div>
+   <div class="actions"><button id="save" type="submit">حفظ السؤال</button><button id="cancelEdit" class="secondary hidden" type="button">إلغاء التعديل</button></div>
+  </form>
+  <div id="formStatus" class="status hidden"></div>
+ </section>
+ <section class="panel">
+  <div class="toolbar"><h2 style="margin:0">بنك الأسئلة</h2><input id="search" placeholder="ابحث بنص السؤال أو التصنيف"><select id="filter" style="max-width:150px"><option value="all">الكل</option><option value="active">النشطة</option><option value="inactive">المتوقفة</option></select><button id="refresh" class="secondary">تحديث</button></div>
+  <div class="tablewrap"><table><thead><tr><th>السؤال</th><th>التصنيف</th><th>الصعوبة</th><th>الحالة</th><th>الإجراءات</th></tr></thead><tbody id="questionRows"><tr><td colspan="5" class="empty">جارٍ التحميل...</td></tr></tbody></table></div>
+  <div class="actions"><button id="loadMore" class="secondary">تحميل المزيد</button></div>
+  <div id="listStatus" class="muted"></div>
+ </section>
+</section>
+</main>
+<script type="module">
+import { createClient } from '@supabase/supabase-js';
+const URL='https://dkaoptjafnilyztlznmk.supabase.co';
+const KEY='sb_publishable_wzAJmA21MoRZhkokNj2RFw_lLqi8U9C';
+const db=createClient(URL,KEY);
+const $=id=>document.getElementById(id);
+let offset=0, pageSize=40, rows=[], currentUser=null, isAdmin=false;
+const fields=['question_text','option_a','option_b','option_c','option_d','correct_option','category','difficulty','explanation','is_active'];
+function message(id,text){$(id).textContent=text;$(id).classList.remove('hidden')}
+function show(id,yes){$(id).classList.toggle('hidden',!yes)}
+function resetForm(){ $('questionForm').reset();$('questionId').value='';$('formTitle').textContent='إضافة سؤال جديد';$('save').textContent='حفظ السؤال';show('cancelEdit',false);show('formStatus',false); }
+function startEdit(q){$('questionId').value=q.id;$('questionText').value=q.question_text;$('optionA').value=q.option_a;$('optionB').value=q.option_b;$('optionC').value=q.option_c;$('optionD').value=q.option_d;$('correct').value=q.correct_option;$('category').value=q.category;$('difficulty').value=q.difficulty;$('explanation').value=q.explanation||'';$('active').value=String(q.is_active);$('formTitle').textContent='تعديل سؤال';$('save').textContent='حفظ التعديلات';show('cancelEdit',true);window.scrollTo({top:0,behavior:'smooth'});}
+async function checkAdmin(){
+ const {data:{session}}=await db.auth.getSession();currentUser=session?.user||null;
+ show('authPanel',!currentUser);show('logout',!!currentUser);show('setupPanel',false);show('dashboard',false);
+ if(!currentUser)return;
+ const {data,error}=await db.from('admin_users').select('user_id').eq('user_id',currentUser.id).maybeSingle();
+ if(error){show('setupPanel',true);message('setupStatus','تعذّر التحقق من صلاحية الإدارة: '+error.message+'\nتأكد من تشغيل ملف SQL الخاص بلوحة الإدارة.');return;}
+ isAdmin=!!data;
+ if(!isAdmin){show('setupPanel',true);message('setupStatus','هذا الحساب غير موجود في قائمة المشرفين. لا يمكنه فتح أدوات الإدارة.');return;}
+ show('dashboard',true);await loadQuestions(true);
+}
+async function login(){ $('login').disabled=true;$('authStatus').textContent='جارٍ تسجيل الدخول...';const {error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});$('login').disabled=false;if(error){message('authStatus','تعذّر تسجيل الدخول: '+error.message);return;}await checkAdmin();}
+async function logout(){await db.auth.signOut();currentUser=null;isAdmin=false;show('dashboard',false);show('setupPanel',false);show('authPanel',true);show('logout',false);}
+async function loadQuestions(reset=false){
+ if(!isAdmin)return;if(reset){offset=0;rows=[];$('questionRows').innerHTML='<tr><td colspan="5" class="empty">جارٍ التحميل...</td></tr>';}
+ const filter=$('filter').value, search=$('search').value.trim();
+ let query=db.from('questions').select(fields.concat('id')).order('created_at',{ascending:false}).range(offset,offset+pageSize-1);
+ if(filter==='active')query=query.eq('is_active',true);if(filter==='inactive')query=query.eq('is_active',false);
+ if(search)query=query.or('question_text.ilike.%'+search+'%,category.ilike.%'+search+'%');
+ const {data,error}=await query;if(error){$('listStatus').textContent='فشل تحميل الأسئلة: '+error.message;return;}
+ rows=reset?(data||[]):rows.concat(data||[]);offset+=data?.length||0;
+ renderRows();$('loadMore').disabled=(data||[]).length<pageSize;$('listStatus').textContent='المعروض: '+rows.length+' سؤال';
+ if(reset&&!search&&filter==='all'){$('totalCount').textContent=rows.length+'+';}
+}
+function renderRows(){
+ const tbody=$('questionRows');tbody.innerHTML='';
+ if(!rows.length){tbody.innerHTML='<tr><td colspan="5" class="empty">لا توجد نتائج.</td></tr>';return;}
+ for(const q of rows){const tr=document.createElement('tr');const td=document.createElement('td');td.className='question';td.textContent=q.question_text;tr.append(td);
+ for(const value of [q.category,({easy:'سهل',medium:'متوسط',hard:'صعب',expert:'خبير',genius:'عبقري'})[q.difficulty]||q.difficulty,q.is_active?'نشط':'متوقف']){const cell=document.createElement('td');cell.textContent=value;tr.append(cell);}
+ const actions=document.createElement('td');const edit=document.createElement('button');edit.textContent='تعديل';edit.className='secondary';edit.addEventListener('click',()=>startEdit(q));actions.append(edit);
+ const toggle=document.createElement('button');toggle.textContent=q.is_active?'إيقاف':'تفعيل';toggle.className=q.is_active?'danger':'secondary';toggle.style.marginInlineStart='6px';toggle.addEventListener('click',()=>toggleActive(q));actions.append(toggle);tr.append(actions);tbody.append(tr);}
+}
+async function toggleActive(q){const {error}=await db.from('questions').update({is_active:!q.is_active}).eq('id',q.id);if(error){message('listStatus','تعذّر تغيير الحالة: '+error.message);return;}await loadQuestions(true);}
+$('questionForm').addEventListener('submit',async e=>{
+ e.preventDefault();if(!isAdmin)return;
+ const payload={question_text:$('questionText').value.trim(),option_a:$('optionA').value.trim(),option_b:$('optionB').value.trim(),option_c:$('optionC').value.trim(),option_d:$('optionD').value.trim(),correct_option:$('correct').value,category:$('category').value.trim(),difficulty:$('difficulty').value,explanation:$('explanation').value.trim()||null,is_active:$('active').value==='true'};
+ const id=$('questionId').value;$('save').disabled=true;
+ const result=id?await db.from('questions').update(payload).eq('id',id):await db.from('questions').insert(payload);
+ $('save').disabled=false;if(result.error){message('formStatus','تعذّر الحفظ: '+result.error.message);return;}
+ message('formStatus',id?'تم تحديث السؤال بنجاح.':'تمت إضافة السؤال بنجاح.');resetForm();await loadQuestions(true);
+});
+$('login').addEventListener('click',login);$('logout').addEventListener('click',logout);$('setupLogout').addEventListener('click',logout);$('recheck').addEventListener('click',checkAdmin);$('refresh').addEventListener('click',()=>loadQuestions(true));$('loadMore').addEventListener('click',()=>loadQuestions(false));$('cancelEdit').addEventListener('click',resetForm);$('filter').addEventListener('change',()=>loadQuestions(true));
+let searchTimer; $('search').addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>loadQuestions(true),350);});
+await checkAdmin();
+</script>
+</body>
+</html>
