@@ -101,7 +101,7 @@ with new_questions(question_text, option_a, option_b, option_c, option_d, correc
 ('مستطيل طوله 100 سم وعرضه 8 سم، فما مساحته؟', '800', '216', '900', '808', 'A', 'المساحة = الطول × العرض = 100 × 8 = 800 سم².', 'رياضيات', 'medium'),
 ('مستطيل طوله 101 سم وعرضه 9 سم، فما مساحته؟', '220', '1010', '918', '909', 'D', 'المساحة = الطول × العرض = 101 × 9 = 909 سم².', 'رياضيات', 'medium'),
 ('مستطيل طوله 102 سم وعرضه 10 سم، فما مساحته؟', '1122', '1030', '1020', '224', 'C', 'المساحة = الطول × العرض = 102 × 10 = 1020 سم².', 'رياضيات', 'medium'),
-('مستطيل طوله 103 سم وعرضه 11 سم، فما مساحته؟', '1144', '1133', '228', '1236', 'B', 'المساحة = الطول × العرض = 103 × 11 = 1133 سم².', 'رياضيات', 'medium'),
+('مستطيل طوله 103 سم وعرضه 11 سم، فما مساحته؟', '1144', '1133', '228', '1236', 'B', 'المساحة = الطول × العرض = 103 × 11 = 1133 سم².', 'رياضيات', 'medium')
 )
 insert into public.questions (question_text, option_a, option_b, option_c, option_d, correct_option, explanation, category, difficulty, is_active)
 select n.question_text, n.option_a, n.option_b, n.option_c, n.option_d, n.correct_option, n.explanation, n.category, n.difficulty, true
