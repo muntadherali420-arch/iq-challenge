@@ -7,6 +7,23 @@ create table if not exists public.admin_users (
   created_at timestamptz not null default now()
 );
 
+-- A narrow, read-only check used by the dashboard. SECURITY INVOKER is intentional:
+-- it respects the caller's RLS policies and cannot grant extra privileges.
+create or replace function public.is_current_user_admin()
+returns boolean
+language sql
+stable
+set search_path = ''
+as $
+  select exists (
+    select 1 from public.admin_users a
+    where a.user_id = (select auth.uid())
+  );
+$;
+
+revoke all on function public.is_current_user_admin() from public, anon;
+grant execute on function public.is_current_user_admin() to authenticated;
+
 alter table public.admin_users enable row level security;
 
 revoke all on table public.admin_users from anon, authenticated;
