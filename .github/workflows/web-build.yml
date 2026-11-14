@@ -1,0 +1,47 @@
+name: Web app build
+
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'manifest.webmanifest'
+      - 'sw.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.js'
+      - 'wrangler.jsonc'
+      - 'scripts/**'
+      - '.github/workflows/web-build.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'manifest.webmanifest'
+      - 'sw.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.js'
+      - 'wrangler.jsonc'
+      - 'scripts/**'
+      - '.github/workflows/web-build.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - name: Verify deployable assets
+        run: |
+          test -s www/index.html
+          test -s www/sw.js
+          test -s www/manifest.webmanifest
+          grep -q '"directory": "./www"' wrangler.jsonc
