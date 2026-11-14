@@ -2,6 +2,6 @@
   "name": "iq-challenge",
   "compatibility_date": "2026-11-12",
   "assets": {
-    "directory": "./"
+    "directory": "./www"
   }
 }
