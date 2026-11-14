@@ -722,6 +722,8 @@ body{
     </div>
     <div class="account-line" id="accountStatus" aria-live="polite">غير مسجّل الدخول</div>
     <button class="btn secondary hidden" id="logoutBtn">تسجيل الخروج</button>
+    <button class="btn secondary hidden" id="deleteAccountBtn" type="button">🗑️ حذف الحساب نهائياً</button>
+    <p class="small"><a href="/delete-account.html">طريقة حذف الحساب والبيانات</a></p>
   </section>
 
   <section class="stats">
@@ -1555,11 +1557,17 @@ const status = el('accountStatus');
 function setBusy(b){ el('signupBtn').disabled=b; el('loginBtn').disabled=b; }
 async function showSession(session){
   const user=session?.user;
-  if(!user){status.textContent='غير مسجّل الدخول';el('logoutBtn').classList.add('hidden');return;}
+  if(!user){
+    status.textContent='غير مسجّل الدخول';
+    el('logoutBtn').classList.add('hidden');
+    el('deleteAccountBtn').classList.add('hidden');
+    return;
+  }
   const username=(user.user_metadata?.username || user.email || 'لاعب').toString();
   window.iqSetBestRoundPlayer?.(user.id);
   status.textContent='مسجّل الدخول: '+username;
   el('logoutBtn').classList.remove('hidden');
+  el('deleteAccountBtn').classList.remove('hidden');
   el('authForm').classList.add('hidden');
   // Store the player's display name in their own profile. RLS restricts this to their account.
   const {error}=await supabase.from('profiles').upsert({id:user.id,username:username.slice(0,32)},{onConflict:'id'});
@@ -1586,6 +1594,37 @@ el('loginBtn').addEventListener('click',async()=>{
   await showSession(data.session);
 });
 el('logoutBtn').addEventListener('click',async()=>{const {error}=await supabase.auth.signOut();if(error){status.textContent='تعذّر تسجيل الخروج: '+error.message;return;}el('authForm').classList.remove('hidden');status.textContent='تم تسجيل الخروج.';el('logoutBtn').classList.add('hidden');});
+el('deleteAccountBtn').addEventListener('click',async()=>{
+  if(!window.confirm('هل أنت متأكد من حذف حسابك نهائياً؟ سيتم حذف اسم اللاعب والنقاط ومحاولاتك المرتبطة بالحساب، ولا يمكن التراجع عن ذلك.')) return;
+  const {data:{user},error:userError}=await supabase.auth.getUser();
+  if(userError||!user?.email){status.textContent='تعذّر التحقق من الحساب. سجّل الدخول مجدداً.';return;}
+  const password=window.prompt('للتأكد من هويتك، أدخل كلمة مرور الحساب:');
+  if(!password) return;
+  el('deleteAccountBtn').disabled=true;
+  status.textContent='جارٍ التحقق من كلمة المرور...';
+  const {error:reauthError}=await supabase.auth.signInWithPassword({email:user.email,password});
+  if(reauthError){
+    status.textContent='كلمة المرور غير صحيحة أو تعذّر التحقق. لم يُحذف الحساب.';
+    el('deleteAccountBtn').disabled=false;
+    return;
+  }
+  status.textContent='جارٍ حذف الحساب وبيانات اللعب...';
+  const {data,error}=await supabase.functions.invoke('delete-account',{method:'POST'});
+  if(error||data?.success!==true){
+    status.textContent='تعذّر حذف الحساب الآن. لم نؤكد الحذف؛ حاول مرة أخرى لاحقاً.';
+    el('deleteAccountBtn').disabled=false;
+    return;
+  }
+  localStorage.removeItem('iq-best-round:'+user.id);
+  localStorage.removeItem('iq-round-history:'+user.id);
+  localStorage.removeItem('iq-puzzle-session-v1-'+user.id);
+  localStorage.removeItem('iq-puzzle-session-v2-'+user.id);
+  await supabase.auth.signOut({scope:'local'});
+  el('authForm').classList.remove('hidden');
+  status.textContent='تم حذف الحساب وبيانات اللعب المرتبطة به.';
+  el('deleteAccountBtn').classList.add('hidden');
+});
+
 const {data:{session}}=await supabase.auth.getSession();
 if(session) await showSession(session);
 supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authForm').classList.remove('hidden');showSession(null);}});
