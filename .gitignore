@@ -12,3 +12,4 @@ build/
 *.p12
 *.mobileprovision
 *.provisionprofile
+assets/
