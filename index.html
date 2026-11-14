@@ -830,6 +830,17 @@ button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
 .visual-order-hint{font-size:13px;color:#52658f;margin:6px 0}
 .visual-order-check{grid-column:1/-1}
 </style>
+<style>
+/* Touch-friendly drag-and-drop visual puzzles */
+.visual-scene.drag-scene{display:flex;align-items:center;justify-content:space-around;gap:14px;flex-wrap:wrap;padding:22px 12px;min-height:210px;touch-action:pan-y}
+.visual-drag-source,.visual-drop-target{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:min(38%,145px);min-height:125px;border:2px dashed #9bb8e9;border-radius:20px;background:rgba(255,255,255,.88);color:#304477;font-weight:900;cursor:grab;touch-action:pan-y;user-select:none}
+.visual-drag-source .visual-object-art,.visual-drop-target .visual-object-art{font-size:clamp(44px,12vw,68px);line-height:1.2}
+.visual-drag-source.selected{border-color:#28a879;background:#e0fff0;box-shadow:0 0 0 4px rgba(40,168,121,.15);transform:scale(1.04)}
+.visual-drop-target.ready{border-color:#e6a72c;background:#fff7d9;box-shadow:0 0 0 4px rgba(230,167,44,.16)}
+.visual-drop-target.done{border-style:solid;border-color:#36b486;background:#dff9ec}
+.visual-drag-arrow{font-size:28px;color:#6784b8;font-weight:900}
+.visual-scene.drag-scene .visual-drag-source,.visual-scene.drag-scene .visual-drop-target{font-size:14px}
+</style>
 </head>
 <body>
 <div id="launchScreen" role="dialog" aria-label="شاشة بداية تحدّي العقول">
@@ -2182,7 +2193,11 @@ window.setTimeout(() => {
   {scene:'🔺 🔺 🔵 🔺 🔺',q:'كم مثلثاً تشاهد في الصورة؟',a:['2','3','4','5'],c:1,why:'هناك ثلاثة مثلثات في المشهد.'},
   {type:'order',scene:'🌅  ☀️  🌇  🌙',q:'رتّب أوقات اليوم من الصباح إلى الليل بالضغط عليها بالترتيب.',items:['🌅 الصباح','☀️ الظهر','🌇 المساء','🌙 الليل'],why:'هذا هو الترتيب المعتاد لأوقات اليوم.'},
   {scene:'🚗 🚲 🚌 🍉',q:'أي عنصر لا يُستخدم للتنقّل؟',a:['السيارة','الدراجة','الحافلة','البطيخة'],c:3,why:'البطيخة طعام وليست وسيلة نقل.'},
-  {scene:'🟡 🔵 🟡 🔵 ❓',q:'أي لون يأتي بعد هذا النمط؟',a:['🟢 أخضر','🟡 أصفر','🔴 أحمر','⚫ أسود'],c:1,why:'النمط يتناوب بين الأصفر والأزرق، لذلك التالي أصفر.'}
+  {scene:'🟡 🔵 🟡 🔵 ❓',q:'أي لون يأتي بعد هذا النمط؟',a:['🟢 أخضر','🟡 أصفر','🔴 أحمر','⚫ أسود'],c:1,why:'النمط يتناوب بين الأصفر والأزرق، لذلك التالي أصفر.'},
+  {type:'drag',object:'🗝️',objectLabel:'المفتاح',target:'🔒',targetLabel:'القفل',q:'اسحب المفتاح وضعه على القفل حتى تفتحه.',why:'أحسنت! المفتاح هو ما يفتح القفل.'},
+  {type:'drag',object:'🍌',objectLabel:'الموزة',target:'🧺',targetLabel:'السلة',q:'اسحب الموزة إلى السلة حتى تجمع الفاكهة.',why:'رائع! وضعت الفاكهة في السلة.'},
+  {type:'drag',object:'🗑️',objectLabel:'الورقة',target:'♻️',targetLabel:'إعادة التدوير',q:'اسحب الورقة إلى علامة إعادة التدوير.',why:'ممتاز! فرز النفايات يساعد على إعادة تدويرها.'},
+  {type:'drag',object:'⭐',objectLabel:'النجمة',target:'🌌',targetLabel:'السماء',q:'اسحب النجمة وضعها في السماء.',why:'أحسنت! أصبحت النجمة في مكانها الصحيح.'}
  ];
  const key='iq-visual-stages-v1';
  const optionOrders=[[2,0,3,1],[1,3,0,2],[3,2,1,0],[1,0,3,2],[2,3,0,1],[3,1,2,0],[1,2,0,3],[2,0,1,3],[0,3,2,1],[3,0,1,2],[2,0,3,1],[1,3,0,2],[3,2,1,0],[2,0,3,1],[1,0,3,2],[3,1,2,0],[1,2,0,3],[2,3,0,1],[0,3,2,1],[3,0,1,2]];
@@ -2212,15 +2227,37 @@ window.setTimeout(() => {
   $v('visualStageSelect').classList.add('hidden');$v('visualPlay').classList.remove('hidden');
   $v('visualStageTitle').textContent='المرحلة '+(i+1);$v('visualStageCount').textContent=(i+1)+' / '+stages.length;
   const scene=$v('visualScene');scene.innerHTML='';scene.textContent=x.scene||'';
-  $v('visualQuestion').textContent=x.q;$v('visualFeedback').textContent=x.type==='order'?'اضغط العناصر حسب الترتيب الصحيح.':x.type==='tap'?'المس العنصر المطلوب داخل المشهد.':'اختر الإجابة التي تراها صحيحة.';
+  $v('visualQuestion').textContent=x.q;$v('visualFeedback').textContent=x.type==='order'?'اضغط العناصر حسب الترتيب الصحيح.':x.type==='tap'?'المس العنصر المطلوب داخل المشهد.':x.type==='drag'?'اضغط على العنصر واسحبه إلى المكان المناسب.':'اختر الإجابة التي تراها صحيحة.';
   $v('visualNext').classList.add('hidden');$v('visualAnswers').innerHTML='';document.querySelectorAll('.visual-retry').forEach(b=>b.remove());
-  if(x.type==='tap'){
-   scene.textContent='';
+  if(x.type==='drag'){
+   scene.classList.add('drag-scene');
+   const source=document.createElement('button');source.type='button';source.className='visual-drag-source';source.setAttribute('aria-label','اسحب '+x.objectLabel);
+   source.innerHTML='<span class="visual-object-art"></span><span>'+x.objectLabel+'</span>';source.querySelector('.visual-object-art').textContent=x.object;
+   const arrow=document.createElement('span');arrow.className='visual-drag-arrow';arrow.textContent='←';
+   const target=document.createElement('button');target.type='button';target.className='visual-drop-target';target.dataset.dropTarget='true';target.setAttribute('aria-label','ضع العنصر هنا: '+x.targetLabel);
+   target.innerHTML='<span class="visual-object-art"></span><span>'+x.targetLabel+'</span>';target.querySelector('.visual-object-art').textContent=x.target;
+   let selected=false;
+   function selectSource(){if(locked)return;selected=true;source.classList.add('selected');target.classList.add('ready');$v('visualFeedback').textContent='هسه اسحب العنصر إلى '+x.targetLabel+' أو اضغط المكان المطلوب.';}
+   function dropTarget(){if(locked||!selected)return;target.classList.add('done');target.querySelector('.visual-object-art').textContent=x.target+' '+x.object;source.classList.remove('selected');target.classList.remove('ready');success(x.why);}
+   source.addEventListener('click',selectSource);
+   source.addEventListener('pointerdown',selectSource);
+   target.addEventListener('click',dropTarget);
+   target.addEventListener('pointerup',dropTarget);
+   document.addEventListener('pointerup',function finishDrag(e){
+    if(!selected||locked)return;
+    const hit=document.elementFromPoint(e.clientX,e.clientY);
+    if(hit&&hit.closest&&hit.closest('#visualScene [data-drop-target]'))dropTarget();
+   },{once:false});
+   scene.append(source,arrow,target);
+  }else if(x.type==='tap'){
+   scene.classList.remove('drag-scene');scene.textContent='';
    x.objects.forEach((obj,n)=>{const b=document.createElement('button');b.type='button';b.className='visual-object';b.textContent=obj;b.setAttribute('aria-label','العنصر '+(n+1));b.addEventListener('click',()=>{if(locked)return;if(n===x.target){b.classList.add('selected');success(x.why);}else{b.classList.add('selected');fail('هذا مو المطلوب، جرّب عنصر ثاني.',false);}});scene.appendChild(b);});
   }else if(x.type==='order'){
+   scene.classList.remove('drag-scene');
    x.items.forEach((item,n)=>{const b=document.createElement('button');b.type='button';b.className='visual-answer';b.textContent=item;b.addEventListener('click',()=>{if(locked||orderSelected.includes(n))return;orderSelected.push(n);b.classList.add('correct');b.disabled=true;$v('visualFeedback').textContent='ترتيبك الحالي: '+orderSelected.map(k=>x.items[k]).join(' ← ');});$v('visualAnswers').appendChild(b);});
    const check=document.createElement('button');check.type='button';check.className='btn visual-order-check';check.textContent='تحقّق من الترتيب';check.addEventListener('click',()=>{if(locked)return;if(orderSelected.length!==x.items.length){fail('اختَر كل العناصر أولاً، ثم تحقّق من الترتيب.',false);return;}if(orderSelected.every((n,k)=>n===k))success(x.why);else{locked=true;fail('الترتيب مو صحيح. أعد المحاولة.');}});$v('visualAnswers').appendChild(check);
   }else{
+   scene.classList.remove('drag-scene');
    optionOrders[i].forEach(n=>{const b=document.createElement('button');b.type='button';b.className='visual-answer';b.textContent=x.a[n];b.addEventListener('click',()=>choose(n));$v('visualAnswers').appendChild(b);});
   }
  }
