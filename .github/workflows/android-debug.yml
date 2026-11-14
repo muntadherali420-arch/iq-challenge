@@ -29,7 +29,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   android-debug:
@@ -60,22 +60,7 @@ jobs:
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
 
       - name: Install JavaScript dependencies
-        run: npm install --no-audit --no-fund
-
-      - name: Commit generated npm lockfile
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git fetch origin "${GITHUB_HEAD_REF}"
-          git rebase "origin/${GITHUB_HEAD_REF}"
-          git add package-lock.json
-          if git diff --cached --quiet; then
-            echo "Lockfile is already current"
-          else
-            git commit -m "chore: lock mobile build dependencies"
-            git push origin "HEAD:${GITHUB_HEAD_REF}"
-          fi
+        run: npm ci --no-audit --no-fund
 
       - name: Build web assets
         run: |
