@@ -5,6 +5,10 @@ on:
   pull_request:
     paths:
       - 'index.html'
+      - 'delete-account.html'
+      - 'privacy.html'
+      - 'sw.js'
+      - 'package-lock.json'
       - 'package.json'
       - 'capacitor.config.json'
       - 'vite.config.js'
@@ -20,6 +24,10 @@ on:
       - 'scripts/**'
       - '.github/workflows/android-debug.yml'
 
+concurrency:
+  group: iq-android-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -29,6 +37,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -57,6 +67,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin "${GITHUB_HEAD_REF}"
+          git rebase "origin/${GITHUB_HEAD_REF}"
           git add package-lock.json
           if git diff --cached --quiet; then
             echo "Lockfile is already current"
