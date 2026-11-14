@@ -821,7 +821,9 @@ body{
  </div>
 </section>
 <script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { createClient } from '@supabase/supabase-js';
+import { Capacitor } from '@capacitor/core';
+window.iqIsNative = Capacitor.isNativePlatform();
 const SUPABASE_URL = 'https://dkaoptjafnilyztlznmk.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_wzAJmA21MoRZhkokNj2RFw_lLqi8U9C';
 const supabase = window.iqSupabase || createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
@@ -1786,7 +1788,7 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
 </script>
 
 <script>
-if("serviceWorker" in navigator){
+if(!window.iqIsNative && "serviceWorker" in navigator){
  let iqRefreshing=false;
  navigator.serviceWorker.addEventListener("controllerchange",()=>{
   if(!iqRefreshing){iqRefreshing=true;window.location.reload();}
