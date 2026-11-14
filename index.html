@@ -1642,7 +1642,7 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
  const $=id=>document.getElementById(id);
  let puzzles=[],puzzleIndex=0,answered=false,submitting=false,roundPoints=0,roundComplete=false,loading=false;
  let totalPuzzlePoints=0,currentPuzzleUserId=null,restTimer=null;
- const REST_DURATION_MS=15*60*1000;
+ const REST_DURATION_MS=30*60*1000;
  const progressKey=()=> 'iq-puzzle-session-v2-'+currentPuzzleUserId;
  function readProgress(){
   try{return JSON.parse(localStorage.getItem(progressKey()))||{breakUntil:0};}
@@ -1659,11 +1659,11 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
   if(!currentPuzzleUserId)return;
   const state=readProgress(),now=Date.now(),status=$('puzzleRestStatus'),button=$('puzzleNextBtn');
   if(state.breakUntil>now){
-   status.textContent='⏸️ استراحة 15 دقيقة بعد كل جولة · المتبقي: '+formatRemaining(state.breakUntil-now);
+   status.textContent='⏸️ استراحة 30 دقيقة بعد كل جولة · المتبقي: '+formatRemaining(state.breakUntil-now);
    if(roundComplete){button.textContent='⏳ انتظر انتهاء الاستراحة';button.disabled=true;}
   }else{
    if(state.breakUntil&&state.breakUntil<=now){state.breakUntil=0;saveProgress(state);}
-   status.textContent=roundComplete?'✅ انتهت الاستراحة — تقدر تبدأ جولة جديدة':'⏱️ بعد إكمال 10 ألغاز تبدأ استراحة 15 دقيقة';
+   status.textContent=roundComplete?'✅ انتهت الاستراحة — تقدر تبدأ جولة جديدة':'⏱️ بعد إكمال 10 ألغاز تبدأ استراحة 30 دقيقة';
    if(roundComplete){button.textContent='ابدأ جولة جديدة';button.disabled=false;}
   }
  }
@@ -1733,7 +1733,7 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
    $('puzzleLevel').textContent='استراحة';
    $('puzzleProgressBar').style.width='100%';
    $('puzzleTag').textContent='استراحة قصيرة';
-   setMessage('أحسنت! أكملت الجولة بنجاح.','تقدر تبدأ الجولة التالية بعد انتهاء استراحة الـ15 دقيقة. نقاطك وتقدمك محفوظة.');
+   setMessage('أحسنت! أكملت الجولة بنجاح.','تقدر تبدأ الجولة التالية بعد انتهاء استراحة الـ30 دقيقة. نقاطك وتقدمك محفوظة.');
    $('puzzleAnswers').replaceChildren();
    $('puzzleNextBtn').classList.remove('hidden');$('puzzleNextBtn').disabled=true;
    startRestClock();loading=false;await refreshScores();return;
@@ -1810,7 +1810,7 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
   $('puzzleQuestion').textContent='أكملت '+puzzles.length+' ألغاز!';
   $('puzzleAnswers').replaceChildren();
   $('puzzleFeedback').textContent='نتيجتك: '+roundPoints+' من '+(puzzles.length*10)+' نقطة. نقاط الأحجيات المحفوظة: '+totalPuzzlePoints+'.';
-  $('puzzleNextBtn').textContent='⏳ استراحة 15:00';
+  $('puzzleNextBtn').textContent='⏳ استراحة 30:00';
   $('puzzleNextBtn').classList.remove('hidden');$('puzzleNextBtn').disabled=true;
   updateRestStatus();
  }
