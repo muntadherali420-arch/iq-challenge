@@ -757,7 +757,7 @@ body{
       <div class="puzzle-scene" id="puzzleScene">🔍</div><div class="puzzle-tag" id="puzzleTag">لغز البداية</div>
       <h3 class="puzzle-question" id="puzzleQuestion">جارٍ تجهيز اللغز...</h3>
       <div class="puzzle-answers" id="puzzleAnswers"></div><div class="puzzle-feedback" id="puzzleFeedback" aria-live="polite"></div>
-      <div class="puzzle-actions"><button class="btn secondary hidden" id="puzzleHintBtn" type="button">💡 تلميح</button><button class="btn hidden" id="puzzleNextBtn" type="button">اللغز التالي ←</button></div>
+      <div class="puzzle-actions"><button class="btn secondary hidden" id="puzzleHintBtn" type="button">💡 تلميح</button><button class="btn hidden" id="puzzleNextBtn" type="button">اللغز التالي ←</button><button class="btn secondary" id="puzzleAdBtn" type="button" disabled aria-disabled="true">🎬 فتح الجولة بإعلان — قريباً</button></div><p class="small" id="puzzleAdNote">خيار الإعلان المكافئ سيُفعّل بعد ربط حساب الإعلانات. لن يتم فتح الجولة إلا بعد مشاهدة إعلان مكتمل فعلياً.</p>
       <p class="small puzzle-foot" id="puzzleFoot">الجولة: 10 ألغاز كحد أقصى · 10 نقاط للإجابة الصحيحة · الحد الأعلى 100 نقطة</p>
     </section>
   </div>
@@ -1590,16 +1590,16 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
 </script>
 
 <script>
-(()=> {
+(()=>{
  const getClient=()=>window.iqSupabase;
  const $=id=>document.getElementById(id);
  let puzzles=[],puzzleIndex=0,answered=false,submitting=false,roundPoints=0,roundComplete=false,loading=false;
  let totalPuzzlePoints=0,currentPuzzleUserId=null,restTimer=null;
- const ROUNDS_BEFORE_REST=10,REST_DURATION_MS=30*60*1000;
- const progressKey=()=> 'iq-puzzle-session-v1-'+currentPuzzleUserId;
+ const REST_DURATION_MS=15*60*1000;
+ const progressKey=()=> 'iq-puzzle-session-v2-'+currentPuzzleUserId;
  function readProgress(){
-  try{return JSON.parse(localStorage.getItem(progressKey()))||{completedRounds:0,breakUntil:0};}
-  catch{return {completedRounds:0,breakUntil:0};}
+  try{return JSON.parse(localStorage.getItem(progressKey()))||{breakUntil:0};}
+  catch{return {breakUntil:0};}
  }
  function saveProgress(state){
   try{localStorage.setItem(progressKey(),JSON.stringify(state));}catch(error){console.warn('Puzzle progress storage:',error);}
@@ -1612,11 +1612,11 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
   if(!currentPuzzleUserId)return;
   const state=readProgress(),now=Date.now(),status=$('puzzleRestStatus'),button=$('puzzleNextBtn');
   if(state.breakUntil>now){
-   status.textContent='⏸️ استراحة إلزامية بعد 10 جولات · الوقت المتبقي: '+formatRemaining(state.breakUntil-now);
-   if(roundComplete){button.textContent='استراحة — انتظر انتهاء الوقت';button.disabled=true;}
+   status.textContent='⏸️ استراحة 15 دقيقة بعد كل جولة · المتبقي: '+formatRemaining(state.breakUntil-now);
+   if(roundComplete){button.textContent='⏳ انتظر انتهاء الاستراحة';button.disabled=true;}
   }else{
-   if(state.breakUntil&&state.breakUntil<=now){state.breakUntil=0;state.completedRounds=0;saveProgress(state);}
-   status.textContent='الجولات: '+state.completedRounds+' / '+ROUNDS_BEFORE_REST+' قبل الاستراحة';
+   if(state.breakUntil&&state.breakUntil<=now){state.breakUntil=0;saveProgress(state);}
+   status.textContent=roundComplete?'✅ انتهت الاستراحة — تقدر تبدأ جولة جديدة':'⏱️ بعد إكمال 10 ألغاز تبدأ استراحة 15 دقيقة';
    if(roundComplete){button.textContent='ابدأ جولة جديدة';button.disabled=false;}
   }
  }
@@ -1685,8 +1685,8 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
    showScene('⏸️');
    $('puzzleLevel').textContent='استراحة';
    $('puzzleProgressBar').style.width='100%';
-   $('puzzleTag').textContent='استراحة إجبارية';
-   setMessage('أحسنت! أكملت 10 جولات.','نأخذ استراحة 30 دقيقة حتى ترجع بنشاط. لن تضيع نقاطك أو تقدمك.');
+   $('puzzleTag').textContent='استراحة قصيرة';
+   setMessage('أحسنت! أكملت الجولة بنجاح.','تقدر تبدأ الجولة التالية بعد انتهاء استراحة الـ15 دقيقة. نقاطك وتقدمك محفوظة.');
    $('puzzleAnswers').replaceChildren();
    $('puzzleNextBtn').classList.remove('hidden');$('puzzleNextBtn').disabled=true;
    startRestClock();loading=false;await refreshScores();return;
@@ -1753,8 +1753,7 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
   if(roundComplete)return;
   roundComplete=true;
   const state=readProgress();
-  state.completedRounds=Math.min(ROUNDS_BEFORE_REST,state.completedRounds+1);
-  if(state.completedRounds>=ROUNDS_BEFORE_REST)state.breakUntil=Date.now()+REST_DURATION_MS;
+  state.breakUntil=Date.now()+REST_DURATION_MS;
   saveProgress(state);
   window.iqPlaySound?.(roundPoints>=50?'victory':'defeat');
   $('puzzleLevel').textContent=puzzles.length+' / '+puzzles.length;
@@ -1764,8 +1763,8 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
   $('puzzleQuestion').textContent='أكملت '+puzzles.length+' ألغاز!';
   $('puzzleAnswers').replaceChildren();
   $('puzzleFeedback').textContent='نتيجتك: '+roundPoints+' من '+(puzzles.length*10)+' نقطة. نقاط الأحجيات المحفوظة: '+totalPuzzlePoints+'.';
-  $('puzzleNextBtn').textContent='ابدأ جولة جديدة';
-  $('puzzleNextBtn').classList.remove('hidden');$('puzzleNextBtn').disabled=false;
+  $('puzzleNextBtn').textContent='⏳ استراحة 15:00';
+  $('puzzleNextBtn').classList.remove('hidden');$('puzzleNextBtn').disabled=true;
   updateRestStatus();
  }
  $('puzzleNextBtn').addEventListener('click',()=>{
