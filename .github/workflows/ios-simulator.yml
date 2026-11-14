@@ -63,6 +63,9 @@ jobs:
       - name: Generate iOS project
         run: npx cap add ios
 
+      - name: Generate iOS app icons and launch screen
+        run: npx capacitor-assets generate --ios --iconBackgroundColor '#173b9e' --splashBackgroundColor '#173b9e'
+
       - name: Sync Capacitor
         run: npx cap sync ios
 
