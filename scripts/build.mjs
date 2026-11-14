@@ -3,6 +3,8 @@ import { mkdir, copyFile } from 'node:fs/promises';
 
 await build();
 await mkdir('www', { recursive: true });
+await mkdir('assets', { recursive: true });
+await copyFile('icon.svg', 'assets/icon.svg');
 
 for (const file of [
   'manifest.webmanifest',
