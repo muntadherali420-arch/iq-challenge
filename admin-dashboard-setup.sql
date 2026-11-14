@@ -70,9 +70,11 @@ for delete
 to authenticated
 using (public.is_current_user_admin());
 
--- IMPORTANT: After creating your game account, find its UUID in
--- Supabase Dashboard -> Authentication -> Users, then run:
+-- IMPORTANT: After creating your game account, run this in SQL Editor.
+-- Replace the email with the exact email used for the game account.
+-- You do not need to send that email or the account UUID to anyone.
 -- insert into public.admin_users (user_id)
--- values ('PASTE-YOUR-AUTH-USER-UUID-HERE');
+-- select id from auth.users where lower(email) = lower('YOUR-GAME-LOGIN-EMAIL')
+-- on conflict (user_id) do nothing;
 --
 -- Do not use user_metadata as an admin authorization source.
