@@ -701,6 +701,47 @@ body{
   opacity: 1 !important;
 }
 </style>
+
+<style>
+/* IQ MOTION PACK v1 — joyful, inclusive, lightweight motion */
+:root{--iq-motion-fast:160ms;--iq-motion-medium:320ms;--iq-motion-slow:520ms}
+.app-screen.active{animation:iqScreenEnter .38s cubic-bezier(.2,.75,.25,1) both}
+.app-screen.active .hero,.app-screen.active>.card,.app-screen.active .mode-card{animation:iqCardEnter .42s cubic-bezier(.2,.75,.25,1) both}
+.app-screen.active .mode-card:nth-child(2){animation-delay:65ms}
+.app-screen.active .mode-card:nth-child(3){animation-delay:120ms}
+.logo{animation:iqLogoFloat 4.8s ease-in-out infinite}
+.hero{position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;inset:-55% auto -55% -35%;width:34%;transform:rotate(22deg);background:linear-gradient(90deg,transparent,#ffffff28,transparent);animation:iqHeroShine 7s ease-in-out infinite;pointer-events:none}
+.mode-card,.btn,.nav-btn,.sound-toggle,.motion-toggle,.answer,.puzzle-answer{transition:transform var(--iq-motion-fast) ease,box-shadow var(--iq-motion-fast) ease,filter var(--iq-motion-fast) ease}
+.mode-card:hover,.btn:hover,.nav-btn:hover{transform:translateY(-2px);filter:brightness(1.025)}
+.mode-card:active,.btn:active,.nav-btn:active,.answer:active,.puzzle-answer:active{transform:scale(.975)}
+.answer.correct,.puzzle-answer.correct{animation:iqCorrectPop .42s cubic-bezier(.2,.9,.25,1.25) both}
+.answer.wrong,.puzzle-answer.wrong{animation:iqWrongNudge .28s ease both}
+.score,.puzzle-score{transition:transform .22s ease,filter .22s ease}
+.score.iq-score-pop,.puzzle-score.iq-score-pop{animation:iqScorePop .48s cubic-bezier(.2,.9,.25,1.25)}
+.streak-meter.streak-hot{animation:iqStreakGlow .7s ease both}
+#result:not(.hidden){animation:iqCardEnter .48s cubic-bezier(.2,.75,.25,1) both}
+.iq-confetti-layer{position:fixed;inset:0;z-index:10030;overflow:hidden;pointer-events:none}
+.iq-confetti{position:absolute;top:42%;left:var(--x);width:8px;height:13px;border-radius:3px;background:var(--c);opacity:0;animation:iqConfettiFly 900ms cubic-bezier(.12,.65,.3,1) forwards;transform:rotate(var(--r))}
+.motion-toggle{border:1px solid #dce7f6;border-radius:13px;padding:9px 11px;background:#fff;color:#40577f;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap;box-shadow:0 4px 12px #7896c512}
+.motion-toggle[aria-pressed="false"]{background:#f0f3f8;color:#7a8799}
+@keyframes iqScreenEnter{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@keyframes iqCardEnter{from{opacity:0;transform:translateY(12px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes iqLogoFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(-2deg)}}
+@keyframes iqHeroShine{0%,65%,100%{left:-40%;opacity:0}72%{opacity:1}88%{left:120%;opacity:0}}
+@keyframes iqCorrectPop{0%{transform:scale(1)}45%{transform:scale(1.035)}100%{transform:scale(1)}}
+@keyframes iqWrongNudge{0%,100%{transform:translateX(0)}30%{transform:translateX(3px)}70%{transform:translateX(-3px)}}
+@keyframes iqScorePop{0%{transform:scale(1)}45%{transform:scale(1.14)}100%{transform:scale(1)}}
+@keyframes iqStreakGlow{0%{filter:brightness(1)}45%{filter:brightness(1.12)}100%{filter:brightness(1)}}
+@keyframes iqConfettiFly{0%{opacity:0;transform:translate3d(0,0,0) rotate(0) scale(.6)}12%{opacity:1}100%{opacity:0;transform:translate3d(var(--dx),var(--dy),0) rotate(520deg) scale(.85)}}
+@media(hover:none){.mode-card:hover,.btn:hover,.nav-btn:hover{transform:none;filter:none}}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+ .iq-confetti-layer{display:none!important}
+}
+html.iq-reduce-motion *,html.iq-reduce-motion *::before,html.iq-reduce-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+html.iq-reduce-motion .iq-confetti-layer{display:none!important}
+</style>
 </head>
 <body>
 <div id="launchScreen" role="dialog" aria-label="شاشة بداية تحدّي العقول">
@@ -718,7 +759,7 @@ body{
 <main class="wrap">
   <header class="top">
     <div class="brand"><div class="logo" aria-label="شعار الدماغ">🧠</div><div><h1>تحدّي العقول</h1><div class="sub">IQ CHALLENGE · النسخة التجريبية 0.1</div></div></div>
-    <div class="row" style="gap:8px"><button class="sound-toggle" id="soundToggle" type="button" aria-label="إيقاف الموسيقى والأصوات" title="إيقاف الموسيقى والأصوات" aria-pressed="true">🔊</button><div class="score">★ <span id="totalScore">0</span></div></div>
+    <div class="row" style="gap:8px"><button class="motion-toggle" id="motionToggle" type="button" aria-label="إيقاف المؤثرات الحركية" title="إيقاف المؤثرات الحركية" aria-pressed="true">✨</button><button class="sound-toggle" id="soundToggle" type="button" aria-label="إيقاف الموسيقى والأصوات" title="إيقاف الموسيقى والأصوات" aria-pressed="true">🔊</button><div class="score">★ <span id="totalScore">0</span></div></div>
   </header>
 
   <div class="app-screen active" id="screen-home">
@@ -1929,5 +1970,88 @@ window.setTimeout(() => {
   launchScreen.classList.add('launch-hidden');
   window.setTimeout(() => launchScreen.remove(), 650);
 }, 8000);
+</script>
+
+<script>
+/* IQ MOTION PACK v1 — motion preferences and feedback micro-interactions */
+(()=> {
+ const root=document.documentElement;
+ const toggle=document.getElementById('motionToggle');
+ const reducedBySystem=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+ let motionOn=true;
+ try{
+  const saved=localStorage.getItem('iq-motion-enabled');
+  motionOn=saved===null?!reducedBySystem:saved==='true';
+ }catch(_){motionOn=!reducedBySystem;}
+ function applyMotion(){
+  root.classList.toggle('iq-reduce-motion',!motionOn);
+  if(toggle){
+   toggle.setAttribute('aria-pressed',String(motionOn));
+   toggle.textContent=motionOn?'✨':'⏸️';
+   toggle.setAttribute('aria-label',motionOn?'إيقاف المؤثرات الحركية':'تشغيل المؤثرات الحركية');
+   toggle.title=motionOn?'إيقاف المؤثرات الحركية':'تشغيل المؤثرات الحركية';
+  }
+ }
+ applyMotion();
+ toggle?.addEventListener('click',()=>{
+  motionOn=!motionOn;
+  try{localStorage.setItem('iq-motion-enabled',String(motionOn));}catch(_){}
+  applyMotion();
+ });
+ const confettiColors=['#f5c85d','#79cbb1','#8ea9f5','#e99bb0','#b49bea'];
+ function celebrate(source){
+  if(!motionOn||!source||source.dataset.iqCelebrated==='1')return;
+  source.dataset.iqCelebrated='1';
+  source.classList.add('iq-correct-pop');
+  const layer=document.createElement('div');
+  layer.className='iq-confetti-layer';
+  layer.setAttribute('aria-hidden','true');
+  for(let i=0;i<18;i++){
+   const bit=document.createElement('i');
+   bit.className='iq-confetti';
+   bit.style.setProperty('--x',(35+Math.random()*30)+'%');
+   bit.style.setProperty('--dx',((Math.random()-.5)*260)+'px');
+   bit.style.setProperty('--dy',(100+Math.random()*210)+'px');
+   bit.style.setProperty('--r',(Math.random()*180)+'deg');
+   bit.style.setProperty('--c',confettiColors[i%confettiColors.length]);
+   bit.style.animationDelay=(Math.random()*100)+'ms';
+   layer.appendChild(bit);
+  }
+  document.body.appendChild(layer);
+  window.setTimeout(()=>layer.remove(),1200);
+ }
+ ['answers','dailyAnswers','puzzleAnswers'].forEach(id=>{
+  const target=document.getElementById(id);
+  if(!target)return;
+  const observer=new MutationObserver(records=>{
+   for(const record of records){
+    const node=record.target.nodeType===1?record.target:null;
+    if(node&&node.classList.contains('correct')){celebrate(node);break;}
+   }
+  });
+  observer.observe(target,{subtree:true,attributes:true,attributeFilter:['class']});
+ });
+ const score=document.getElementById('totalScore');
+ if(score){
+  const scoreObserver=new MutationObserver(()=>{
+   if(!motionOn)return;
+   const badge=score.closest('.score')||score;
+   badge.classList.remove('iq-score-pop');
+   void badge.offsetWidth;
+   badge.classList.add('iq-score-pop');
+  });
+  scoreObserver.observe(score,{childList:true,characterData:true,subtree:true});
+ }
+ const puzzleScore=document.getElementById('puzzleScore');
+ if(puzzleScore){
+  const puzzleObserver=new MutationObserver(()=>{
+   if(!motionOn)return;
+   puzzleScore.classList.remove('iq-score-pop');
+   void puzzleScore.offsetWidth;
+   puzzleScore.classList.add('iq-score-pop');
+  });
+  puzzleObserver.observe(puzzleScore,{childList:true,characterData:true,subtree:true});
+ }
+})();
 </script>
 </body></html>
