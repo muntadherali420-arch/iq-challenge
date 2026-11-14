@@ -64,6 +64,7 @@ form.addEventListener('submit',async event=>{
    button.disabled=false;return;
   }
   const id=session.user.id;
+  localStorage.removeItem('sb-dkaoptjafnilyztlznmk-auth-token');
   localStorage.removeItem('iq-best-round:'+id);
   localStorage.removeItem('iq-round-history:'+id);
   localStorage.removeItem('iq-puzzle-session-v1-'+id);
