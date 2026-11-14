@@ -2167,6 +2167,7 @@ window.setTimeout(() => {
   {scene:'🧩 👀 💡',q:'ما أفضل طريقة لحل لغز بصري صعب؟',a:['ملاحظة التفاصيل','اختيار عشوائي','تجاهل الصورة','الإجابة بسرعة'],c:0,why:'ملاحظة التفاصيل وربطها بالسؤال يساعدان على الوصول للحل.'}
  ];
  const key='iq-visual-stages-v1';
+ const optionOrders=[[2,0,3,1],[1,3,0,2],[3,2,1,0],[1,0,3,2],[2,3,0,1],[3,1,2,0],[1,2,0,3],[2,0,1,3],[0,3,2,1],[3,0,1,2]];
  let completed=Number(localStorage.getItem(key)||0),current=0,locked=false;
  const $v=id=>document.getElementById(id);
  const grid=$v('visualStageGrid'); if(!grid)return;
@@ -2181,14 +2182,14 @@ window.setTimeout(() => {
   $v('visualStageSelect').classList.add('hidden');$v('visualPlay').classList.remove('hidden');
   $v('visualStageTitle').textContent='المرحلة '+(i+1);$v('visualStageCount').textContent=(i+1)+' / 10';
   $v('visualScene').textContent=x.scene;$v('visualQuestion').textContent=x.q;$v('visualFeedback').textContent='اختر الإجابة التي تراها صحيحة.';
-  $v('visualNext').classList.add('hidden');$v('visualAnswers').innerHTML='';
-  x.a.forEach((answer,n)=>{const b=document.createElement('button');b.type='button';b.className='visual-answer';b.textContent=answer;b.addEventListener('click',()=>choose(n));$v('visualAnswers').appendChild(b);});
+  $v('visualNext').classList.add('hidden');$v('visualAnswers').innerHTML='';document.querySelectorAll('.visual-retry').forEach(b=>b.remove());
+  optionOrders[i].forEach(n=>{const b=document.createElement('button');b.type='button';b.className='visual-answer';b.textContent=x.a[n];b.addEventListener('click',()=>choose(n));$v('visualAnswers').appendChild(b);});
  }
  function choose(n){
   if(locked)return;locked=true;const x=stages[current],buttons=[...$v('visualAnswers').children];
   buttons.forEach((b,i)=>{b.disabled=true;if(i===x.c)b.classList.add('correct');else if(i===n)b.classList.add('wrong');});
   if(n===x.c){completed=Math.max(completed,current+1);localStorage.setItem(key,String(completed));$v('visualFeedback').textContent='ممتاز! '+x.why;progress();$v('visualNext').classList.remove('hidden');$v('visualNext').textContent=current===9?'إنهاء الاختبار ✓':'المرحلة التالية ←';}
-  else{$v('visualFeedback').textContent='مو مشكلة! راجع المشهد وحاول مرة ثانية.';const retry=document.createElement('button');retry.type='button';retry.className='btn secondary';retry.textContent='إعادة المحاولة';retry.addEventListener('click',()=>openStage(current));$v('visualAnswers').after(retry);}
+  else{$v('visualFeedback').textContent='مو مشكلة! راجع المشهد وحاول مرة ثانية.';const retry=document.createElement('button');retry.type='button';retry.className='btn secondary visual-retry';retry.textContent='إعادة المحاولة';retry.addEventListener('click',()=>openStage(current));$v('visualAnswers').after(retry);}
  }
  $v('visualNext').addEventListener('click',()=>{if(current<9&&current<completed)openStage(current+1);else drawGrid();});
  $v('visualBack').addEventListener('click',drawGrid);
