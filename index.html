@@ -1444,11 +1444,16 @@ async function chooseAnswer(letter) {
     return;
   }
   questionAnsweredCount++;
-  const correctLetter = data.correct_option;
+  const correctLetter = String(data.correct_option || '').toUpperCase();
   buttons.forEach((b, i) => {
     const optionLetter = ['A','B','C','D'][i];
-    if (optionLetter === correctLetter) b.classList.add('correct');
-    else if (optionLetter === letter) b.classList.add('wrong');
+    if ((data.is_correct && optionLetter === letter) || optionLetter === correctLetter) {
+      b.classList.add('correct');
+      b.classList.remove('wrong');
+    } else if (optionLetter === letter) {
+      b.classList.add('wrong');
+      b.classList.remove('correct');
+    }
   });
   const points = Number(data.points_awarded || 0);
   earned += points;
@@ -1794,10 +1799,13 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
    serverRoundSize=Number(data.puzzle_round_size)||10;
   }
   if(data.puzzle_cooldown_until)cooldownUntil=new Date(data.puzzle_cooldown_until).getTime();
-  const correctIndex=['A','B','C','D'].indexOf(data.correct_option);
+  const correctIndex=['A','B','C','D'].indexOf(String(data.correct_option || '').toUpperCase());
   buttons.forEach((b,j)=>{
-   if(j===correctIndex)b.classList.add('correct');
-   else if(j===i)b.classList.add('wrong');
+   if((data.is_correct && j===i)||j===correctIndex){
+    b.classList.add('correct');b.classList.remove('wrong');
+   }else if(j===i){
+    b.classList.add('wrong');b.classList.remove('correct');
+   }
   });
   const points=Number(data.points_awarded)||0;
   roundPoints+=points;
@@ -1879,3 +1887,22 @@ window.setTimeout(() => {
 }, 8000);
 </script>
 </body></html>
+
+
+/* Answer feedback: keep correct/wrong states visible across theme overrides. */
+#screen-play .answer.correct,
+#screen-daily .answer.correct,
+#screen-puzzles .puzzle-answer.correct {
+  background: linear-gradient(110deg,#c9ffdf,#67e7a5) !important;
+  color: #075a38 !important;
+  border-color: #20b86d !important;
+  opacity: 1 !important;
+}
+#screen-play .answer.wrong,
+#screen-daily .answer.wrong,
+#screen-puzzles .puzzle-answer.wrong {
+  background: linear-gradient(110deg,#ffe0e7,#ffb7c6) !important;
+  color: #852342 !important;
+  border-color: #ed6687 !important;
+  opacity: 1 !important;
+}
