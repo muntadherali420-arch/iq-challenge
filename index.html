@@ -723,7 +723,7 @@ body{
     <div class="account-line" id="accountStatus" aria-live="polite">غير مسجّل الدخول</div>
     <button class="btn secondary hidden" id="logoutBtn">تسجيل الخروج</button>
     <button class="btn secondary hidden" id="deleteAccountBtn" type="button">🗑️ حذف الحساب نهائياً</button>
-    <p class="small"><a href="/delete-account.html">طريقة حذف الحساب والبيانات</a></p>
+    <p class="small"><a href="/delete-account.html">حذف الحساب والبيانات</a> · <a href="/privacy.html">سياسة الخصوصية</a></p>
   </section>
 
   <section class="stats">
@@ -1563,14 +1563,20 @@ async function showSession(session){
     el('deleteAccountBtn').classList.add('hidden');
     return;
   }
-  const username=(user.user_metadata?.username || user.email || 'لاعب').toString();
+  const metadataName=(user.user_metadata?.username || '').toString().trim();
+  const {data:profile,error:profileReadError}=await supabase.from('profiles').select('username').eq('id',user.id).maybeSingle();
+  if(profileReadError) console.warn('Profile lookup:',profileReadError.message);
+  const savedName=(profile?.username || '').toString().trim();
+  const candidate=metadataName || savedName;
+  // Never publish an email address as a leaderboard display name.
+  const username=(candidate && !candidate.includes('@') ? candidate : 'لاعب-'+user.id.slice(0,6)).slice(0,32);
   window.iqSetBestRoundPlayer?.(user.id);
   status.textContent='مسجّل الدخول: '+username;
   el('logoutBtn').classList.remove('hidden');
   el('deleteAccountBtn').classList.remove('hidden');
   el('authForm').classList.add('hidden');
-  // Store the player's display name in their own profile. RLS restricts this to their account.
-  const {error}=await supabase.from('profiles').upsert({id:user.id,username:username.slice(0,32)},{onConflict:'id'});
+  // Only the display name is public; the email remains in Supabase Auth.
+  const {error}=await supabase.from('profiles').upsert({id:user.id,username},{onConflict:'id'});
   if(error) console.warn('Profile setup:',error.message);
 }
 el('signupBtn').addEventListener('click',async()=>{
