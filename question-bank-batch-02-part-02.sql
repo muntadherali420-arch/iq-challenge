@@ -101,7 +101,7 @@ with new_questions(question_text, option_a, option_b, option_c, option_d, correc
 ('احسب الفرق بين 700 و98.', '602', '606', '597', '611', 'A', '700 - 98 = 602.', 'رياضيات', 'medium'),
 ('احسب الفرق بين 705 و109.', '600', '591', '605', '596', 'D', '705 - 109 = 596.', 'رياضيات', 'medium'),
 ('احسب الفرق بين 710 و31.', '674', '688', '679', '683', 'C', '710 - 31 = 679.', 'رياضيات', 'medium'),
-('احسب الفرق بين 715 و42.', '682', '673', '677', '668', 'B', '715 - 42 = 673.', 'رياضيات', 'medium'),
+('احسب الفرق بين 715 و42.', '682', '673', '677', '668', 'B', '715 - 42 = 673.', 'رياضيات', 'medium')
 )
 insert into public.questions (question_text, option_a, option_b, option_c, option_d, correct_option, explanation, category, difficulty, is_active)
 select n.question_text, n.option_a, n.option_b, n.option_c, n.option_d, n.correct_option, n.explanation, n.category, n.difficulty, true
