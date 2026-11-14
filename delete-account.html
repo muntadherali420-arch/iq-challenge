@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#173b9e">
+<title>حذف الحساب والبيانات — تحدّي العقول</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#24324b;background:#f3f8ff}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px}
+main{width:min(520px,100%);background:#fff;border:1px solid #dce6f5;border-radius:22px;padding:24px;box-shadow:0 12px 40px #183b7a12}
+h1{margin:0 0 8px;font-size:24px}p{line-height:1.8;color:#65748d}.field{width:100%;padding:14px;border:1px solid #ccd8e8;border-radius:12px;margin:7px 0 12px;font-size:16px}
+button,.link{display:block;width:100%;padding:14px;border:0;border-radius:12px;background:#173b9e;color:#fff;font-weight:800;text-align:center;text-decoration:none;font-size:15px;margin-top:12px}
+button:disabled{opacity:.6}.status{min-height:28px;color:#173b9e;font-size:14px;line-height:1.7}.warning{background:#fff5e7;padding:12px;border-radius:12px;color:#85520b}
+</style>
+</head>
+<body>
+<main>
+<h1>حذف حساب تحدّي العقول</h1>
+<p>يمكنك طلب حذف حسابك وبيانات اللعب المرتبطة به من هنا. يلزم تسجيل الدخول بالبريد الإلكتروني وكلمة المرور للتأكد من ملكيتك للحساب.</p>
+<p class="warning">تنبيه: الحذف نهائي، ويزيل اسم اللاعب والنقاط ومحاولات الأسئلة وسجل الحساب. لا يمكن التراجع عنه.</p>
+<form id="deleteForm">
+<label for="email">البريد الإلكتروني للحساب</label>
+<input class="field" id="email" type="email" autocomplete="username" required>
+<label for="password">كلمة المرور</label>
+<input class="field" id="password" type="password" autocomplete="current-password" required>
+<button id="deleteButton" type="submit">التحقق وحذف الحساب نهائياً</button>
+</form>
+<p id="status" class="status" role="status" aria-live="polite"></p>
+<a class="link" href="/">العودة إلى تحدّي العقول</a>
+</main>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const supabase=createClient('https://dkaoptjafnilyztlznmk.supabase.co','sb_publishable_wzAJmA21MoRZhkokNj2RFw_lLqi8U9C');
+const form=document.getElementById('deleteForm');
+const button=document.getElementById('deleteButton');
+const status=document.getElementById('status');
+form.addEventListener('submit',async event=>{
+ event.preventDefault();
+ const email=document.getElementById('email').value.trim();
+ const password=document.getElementById('password').value;
+ if(!window.confirm('تأكيد أخير: هل تريد حذف الحساب وكل بيانات اللعب المرتبطة به نهائياً؟')) return;
+ button.disabled=true;
+ status.textContent='جارٍ التحقق من بيانات الدخول...';
+ const {error:loginError}=await supabase.auth.signInWithPassword({email,password});
+ if(loginError){
+  status.textContent='تعذّر تسجيل الدخول. تحقق من البريد وكلمة المرور؛ لم يُحذف الحساب.';
+  button.disabled=false;return;
+ }
+ status.textContent='تم التحقق. جارٍ حذف الحساب...';
+ const {data,error}=await supabase.functions.invoke('delete-account',{method:'POST'});
+ if(error||data?.success!==true){
+  status.textContent='تعذّر إكمال الحذف الآن. لم نؤكد حذف الحساب؛ حاول لاحقاً.';
+  await supabase.auth.signOut({scope:'local'});
+  button.disabled=false;return;
+ }
+ await supabase.auth.signOut({scope:'local'});
+ form.reset();
+ status.textContent='تم حذف الحساب وبيانات اللعب المرتبطة به بنجاح.';
+});
+</script>
+</body>
+</html>
