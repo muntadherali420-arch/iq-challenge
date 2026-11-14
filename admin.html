@@ -100,13 +100,13 @@ async function logout(){await db.auth.signOut();currentUser=null;isAdmin=false;s
 async function loadQuestions(reset=false){
  if(!isAdmin)return;if(reset){offset=0;rows=[];$('questionRows').innerHTML='<tr><td colspan="5" class="empty">جارٍ التحميل...</td></tr>';}
  const filter=$('filter').value, search=$('search').value.trim();
- let query=db.from('questions').select(fields.concat('id')).order('created_at',{ascending:false}).range(offset,offset+pageSize-1);
+ let query=db.from('questions').select(fields.concat('id').join(','),{count:'exact'}).order('created_at',{ascending:false}).range(offset,offset+pageSize-1);
  if(filter==='active')query=query.eq('is_active',true);if(filter==='inactive')query=query.eq('is_active',false);
  if(search)query=query.or('question_text.ilike.%'+search+'%,category.ilike.%'+search+'%');
- const {data,error}=await query;if(error){$('listStatus').textContent='فشل تحميل الأسئلة: '+error.message;return;}
+ const {data,error,count}=await query;if(error){$('listStatus').textContent='فشل تحميل الأسئلة: '+error.message;return;}
  rows=reset?(data||[]):rows.concat(data||[]);offset+=data?.length||0;
- renderRows();$('loadMore').disabled=(data||[]).length<pageSize;$('listStatus').textContent='المعروض: '+rows.length+' سؤال';
- if(reset&&!search&&filter==='all'){$('totalCount').textContent=rows.length+'+';}
+ renderRows();$('loadMore').disabled=(data||[]).length<pageSize;$('listStatus').textContent='المعروض: '+rows.length+' من '+(count??rows.length)+' سؤال';
+ $('totalCount').textContent=(count??rows.length).toLocaleString('ar-IQ');
 }
 function renderRows(){
  const tbody=$('questionRows');tbody.innerHTML='';
@@ -123,7 +123,7 @@ $('questionForm').addEventListener('submit',async e=>{
  const id=$('questionId').value;$('save').disabled=true;
  const result=id?await db.from('questions').update(payload).eq('id',id):await db.from('questions').insert(payload);
  $('save').disabled=false;if(result.error){message('formStatus','تعذّر الحفظ: '+result.error.message);return;}
- message('formStatus',id?'تم تحديث السؤال بنجاح.':'تمت إضافة السؤال بنجاح.');resetForm();await loadQuestions(true);
+ const successText=id?'تم تحديث السؤال بنجاح.':'تمت إضافة السؤال بنجاح.';resetForm();message('formStatus',successText);await loadQuestions(true);
 });
 $('login').addEventListener('click',login);$('logout').addEventListener('click',logout);$('setupLogout').addEventListener('click',logout);$('recheck').addEventListener('click',checkAdmin);$('refresh').addEventListener('click',()=>loadQuestions(true));$('loadMore').addEventListener('click',()=>loadQuestions(false));$('cancelEdit').addEventListener('click',resetForm);$('filter').addEventListener('change',()=>loadQuestions(true));
 let searchTimer; $('search').addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>loadQuestions(true),350);});
