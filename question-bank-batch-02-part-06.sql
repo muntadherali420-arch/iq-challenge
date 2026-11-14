@@ -101,7 +101,7 @@ with new_questions(question_text, option_a, option_b, option_c, option_d, correc
 ('ما مربع العدد 101؟', '10201', '10302', '10200', '10204', 'A', '101 × 101 = 10201.', 'رياضيات', 'medium'),
 ('ما مربع العدد 102؟', '10506', '10403', '10407', '10404', 'D', '102 × 102 = 10404.', 'رياضيات', 'medium'),
 ('ما مربع العدد 103؟', '10608', '10612', '10609', '10712', 'C', '103 × 103 = 10609.', 'رياضيات', 'medium'),
-('ما مربع العدد 104؟', '10819', '10816', '10920', '10815', 'B', '104 × 104 = 10816.', 'رياضيات', 'medium'),
+('ما مربع العدد 104؟', '10819', '10816', '10920', '10815', 'B', '104 × 104 = 10816.', 'رياضيات', 'medium')
 )
 insert into public.questions (question_text, option_a, option_b, option_c, option_d, correct_option, explanation, category, difficulty, is_active)
 select n.question_text, n.option_a, n.option_b, n.option_c, n.option_d, n.correct_option, n.explanation, n.category, n.difficulty, true
