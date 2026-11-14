@@ -2200,7 +2200,7 @@ window.setTimeout(() => {
   const retry=document.createElement('button');retry.type='button';retry.className='btn secondary visual-retry';retry.textContent='إعادة المحاولة';retry.addEventListener('click',()=>openStage(current));$v('visualAnswers').after(retry);
  }
  function success(message){
-  locked=true;completed=Math.max(completed,current+1);localStorage.setItem(key,String(completed));
+  locked=true;document.querySelectorAll('.visual-retry').forEach(b=>b.remove());completed=Math.max(completed,current+1);localStorage.setItem(key,String(completed));
   $v('visualFeedback').textContent='ممتاز! '+message;progress();
   $v('visualNext').classList.remove('hidden');$v('visualNext').textContent=current===stages.length-1?'إنهاء الاختبار ✓':'المرحلة التالية ←';
  }
@@ -2216,10 +2216,10 @@ window.setTimeout(() => {
   $v('visualNext').classList.add('hidden');$v('visualAnswers').innerHTML='';document.querySelectorAll('.visual-retry').forEach(b=>b.remove());
   if(x.type==='tap'){
    scene.textContent='';
-   x.objects.forEach((obj,n)=>{const b=document.createElement('button');b.type='button';b.className='visual-object';b.textContent=obj;b.setAttribute('aria-label','العنصر '+(n+1));b.addEventListener('click',()=>{if(locked)return;if(n===x.target){b.classList.add('selected');success(x.why);}else{b.classList.add('selected');fail('هذا مو المطلوب، جرّب عنصر ثاني.');}});scene.appendChild(b);});
+   x.objects.forEach((obj,n)=>{const b=document.createElement('button');b.type='button';b.className='visual-object';b.textContent=obj;b.setAttribute('aria-label','العنصر '+(n+1));b.addEventListener('click',()=>{if(locked)return;if(n===x.target){b.classList.add('selected');success(x.why);}else{b.classList.add('selected');fail('هذا مو المطلوب، جرّب عنصر ثاني.',false);}});scene.appendChild(b);});
   }else if(x.type==='order'){
    x.items.forEach((item,n)=>{const b=document.createElement('button');b.type='button';b.className='visual-answer';b.textContent=item;b.addEventListener('click',()=>{if(locked||orderSelected.includes(n))return;orderSelected.push(n);b.classList.add('correct');b.disabled=true;$v('visualFeedback').textContent='ترتيبك الحالي: '+orderSelected.map(k=>x.items[k]).join(' ← ');});$v('visualAnswers').appendChild(b);});
-   const check=document.createElement('button');check.type='button';check.className='btn visual-order-check';check.textContent='تحقّق من الترتيب';check.addEventListener('click',()=>{if(locked)return;if(orderSelected.length!==x.items.length){fail('اختَر كل العناصر أولاً، ثم تحقّق من الترتيب.');return;}if(orderSelected.every((n,k)=>n===k))success(x.why);else{locked=true;fail('الترتيب مو صحيح. أعد المحاولة.');}});$v('visualAnswers').appendChild(check);
+   const check=document.createElement('button');check.type='button';check.className='btn visual-order-check';check.textContent='تحقّق من الترتيب';check.addEventListener('click',()=>{if(locked)return;if(orderSelected.length!==x.items.length){fail('اختَر كل العناصر أولاً، ثم تحقّق من الترتيب.',false);return;}if(orderSelected.every((n,k)=>n===k))success(x.why);else{locked=true;fail('الترتيب مو صحيح. أعد المحاولة.');}});$v('visualAnswers').appendChild(check);
   }else{
    optionOrders[i].forEach(n=>{const b=document.createElement('button');b.type='button';b.className='visual-answer';b.textContent=x.a[n];b.addEventListener('click',()=>choose(n));$v('visualAnswers').appendChild(b);});
   }
