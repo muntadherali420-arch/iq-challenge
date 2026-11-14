@@ -841,6 +841,19 @@ button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
 .visual-drag-arrow{font-size:28px;color:#6784b8;font-weight:900}
 .visual-scene.drag-scene .visual-drag-source,.visual-scene.drag-scene .visual-drop-target{font-size:14px}
 </style>
+<style>
+/* Daily challenge home shortcut and reset countdown */
+.daily-launch-card{width:100%;display:flex;align-items:center;gap:14px;margin:0 0 16px;padding:16px;text-align:right;border:1px solid #f0c76b;border-radius:22px;background:linear-gradient(115deg,#fff2c9,#ffe0a0 55%,#fff7df);color:#3d3154;box-shadow:0 9px 24px rgba(128,91,28,.13);cursor:pointer}
+.daily-launch-icon{width:62px;height:62px;flex:0 0 62px;display:grid;place-items:center;border-radius:19px;background:linear-gradient(145deg,#fffdf4,#ffd66f);font-size:34px;box-shadow:inset 0 0 0 1px #e7bb55,0 4px 10px #9c6d2926}
+.daily-launch-copy{display:flex;flex:1;min-width:0;flex-direction:column;align-items:flex-start;gap:4px}
+.daily-launch-copy strong{font-size:18px;font-weight:950}
+.daily-launch-copy small{font-size:11px;color:#705c3d}
+.daily-launch-timer{font-size:12px;font-weight:900;color:#80520a;font-variant-numeric:tabular-nums}
+.daily-launch-arrow{font-size:25px;font-weight:900;color:#8d641a}
+.daily-launch-card:active{transform:scale(.99)}
+@media(prefers-reduced-motion:no-preference){.daily-launch-icon{animation:dailyStarFloat 3s ease-in-out infinite}@keyframes dailyStarFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}}
+@media(max-width:360px){.daily-launch-card{padding:12px;gap:10px}.daily-launch-icon{width:54px;height:54px;flex-basis:54px;font-size:29px}.daily-launch-copy strong{font-size:16px}}
+</style>
 </head>
 <body>
 <div id="launchScreen" role="dialog" aria-label="شاشة بداية تحدّي العقول">
@@ -872,6 +885,11 @@ button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
     <button class="mode-card mode-puzzle" type="button" data-open-screen="puzzles"><span class="mode-icon">🧩</span><span class="mode-kicker">فكّر خارج الصندوق</span><strong>الأحجيات المخادعة</strong><small>ألغاز ذكية • تلميحات • حلول مفاجئة</small><span class="mode-go">اكتشف الألغاز ←</span></button>
     <button class="mode-card mode-visual" type="button" data-open-screen="visual"><span class="mode-icon">🖼️</span><span class="mode-kicker">لاحظ الصورة واكتشف الحل</span><strong>اختبار الذكاء بالصور</strong><small>مشاهد مصوّرة • مراحل متتابعة • حلول تحتاج تركيز</small><span class="mode-go">ابدأ اختبار الصور ←</span></button>
   </section>
+  <button class="daily-launch-card" id="dailyHomeLaunch" type="button" data-open-screen="daily" aria-label="افتح تحدّي اليوم">
+    <span class="daily-launch-icon" aria-hidden="true">🌟</span>
+    <span class="daily-launch-copy"><strong>تحدّي اليوم</strong><small id="dailyHomeState">تحدٍّ جديد كل يوم ومكافأة 20 نقطة</small><span class="daily-launch-timer" id="dailyHomeCountdown">⏳ يتجدد بعد --:--:--</span></span>
+    <span class="daily-launch-arrow" aria-hidden="true">←</span>
+  </button>
   <section class="card" id="authCard">
     <div class="row"><strong>حساب اللاعب</strong><span class="tag">تسجيل آمن</span></div>
     <p class="auth-note">أنشئ حساباً أو سجّل دخولك حتى نربط تقدمك بحسابك. استخدم بريداً إلكترونياً تملكه.</p>
@@ -989,7 +1007,6 @@ button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
     <button class="nav-btn" type="button" data-screen="play"><span>🎮</span>المسابقة</button>
     <button class="nav-btn" type="button" data-screen="puzzles"><span>🧩</span>الألغاز</button>
     <button class="nav-btn" type="button" data-screen="visual"><span>🖼️</span>صور</button>
-    <button class="nav-btn" type="button" data-screen="daily"><span>⚡</span>تحدّي اليوم</button>
     <button class="nav-btn" type="button" data-screen="profile"><span>🏆</span>إنجازاتي</button>
   </nav>
 </main>\n
@@ -1389,6 +1406,46 @@ async function loadLeaderboard() {
   });
 }
 let dailyLoadVersion = 0;
+// The daily challenge RPC uses PostgreSQL current_date in UTC. Keep the
+// visible countdown aligned to that exact reset boundary (00:00 UTC).
+let dailyObservedUtcDate = new Date().toISOString().slice(0,10);
+let dailyHomeStatus = 'login';
+function updateDailyHomeCard(status = dailyHomeStatus) {
+  dailyHomeStatus = status;
+  const state = $('dailyHomeState');
+  const timer = $('dailyHomeCountdown');
+  if (!state || !timer) return;
+  const now = new Date();
+  const nextUtcMidnight = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1);
+  const remaining = Math.max(0, nextUtcMidnight - now.getTime());
+  const hours = Math.floor(remaining / 3600000);
+  const minutes = Math.floor((remaining % 3600000) / 60000);
+  const seconds = Math.floor((remaining % 60000) / 1000);
+  timer.textContent = '⏳ التحدّي القادم بعد ' +
+    [hours, minutes, seconds].map(value => String(value).padStart(2,'0')).join(':');
+  const labels = {
+    available: 'متاح الآن — جاوب واربح 20 نقطة',
+    completed: 'أكملت تحدّي اليوم — انتظر التحدّي الجديد',
+    login: 'سجّل الدخول حتى تشارك وتجمع النقاط',
+    missing: 'لا يوجد تحدٍّ مجدول لهذا اليوم',
+    loading: 'جارٍ التحقق من تحدّي اليوم...',
+    error: 'تعذّر التحقق — حاول مرة ثانية'
+  };
+  state.textContent = labels[status] || labels.login;
+  const launch = $('dailyHomeLaunch');
+  if (launch) launch.setAttribute('aria-label', labels[status] + '. ' + timer.textContent);
+}
+function refreshDailyCountdown() {
+  updateDailyHomeCard();
+  const utcDate = new Date().toISOString().slice(0,10);
+  if (utcDate !== dailyObservedUtcDate) {
+    dailyObservedUtcDate = utcDate;
+    loadDailyChallenge();
+  }
+}
+window.setInterval(refreshDailyCountdown, 1000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshDailyCountdown(); });
+updateDailyHomeCard('login');
 async function loadDailyChallenge() {
   const loadVersion = ++dailyLoadVersion;
   const questionEl = $('dailyQuestion');
@@ -1396,11 +1453,13 @@ async function loadDailyChallenge() {
   const feedbackEl = $('dailyFeedback');
   const { data: sessionData } = await supabase.auth.getSession();
   if (!sessionData.session) {
+    updateDailyHomeCard('login');
     questionEl.textContent = 'سجّل الدخول لعرض تحدّي اليوم.';
     answersEl.innerHTML = '';
     feedbackEl.textContent = '';
     return;
   }
+  updateDailyHomeCard('loading');
   questionEl.textContent = 'جارٍ تحميل تحدّي اليوم...';
   answersEl.innerHTML = '';
   feedbackEl.textContent = '';
@@ -1409,6 +1468,7 @@ async function loadDailyChallenge() {
   // Ignore stale responses so the same four answer buttons are never appended twice.
   if (loadVersion !== dailyLoadVersion) return;
   if (error) {
+    updateDailyHomeCard('error');
     questionEl.textContent = 'تعذّر تحميل تحدّي اليوم.';
     feedbackEl.textContent = error.message;
     return;
@@ -1416,17 +1476,20 @@ async function loadDailyChallenge() {
   const challenge = Array.isArray(data) ? data[0] : null;
   answersEl.replaceChildren();
   if (!challenge) {
+    updateDailyHomeCard('missing');
     questionEl.textContent = 'لا يوجد تحدٍّ مجدول لهذا اليوم. سنعود بتحدٍّ جديد قريباً.';
     return;
   }
   $('dailyDate').textContent = 'تحدّي يوم ' + new Date(challenge.challenge_date + 'T00:00:00').toLocaleDateString('ar-IQ');
   if (challenge.already_answered) {
+    updateDailyHomeCard('completed');
     // Do not present a completed daily challenge as if its answer buttons were playable.
     questionEl.textContent = 'اكتمل تحدّي اليوم بنجاح! 🌟';
     answersEl.replaceChildren();
     feedbackEl.textContent = 'أكملت تحدّي اليوم مسبقاً. مكافأتك: ' + Number(challenge.points_awarded || 0) + ' نقطة. عُد غداً لتحدٍّ جديد.';
     return;
   }
+  updateDailyHomeCard('available');
   questionEl.classList.remove('hidden');
   answersEl.classList.remove('hidden');
   feedbackEl.textContent = '';
@@ -1468,6 +1531,7 @@ async function submitDailyAnswer(challengeId, letter) {
     : (data.is_correct
       ? 'أحسنت! إجابة صحيحة وربحت ' + data.points_awarded + ' نقطة مكافأة. '
       : 'اكتمل تحدّي اليوم، لكن إجابتك غير صحيحة؛ لم تحصل على 20 نقطة المكافأة. ');
+  updateDailyHomeCard('completed');
   $('dailyQuestion').textContent = 'اكتمل تحدّي اليوم! 🌟';
   $('dailyAnswers').replaceChildren();
   $('dailyFeedback').textContent = prefix + (data.explanation || '') + ' مجموع نقاطك: ' + data.total_score + '.';
