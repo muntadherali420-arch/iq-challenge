@@ -129,6 +129,7 @@ async function loadQuestions(reset=false){
  const filter=$('filter').value, search=$('search').value.trim();
  let query=db.from('questions').select(fields.concat('id').join(','),{count:'exact'}).order('created_at',{ascending:false}).range(offset,offset+pageSize-1);
  if(filter==='active')query=query.eq('is_active',true);if(filter==='inactive')query=query.eq('is_active',false);
+ const category=$('categoryFilter').value,difficulty=$('difficultyFilter').value;if(category!=='all')query=query.eq('category',category);if(difficulty!=='all')query=query.eq('difficulty',difficulty);
  if(search)query=query.or('question_text.ilike.%'+search+'%,category.ilike.%'+search+'%');
  const {data,error,count}=await query;if(error){$('listStatus').textContent='فشل تحميل الأسئلة: '+error.message;return;}
  rows=reset?(data||[]):rows.concat(data||[]);offset+=data?.length||0;
