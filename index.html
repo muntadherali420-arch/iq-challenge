@@ -805,6 +805,23 @@ button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
 }
 </style>
 
+<style>
+/* IQ Visual Brain Challenge — third game mode */
+.mode-visual{background:linear-gradient(145deg,#087eae,#2b63bd 58%,#7650bd);border:2px solid #a8eaff}
+.visual-shell{background:linear-gradient(145deg,#f4fbff,#e8f1ff)!important;color:#23345d!important;border:2px solid #b9d8ff!important}
+.visual-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.visual-stage-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:16px 0}
+.visual-stage{min-height:64px;border:1px solid #c5d8f5;border-radius:15px;background:linear-gradient(145deg,#fff,#eaf2ff);color:#304477;font-weight:900;font-size:18px;box-shadow:0 3px 0 #c8d8f0;cursor:pointer}
+.visual-stage.done{background:linear-gradient(145deg,#d9ffed,#a7f0d1);border-color:#61cba3;color:#17644a}
+.visual-stage:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+.visual-scene{min-height:180px;border-radius:22px;margin:15px 0;padding:18px;display:grid;place-items:center;text-align:center;background:radial-gradient(circle at 50% 25%,#fff9d8,#bfeaff 60%,#8ebcf3);border:2px solid #fff;box-shadow:inset 0 0 0 1px #8eb5e8;font-size:clamp(52px,13vw,82px);letter-spacing:7px}
+.visual-question{font-size:20px;line-height:1.7;color:#243765;margin:12px 0}
+.visual-answers{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.visual-answer{min-height:54px;border:1.5px solid #bfd1f0;border-radius:14px;background:#fff;color:#304477;font:800 14px system-ui;padding:11px;cursor:pointer}
+.visual-answer.correct{background:#d9f8e8;border-color:#4ab987;color:#176044}.visual-answer.wrong{background:#ffe6eb;border-color:#e88da2;color:#923b54}
+.visual-feedback{min-height:44px;color:#3b527f;line-height:1.7;margin:12px 0;font-weight:700}
+@media(max-width:390px){.visual-stage-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.visual-answers{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <div id="launchScreen" role="dialog" aria-label="شاشة بداية تحدّي العقول">
@@ -834,6 +851,7 @@ button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
   <section class="mode-grid" aria-label="أنماط اللعب">
     <button class="mode-card mode-million" type="button" data-open-screen="play"><span class="mode-icon">🏆</span><span class="mode-kicker">المسابقة الكبرى</span><strong>طريق القمّة</strong><small>أسئلة متدرجة • نقاط • مراحل أصعب</small><span class="mode-go">ابدأ التحدّي ←</span></button>
     <button class="mode-card mode-puzzle" type="button" data-open-screen="puzzles"><span class="mode-icon">🧩</span><span class="mode-kicker">فكّر خارج الصندوق</span><strong>الأحجيات المخادعة</strong><small>ألغاز ذكية • تلميحات • حلول مفاجئة</small><span class="mode-go">اكتشف الألغاز ←</span></button>
+    <button class="mode-card mode-visual" type="button" data-open-screen="visual"><span class="mode-icon">🖼️</span><span class="mode-kicker">لاحظ الصورة واكتشف الحل</span><strong>اختبار الذكاء بالصور</strong><small>مشاهد مصوّرة • مراحل متتابعة • حلول تحتاج تركيز</small><span class="mode-go">ابدأ اختبار الصور ←</span></button>
   </section>
   <section class="card" id="authCard">
     <div class="row"><strong>حساب اللاعب</strong><span class="tag">تسجيل آمن</span></div>
@@ -888,6 +906,22 @@ button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
       <p class="small puzzle-foot" id="puzzleFoot">الجولة: 10 ألغاز كحد أقصى · 10 نقاط للإجابة الصحيحة · الحد الأعلى 100 نقطة</p>
     </section>
   </div>
+  <div class="app-screen" id="screen-visual">
+    <section class="card visual-shell">
+      <div class="visual-top"><div><span class="eyebrow">🖼️ تحدّي الملاحظة والاستنتاج</span><h2 style="margin:6px 0">اختبار الذكاء بالصور</h2><p class="small">شاهد المشهد، فكّر بهدوء، واختر الحل. افتح المراحل بالتتابع.</p></div><span class="tag" id="visualProgress">0 / 10 مكتملة</span></div>
+      <div class="level-progress"><div id="visualProgressBar"></div></div>
+      <div id="visualStageSelect"><strong>اختر المرحلة</strong><div class="visual-stage-grid" id="visualStageGrid"></div><p class="small">كل إجابة صحيحة تفتح المرحلة التالية. تقدر ترجع للمراحل اللي كملتها بأي وقت.</p></div>
+      <div id="visualPlay" class="hidden">
+        <div class="visual-top"><strong id="visualStageTitle">المرحلة 1</strong><span class="tag" id="visualStageCount">1 / 10</span></div>
+        <div class="visual-scene" id="visualScene" aria-label="مشهد اللغز">☁️ 🌹 ☀️</div>
+        <h3 class="visual-question" id="visualQuestion"></h3>
+        <div class="visual-answers" id="visualAnswers"></div>
+        <div class="visual-feedback" id="visualFeedback" aria-live="polite"></div>
+        <button class="btn hidden" id="visualNext" type="button">المرحلة التالية ←</button>
+        <button class="btn secondary" id="visualBack" type="button">العودة إلى المراحل</button>
+      </div>
+    </section>
+  </div>
   <div class="app-screen" id="screen-play">
   <section class="card" id="game">
     <div class="row"><strong id="roundTitle">الجولة الأولى</strong><span class="tag" id="category">منطق وذكاء</span></div>
@@ -935,6 +969,7 @@ button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
     <button class="nav-btn active" type="button" data-screen="home"><span>🏠</span>الرئيسية</button>
     <button class="nav-btn" type="button" data-screen="play"><span>🎮</span>المسابقة</button>
     <button class="nav-btn" type="button" data-screen="puzzles"><span>🧩</span>الألغاز</button>
+    <button class="nav-btn" type="button" data-screen="visual"><span>🖼️</span>صور</button>
     <button class="nav-btn" type="button" data-screen="daily"><span>⚡</span>تحدّي اليوم</button>
     <button class="nav-btn" type="button" data-screen="profile"><span>🏆</span>إنجازاتي</button>
   </nav>
@@ -2116,5 +2151,50 @@ window.setTimeout(() => {
   puzzleObserver.observe(puzzleScore,{childList:true,characterData:true,subtree:true});
  }
 })();
+
+// Third mode: visual observation stages (independent progress, saved on this device).
+(()=>{
+ const stages=[
+  {scene:'☁️ 🌹 ☀️',q:'حتى تحصل الزهرة على ضوء الشمس، أي شيء يجب إبعاده عن طريقها؟',a:['الغيمة','الأصيص','الورقة','الجذر'],c:0,why:'الغيمة تحجب ضوء الشمس عن الزهرة.'},
+  {scene:'🕯️ 🌬️ 🔥',q:'أي عنصر يجعل اللهب ينطفئ غالباً؟',a:['الهواء القوي','الضوء','الظل','اللون'],c:0,why:'تيار الهواء القوي قد يطفئ الشمعة.'},
+  {scene:'🔒 🗝️ 🚪',q:'ما الشيء الذي يساعدك على فتح هذا القفل؟',a:['المفتاح','الجرس','المرآة','الساعة'],c:0,why:'المفتاح هو الأداة المناسبة لهذا القفل.'},
+  {scene:'🌧️ ☂️ 🚶',q:'ما الشيء الذي يحمي الشخص من المطر؟',a:['المظلة','النظارة','الحذاء','الكتاب'],c:0,why:'المظلة تحجب المطر عن الشخص.'},
+  {scene:'🌙 ⭐ 🦉',q:'أي وقت يناسب ظهور هذا المشهد أكثر؟',a:['الليل','منتصف الظهيرة','الصباح الباكر','وقت الغروب فقط'],c:0,why:'القمر والنجوم يرتبطان غالباً بسماء الليل.'},
+  {scene:'🧊 ☀️ 💧',q:'ماذا يحدث لمكعب الثلج إذا بقي تحت الشمس؟',a:['يذوب','يتحول إلى حجر','ينمو','يصبح خشباً'],c:0,why:'الحرارة تجعل الثلج يذوب ويتحول إلى ماء.'},
+  {scene:'🐟 💧 🫙',q:'أي بيئة يحتاجها السمك ليعيش؟',a:['الماء','الرمل الجاف','الهواء وحده','الثلج'],c:0,why:'السمك يعيش في الماء ويحتاج إلى بيئة مائية مناسبة.'},
+  {scene:'🔋 🔦 ✨',q:'ما الذي تحتاجه المصباح اليدوي حتى يعمل؟',a:['بطارية مشحونة','ورقة','ملعقة','خيط'],c:0,why:'البطارية تمد المصباح بالطاقة.'},
+  {scene:'🌱 💧 🌞',q:'ما العاملان الظاهران اللذان يساعدان النبتة على النمو؟',a:['الماء وضوء الشمس','الظل والغبار','الصوت والهواء فقط','الحجارة والملح'],c:0,why:'الماء وضوء الشمس من أساسيات نمو معظم النباتات.'},
+  {scene:'🧩 👀 💡',q:'ما أفضل طريقة لحل لغز بصري صعب؟',a:['ملاحظة التفاصيل','اختيار عشوائي','تجاهل الصورة','الإجابة بسرعة'],c:0,why:'ملاحظة التفاصيل وربطها بالسؤال يساعدان على الوصول للحل.'}
+ ];
+ const key='iq-visual-stages-v1';
+ let completed=Number(localStorage.getItem(key)||0),current=0,locked=false;
+ const $v=id=>document.getElementById(id);
+ const grid=$v('visualStageGrid'); if(!grid)return;
+ function progress(){completed=Math.max(0,Math.min(10,completed));$v('visualProgress').textContent=completed+' / 10 مكتملة';$v('visualProgressBar').style.width=(completed*10)+'%';}
+ function drawGrid(){
+  progress();grid.innerHTML='';
+  stages.forEach((_,i)=>{const b=document.createElement('button');b.type='button';b.className='visual-stage'+(i<completed?' done':'');b.textContent=(i<completed?'✓ ':'')+(i+1);b.disabled=i>completed;b.setAttribute('aria-label','المرحلة '+(i+1));b.addEventListener('click',()=>openStage(i));grid.appendChild(b);});
+  $v('visualStageSelect').classList.remove('hidden');$v('visualPlay').classList.add('hidden');
+ }
+ function openStage(i){
+  if(i>completed)return;current=i;locked=false;const x=stages[i];
+  $v('visualStageSelect').classList.add('hidden');$v('visualPlay').classList.remove('hidden');
+  $v('visualStageTitle').textContent='المرحلة '+(i+1);$v('visualStageCount').textContent=(i+1)+' / 10';
+  $v('visualScene').textContent=x.scene;$v('visualQuestion').textContent=x.q;$v('visualFeedback').textContent='اختر الإجابة التي تراها صحيحة.';
+  $v('visualNext').classList.add('hidden');$v('visualAnswers').innerHTML='';
+  x.a.forEach((answer,n)=>{const b=document.createElement('button');b.type='button';b.className='visual-answer';b.textContent=answer;b.addEventListener('click',()=>choose(n));$v('visualAnswers').appendChild(b);});
+ }
+ function choose(n){
+  if(locked)return;locked=true;const x=stages[current],buttons=[...$v('visualAnswers').children];
+  buttons.forEach((b,i)=>{b.disabled=true;if(i===x.c)b.classList.add('correct');else if(i===n)b.classList.add('wrong');});
+  if(n===x.c){completed=Math.max(completed,current+1);localStorage.setItem(key,String(completed));$v('visualFeedback').textContent='ممتاز! '+x.why;progress();$v('visualNext').classList.remove('hidden');$v('visualNext').textContent=current===9?'إنهاء الاختبار ✓':'المرحلة التالية ←';}
+  else{$v('visualFeedback').textContent='مو مشكلة! راجع المشهد وحاول مرة ثانية.';const retry=document.createElement('button');retry.type='button';retry.className='btn secondary';retry.textContent='إعادة المحاولة';retry.addEventListener('click',()=>openStage(current));$v('visualAnswers').after(retry);}
+ }
+ $v('visualNext').addEventListener('click',()=>{if(current<9&&current<completed)openStage(current+1);else drawGrid();});
+ $v('visualBack').addEventListener('click',drawGrid);
+ document.querySelectorAll('[data-open-screen="visual"],.nav-btn[data-screen="visual"]').forEach(b=>b.addEventListener('click',drawGrid));
+ drawGrid();
+})();
+
 </script>
 </body></html>
