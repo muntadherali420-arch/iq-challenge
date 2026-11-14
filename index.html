@@ -877,6 +877,18 @@ button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
 #levelUpToast span{display:block;margin-top:3px;font-size:.9rem}
 @media(prefers-reduced-motion:reduce){#levelUpToast{transition:none}}
 </style>
+<style>
+.rank-reward-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.rank-reward{display:flex;align-items:center;gap:8px;min-width:0;padding:10px;border:1px solid #514c70;border-radius:13px;background:linear-gradient(145deg,#302f50,#292744);color:var(--ink)}
+.rank-reward.locked{opacity:.5;filter:grayscale(.7)}
+.rank-reward-icon{font-size:24px;flex:0 0 auto}
+.rank-reward strong{display:block;font-size:12px}
+.rank-reward small{display:block;color:var(--muted);font-size:10px;line-height:1.5}
+.rank-reward.unlocked{border-color:#d2b777;background:linear-gradient(145deg,#514333,#39304a)}
+@media(min-width:520px){.rank-reward-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media(prefers-reduced-motion:no-preference){.rank-reward.unlocked{animation:rankRewardIn .35s ease-out}}
+@keyframes rankRewardIn{from{transform:translateY(4px);opacity:.7}to{transform:translateY(0);opacity:1}}
+</style>
 </head>
 <body>
 <div id="levelUpToast" role="status" aria-live="polite" aria-atomic="true"><strong id="levelUpTitle">🎉 ارتقيت بمستواك!</strong><span id="levelUpMessage"></span></div>
@@ -943,6 +955,9 @@ button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
     <div class="small" id="levelProgressHint">كل 10 إجابات محفوظة ترفع مستواك درجة.</div>
     <div class="row" style="margin-top:18px"><strong>🏅 شارات الإنجاز</strong><span class="tag" id="achievementCount">0 / 5</span></div>
     <div class="achievement-grid" id="achievementGrid"></div>
+    <div class="row" style="margin-top:18px"><strong>🎖️ مكافآت الرتب</strong><span class="tag" id="rankRewardCount">0 / 10</span></div>
+    <p class="small">افتح شارة جديدة كلما أكملت رتبة من رتب التحدّي. هذه مكافآت إنجاز شكلية ولا تغيّر نقاطك.</p>
+    <div class="rank-reward-grid" id="rankRewardGrid"></div>
   </section>
 
   </div>
@@ -1291,6 +1306,41 @@ const ACHIEVEMENTS = [
   { score: 1000, icon: '🏆', title: 'بطل التحدّي', detail: 'اجمع 1,000 نقطة' },
   { score: 2500, icon: '👑', title: 'أسطورة العقول', detail: 'اجمع 2,500 نقطة' }
 ];
+const RANK_REWARDS = [
+ {level:10,icon:'🌱',title:'شارة البداية',rank:'مبتدئ'},
+ {level:20,icon:'🧭',title:'شارة الاستكشاف',rank:'مستكشف'},
+ {level:30,icon:'📘',title:'شارة التعلّم',rank:'متعلّم'},
+ {level:40,icon:'🛠️',title:'شارة التمكّن',rank:'متمكّن'},
+ {level:50,icon:'🚀',title:'شارة التقدّم',rank:'متقدّم'},
+ {level:60,icon:'🎓',title:'شارة الخبير',rank:'خبير'},
+ {level:70,icon:'💡',title:'شارة العبقرية',rank:'عبقري'},
+ {level:80,icon:'🧠',title:'شارة النبوغ',rank:'نابغة'},
+ {level:90,icon:'🏆',title:'شارة الأسطورة',rank:'أسطورة'},
+ {level:100,icon:'👑',title:'شارة قمة العقول',rank:'قمة العقول'}
+];
+function renderRankRewards(level) {
+ const grid=$('rankRewardGrid');
+ if(!grid)return;
+ const unlocked=RANK_REWARDS.filter(item=>level>=item.level).length;
+ $('rankRewardCount').textContent=unlocked+' / '+RANK_REWARDS.length;
+ grid.replaceChildren();
+ RANK_REWARDS.forEach(item=>{
+  const isUnlocked=level>=item.level;
+  const card=document.createElement('div');
+  card.className='rank-reward '+(isUnlocked?'unlocked':'locked');
+  const icon=document.createElement('span');
+  icon.className='rank-reward-icon';
+  icon.textContent=isUnlocked?item.icon:'🔒';
+  const copy=document.createElement('div');
+  const title=document.createElement('strong');
+  title.textContent=item.title;
+  const detail=document.createElement('small');
+  detail.textContent=isUnlocked?'تم فتحها · '+item.rank:'تُفتح عند المستوى '+item.level;
+  copy.append(title,detail);
+  card.append(icon,copy);
+  grid.appendChild(card);
+ });
+}
 function renderAchievements() {
   const grid = $('achievementGrid');
   if (!grid) return;
@@ -1412,6 +1462,7 @@ function updateStats() {
     ? 'إنجاز استثنائي! وصلت إلى أعلى رتبة في تحدّي العقول.'
     : 'باقي ' + (10 - (answeredCount % 10)) + ' إجابات محفوظة للانتقال إلى المستوى ' + (level + 1) + '. رتبتك القادمة تتحدد حسب تقدّمك.';
   renderAchievements();
+  renderRankRewards(level);
   try {
     const history = JSON.parse(localStorage.getItem(historyStorageKey()) || '[]');
     updateHistorySummary(Array.isArray(history) ? history : []);
