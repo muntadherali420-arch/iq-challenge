@@ -101,7 +101,7 @@ with new_questions(question_text, option_a, option_b, option_c, option_d, correc
 ('كم يساوي 22 مضروباً في 8؟', '176', '198', '168', '187', 'A', '22 × 8 = 176.', 'رياضيات', 'medium'),
 ('كم يساوي 27 مضروباً في 15؟', '432', '390', '416', '405', 'D', '27 × 15 = 405.', 'رياضيات', 'medium'),
 ('كم يساوي 32 مضروباً في 22؟', '682', '715', '704', '736', 'C', '32 × 22 = 704.', 'رياضيات', 'medium'),
-('كم يساوي 37 مضروباً في 6؟', '233', '222', '259', '216', 'B', '37 × 6 = 222.', 'رياضيات', 'medium'),
+('كم يساوي 37 مضروباً في 6؟', '233', '222', '259', '216', 'B', '37 × 6 = 222.', 'رياضيات', 'medium')
 )
 insert into public.questions (question_text, option_a, option_b, option_c, option_d, correct_option, explanation, category, difficulty, is_active)
 select n.question_text, n.option_a, n.option_b, n.option_c, n.option_d, n.correct_option, n.explanation, n.category, n.difficulty, true
