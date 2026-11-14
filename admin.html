@@ -42,7 +42,9 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:right;
 </section>
 <section id="dashboard" class="hidden">
  <div class="panel">
-  <div class="toolbar"><div><div class="muted">إجمالي الأسئلة في قاعدة البيانات</div><div class="count" id="totalCount">—</div></div><div style="margin-inline-start:auto" class="pill">إدارة بنك الأسئلة</div></div>
+  <div class="toolbar"><div><h2 style="margin:0">إحصائيات بنك الأسئلة</h2><div class="muted">ملخص مباشر من قاعدة البيانات</div></div><div style="margin-inline-start:auto" class="pill">إدارة بنك الأسئلة</div></div>
+  <div class="stats-grid"><div class="stat-card"><div class="muted">إجمالي الأسئلة</div><div class="count" id="statTotal">—</div></div><div class="stat-card"><div class="muted">الأسئلة النشطة</div><div class="count" id="statActive">—</div></div><div class="stat-card"><div class="muted">الأسئلة المتوقفة</div><div class="count" id="statInactive">—</div></div><div class="stat-card"><div class="muted">عدد التصنيفات</div><div class="count" id="statCategories">—</div></div></div>
+  <p class="muted" id="difficultySummary">توزيع مستويات الصعوبة: جارٍ التحميل...</p>
   <p class="muted">تقدر تضيف سؤالاً أو تعدّل سؤالاً موجوداً أو توقف عرضه للاعبين. التعديلات تنحفظ مباشرة في قاعدة البيانات.</p>
  </div>
  <section class="panel">
@@ -97,7 +99,32 @@ async function checkAdmin(){
 }
 async function login(){ $('login').disabled=true;$('authStatus').textContent='جارٍ تسجيل الدخول...';const {error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});$('login').disabled=false;if(error){message('authStatus','تعذّر تسجيل الدخول: '+error.message);return;}await checkAdmin();}
 async function logout(){await db.auth.signOut();currentUser=null;isAdmin=false;show('dashboard',false);show('setupPanel',false);show('authPanel',true);show('logout',false);}
-async function loadAnalytics(){\n if(!isAdmin)return;\n const [{count:total,error:totalError},{count:active,error:activeError}] = await Promise.all([\n  db.from('questions').select('id',{count:'exact',head:true}),\n  db.from('questions').select('id',{count:'exact',head:true}).eq('is_active',true)\n ]);\n if(totalError||activeError){$('difficultySummary').textContent='تعذّر تحميل الإحصائيات.';return;}\n $('statTotal').textContent=(total??0).toLocaleString('ar-IQ');\n $('statActive').textContent=(active??0).toLocaleString('ar-IQ');\n $('statInactive').textContent=((total??0)-(active??0)).toLocaleString('ar-IQ');\n const counts={};let from=0,batchSize=1000;\n while(true){\n  const {data,error}=await db.from('questions').select('category,difficulty').order('category').range(from,from+batchSize-1);\n  if(error){$('difficultySummary').textContent='تعذّر تحميل توزيع التصنيفات والصعوبات: '+error.message;return;}\n  for(const q of data||[]){const category=q.category||'غير مصنف';counts[category]=(counts[category]||0)+1;}\n  if(!data||data.length<batchSize)break;from+=batchSize;\n }\n const categories=Object.keys(counts).sort((a,b)=>a.localeCompare(b,'ar'));\n $('statCategories').textContent=categories.length.toLocaleString('ar-IQ');\n if(!categoryOptionsLoaded){const select=$('categoryFilter');for(const category of categories){const option=document.createElement('option');option.value=category;option.textContent=category;select.append(option);}categoryOptionsLoaded=true;}\n const labels={easy:'سهل',medium:'متوسط',hard:'صعب',expert:'خبير',genius:'عبقري'};\n const difficultyCounts={easy:0,medium:0,hard:0,expert:0,genius:0};\n from=0;while(true){const {data,error}=await db.from('questions').select('difficulty').range(from,from+batchSize-1);if(error)break;for(const q of data||[])if(q.difficulty in difficultyCounts)difficultyCounts[q.difficulty]++;if(!data||data.length<batchSize)break;from+=batchSize;}\n $('difficultySummary').textContent='توزيع الصعوبة: '+Object.entries(difficultyCounts).map(([key,value])=>labels[key]+' '+value.toLocaleString('ar-IQ')).join(' · ');\n}\nasync function loadQuestions(reset=false){
+async function loadAnalytics(){
+ if(!isAdmin)return;
+ const [{count:total,error:totalError},{count:active,error:activeError}] = await Promise.all([
+  db.from('questions').select('id',{count:'exact',head:true}),
+  db.from('questions').select('id',{count:'exact',head:true}).eq('is_active',true)
+ ]);
+ if(totalError||activeError){$('difficultySummary').textContent='تعذّر تحميل الإحصائيات.';return;}
+ $('statTotal').textContent=(total??0).toLocaleString('ar-IQ');
+ $('statActive').textContent=(active??0).toLocaleString('ar-IQ');
+ $('statInactive').textContent=((total??0)-(active??0)).toLocaleString('ar-IQ');
+ const counts={};let from=0,batchSize=1000;
+ while(true){
+  const {data,error}=await db.from('questions').select('category,difficulty').order('category').range(from,from+batchSize-1);
+  if(error){$('difficultySummary').textContent='تعذّر تحميل توزيع التصنيفات والصعوبات: '+error.message;return;}
+  for(const q of data||[]){const category=q.category||'غير مصنف';counts[category]=(counts[category]||0)+1;}
+  if(!data||data.length<batchSize)break;from+=batchSize;
+ }
+ const categories=Object.keys(counts).sort((a,b)=>a.localeCompare(b,'ar'));
+ $('statCategories').textContent=categories.length.toLocaleString('ar-IQ');
+ if(!categoryOptionsLoaded){const select=$('categoryFilter');for(const category of categories){const option=document.createElement('option');option.value=category;option.textContent=category;select.append(option);}categoryOptionsLoaded=true;}
+ const labels={easy:'سهل',medium:'متوسط',hard:'صعب',expert:'خبير',genius:'عبقري'};
+ const difficultyCounts={easy:0,medium:0,hard:0,expert:0,genius:0};
+ from=0;while(true){const {data,error}=await db.from('questions').select('difficulty').range(from,from+batchSize-1);if(error)break;for(const q of data||[])if(q.difficulty in difficultyCounts)difficultyCounts[q.difficulty]++;if(!data||data.length<batchSize)break;from+=batchSize;}
+ $('difficultySummary').textContent='توزيع الصعوبة: '+Object.entries(difficultyCounts).map(([key,value])=>labels[key]+' '+value.toLocaleString('ar-IQ')).join(' · ');
+}
+async function loadQuestions(reset=false){
  if(!isAdmin)return;if(reset){offset=0;rows=[];$('questionRows').innerHTML='<tr><td colspan="5" class="empty">جارٍ التحميل...</td></tr>';}
  const filter=$('filter').value, search=$('search').value.trim();
  let query=db.from('questions').select(fields.concat('id').join(','),{count:'exact'}).order('created_at',{ascending:false}).range(offset,offset+pageSize-1);
