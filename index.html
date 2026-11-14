@@ -2239,15 +2239,11 @@ window.setTimeout(() => {
    let selected=false;
    function selectSource(){if(locked)return;selected=true;source.classList.add('selected');target.classList.add('ready');$v('visualFeedback').textContent='هسه اسحب العنصر إلى '+x.targetLabel+' أو اضغط المكان المطلوب.';}
    function dropTarget(){if(locked||!selected)return;target.classList.add('done');target.querySelector('.visual-object-art').textContent=x.target+' '+x.object;source.classList.remove('selected');target.classList.remove('ready');success(x.why);}
+   function finishDrag(e){if(!selected||locked)return;const hit=document.elementFromPoint(e.clientX,e.clientY);if(hit&&hit.closest&&hit.closest('#visualScene [data-drop-target]'))dropTarget();}
    source.addEventListener('click',selectSource);
-   source.addEventListener('pointerdown',selectSource);
+   source.addEventListener('pointerdown',()=>{selectSource();document.addEventListener('pointerup',finishDrag,{once:true});});
    target.addEventListener('click',dropTarget);
    target.addEventListener('pointerup',dropTarget);
-   document.addEventListener('pointerup',function finishDrag(e){
-    if(!selected||locked)return;
-    const hit=document.elementFromPoint(e.clientX,e.clientY);
-    if(hit&&hit.closest&&hit.closest('#visualScene [data-drop-target]'))dropTarget();
-   },{once:false});
    scene.append(source,arrow,target);
   }else if(x.type==='tap'){
    scene.classList.remove('drag-scene');scene.textContent='';
