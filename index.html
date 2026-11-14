@@ -715,7 +715,7 @@ body{
     <div class="row"><strong>حساب اللاعب</strong><span class="tag">تسجيل آمن</span></div>
     <p class="auth-note">أنشئ حساباً أو سجّل دخولك حتى نربط تقدمك بحسابك. استخدم بريداً إلكترونياً تملكه.</p>
     <div class="auth-grid" id="authForm">
-      <input class="auth-input" id="usernameInput" type="text" autocomplete="nickname" placeholder="اسم اللاعب (للحساب الجديد)">
+      <input class="auth-input" id="usernameInput" type="text" autocomplete="nickname" placeholder="اسم مستعار (لا تكتب بريدك أو معلوماتك الشخصية)">
       <input class="auth-input" id="emailInput" type="email" autocomplete="email" placeholder="البريد الإلكتروني">
       <input class="auth-input" id="passwordInput" type="password" autocomplete="current-password" placeholder="كلمة المرور (6 أحرف على الأقل)">
       <div class="auth-actions"><button class="btn" id="signupBtn">إنشاء حساب</button><button class="btn secondary" id="loginBtn">تسجيل الدخول</button></div>
@@ -1583,7 +1583,7 @@ el('signupBtn').addEventListener('click',async()=>{
   const username=el('usernameInput').value.trim();
   const email=el('emailInput').value.trim();
   const password=el('passwordInput').value;
-  if(!username||!email||password.length<6){status.textContent='أدخل اسم اللاعب والبريد وكلمة مرور من 6 أحرف على الأقل.';return;}
+  if(!username||username.length<3||username.length>24||username.includes('@')||!email||password.length<6){status.textContent='اختر اسماً مستعاراً من 3 إلى 24 حرفاً دون بريد إلكتروني، وأدخل بريدك وكلمة مرور من 6 أحرف على الأقل.';return;}
   setBusy(true);status.textContent='جارٍ إنشاء الحساب...';
   const {data,error}=await supabase.auth.signUp({email,password,options:{data:{username}}});
   setBusy(false);
