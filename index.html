@@ -869,8 +869,18 @@ button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
 .achievement-badge.unlocked em{color:#16845e}
 @media(max-width:350px){.achievement-badges{gap:5px}.achievement-badge{padding:9px 2px}.achievement-badge strong{font-size:10px}}
 </style>
+<style>
+/* IQ level-up celebration */
+#levelUpToast{position:fixed;z-index:9999;top:calc(env(safe-area-inset-top,0px) + 16px);left:50%;transform:translate(-50%,-18px) scale(.96);width:min(92vw,390px);padding:14px 18px;border-radius:18px;background:linear-gradient(135deg,#173a9f,#6136bd);border:2px solid #ffe17a;color:#fff;text-align:center;box-shadow:0 12px 34px #101b4b55;opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease}
+#levelUpToast.show{opacity:1;transform:translate(-50%,0) scale(1)}
+#levelUpToast strong{display:block;font-size:1.08rem;color:#ffe17a}
+#levelUpToast span{display:block;margin-top:3px;font-size:.9rem}
+@media(prefers-reduced-motion:reduce){#levelUpToast{transition:none}}
+</style>
 </head>
 <body>
+<div id="levelUpToast" role="status" aria-live="polite" aria-atomic="true"><strong id="levelUpTitle">🎉 ارتقيت بمستواك!</strong><span id="levelUpMessage"></span></div>
+
 <div id="launchScreen" role="dialog" aria-label="شاشة بداية تحدّي العقول">
  <div class="launch-content">
   <div class="launch-mark">🧠</div>
@@ -1772,6 +1782,23 @@ function renderQuestion() {
     $('answers').appendChild(b);
   });
 }
+function showLevelUpCelebration(level) {
+  const toast = $('levelUpToast');
+  if (!toast) return;
+  const rankNames = [
+    { level: 1, name: 'مبتدئ' }, { level: 11, name: 'مستكشف' },
+    { level: 21, name: 'متعلّم' }, { level: 31, name: 'متمكّن' },
+    { level: 41, name: 'متقدّم' }, { level: 51, name: 'خبير' },
+    { level: 61, name: 'عبقري' }, { level: 71, name: 'نابغة' },
+    { level: 81, name: 'أسطورة' }, { level: 91, name: 'قمة العقول' }
+  ];
+  const rank = [...rankNames].reverse().find(item => level >= item.level) || rankNames[0];
+  $('levelUpTitle').textContent = '🎉 وصلت إلى المستوى ' + level + '!';
+  $('levelUpMessage').textContent = 'رتبتك الحالية: ' + rank.name + ' — واصل التحدّي!';
+  toast.classList.add('show');
+  clearTimeout(window.iqLevelUpTimer);
+  window.iqLevelUpTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+}
 async function chooseAnswer(letter) {
   if (locked || roundFinished) return;
   // Lock and capture the exact question before any await, so rapid taps cannot
@@ -1838,7 +1865,10 @@ async function chooseAnswer(letter) {
     currentStreak = 0;
   }
   updateStreakDisplay();
+  const previousLevel = Math.max(1, Math.min(100, Math.floor(answeredCount / 10) + 1));
   applyServerStats(data);
+  const currentLevel = Math.max(1, Math.min(100, Math.floor(answeredCount / 10) + 1));
+  if (currentLevel > previousLevel) showLevelUpCelebration(currentLevel);
   loadQuestionBankStatus();
   $('feedback').textContent = (data.is_correct ? 'إجابة صحيحة! +' + points + ' نقاط. ' : 'إجابة غير صحيحة. ') + (data.explanation || '');
   playSound(data.is_correct ? 'correct' : 'wrong');
