@@ -1,0 +1,14 @@
+node_modules/
+www/
+android/
+ios/
+build/
+.DS_Store
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
+*.provisionprofile
