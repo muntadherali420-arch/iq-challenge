@@ -1514,6 +1514,7 @@ async function loadDailyStreak() {
   if (error || !data) {
     const el = $('dailyHomeStreak');
     if (el) el.textContent = '🔥 تعذّر تحميل سلسلة الإنجازات';
+    $('achievementNext').textContent = 'تعذّر تحميل الإنجازات. حاول التحديث بعد قليل.';
     return;
   }
   updateDailyStreakDisplay(data);
