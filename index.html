@@ -1262,8 +1262,7 @@ async function submitDailyAnswer(challengeId, letter) {
   $('dailyFeedback').textContent = prefix + (data.explanation || '') + ' مجموع نقاطك: ' + data.total_score + '.';
   playSound(data.is_correct ? 'correct' : 'wrong');
   applyServerStats(data);
-  // Move the player to the already-loaded quiz round after completing the daily challenge.
-  showAppScreen('play');
+  // Keep the player on the daily challenge so the answer and explanation remain visible.
   await loadLeaderboard();
 }
 
