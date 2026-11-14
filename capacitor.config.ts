@@ -1,0 +1,16 @@
+import type { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+  appId: 'com.muntadherali.iqchallenge',
+  appName: 'تحدّي العقول',
+  webDir: 'www',
+  backgroundColor: '#f3f8ff',
+  ios: {
+    contentInset: 'automatic'
+  },
+  android: {
+    allowMixedContent: false
+  }
+};
+
+export default config;
