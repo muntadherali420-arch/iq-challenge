@@ -927,7 +927,7 @@ button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
     <div class="stat"><b id="playedStat">0</b><span>جولات مكتملة</span></div>
   </section>
   <section class="card" id="progressCard">
-    <div class="row"><strong>🚀 تقدّم اللاعب</strong><span class="tag">100 مستوى</span></div>
+    <div class="row"><strong>🚀 تقدّم اللاعب</strong><span class="tag" id="playerRankName">🌱 مبتدئ</span></div>
     <div class="level-caption"><span id="levelProgressText">ابدأ رحلتك!</span><span id="levelProgressCount">0 / 10 إجابات</span></div>
     <div class="level-progress"><div id="levelProgressBar"></div></div>
     <div class="small" id="levelProgressHint">كل 10 إجابات محفوظة ترفع مستواك درجة.</div>
@@ -1375,12 +1375,32 @@ function updateStats() {
   $('bestStat').textContent = bestRound;
   $('playedStat').textContent = Math.floor(questionAnsweredCount / 5);
   const level = Math.max(1, Math.min(100, Math.floor(answeredCount / 10) + 1));
+  const ranks = [
+    { min: 1, max: 10, name: 'مبتدئ', icon: '🌱' },
+    { min: 11, max: 20, name: 'مستكشف', icon: '🧭' },
+    { min: 21, max: 30, name: 'متعلّم', icon: '📘' },
+    { min: 31, max: 40, name: 'متمكّن', icon: '🛠️' },
+    { min: 41, max: 50, name: 'متقدّم', icon: '🚀' },
+    { min: 51, max: 60, name: 'خبير', icon: '🎓' },
+    { min: 61, max: 70, name: 'عبقري', icon: '💡' },
+    { min: 71, max: 80, name: 'نابغة', icon: '🧠' },
+    { min: 81, max: 90, name: 'أسطورة', icon: '🏆' },
+    { min: 91, max: 100, name: 'قمة العقول', icon: '👑' }
+  ];
+  const rank = ranks.find(item => level >= item.min && level <= item.max) || ranks[0];
   $('levelStat').textContent = level;
+  $('playerRankName').textContent = rank.icon + ' ' + rank.name;
   const progress = level >= 100 ? 100 : (answeredCount % 10) * 10;
   $('levelProgressBar').style.width = progress + '%';
-  $('levelProgressText').textContent = level >= 100 ? 'وصلت إلى أعلى مستوى!' : 'أنت الآن في المستوى ' + level;
-  $('levelProgressCount').textContent = level >= 100 ? 'اكتملت المستويات الـ100' : 'المتبقي: ' + (10 - (answeredCount % 10)) + ' إجابات';
-  $('levelProgressHint').textContent = level >= 100 ? 'إنجاز رائع! أكملت جميع المستويات.' : 'أكمل ' + (10 - (answeredCount % 10)) + ' إجابات محفوظة حتى تصل إلى المستوى التالي.';
+  $('levelProgressText').textContent = level >= 100
+    ? 'وصلت إلى قمة العقول — المستوى 100!'
+    : rank.name + ' · المستوى ' + level + ' من 100';
+  $('levelProgressCount').textContent = level >= 100
+    ? 'اكتملت المستويات الـ100'
+    : (answeredCount % 10) + ' / 10 إجابات للمستوى التالي';
+  $('levelProgressHint').textContent = level >= 100
+    ? 'إنجاز استثنائي! وصلت إلى أعلى رتبة في تحدّي العقول.'
+    : 'باقي ' + (10 - (answeredCount % 10)) + ' إجابات محفوظة للانتقال إلى المستوى ' + (level + 1) + '. رتبتك القادمة تتحدد حسب تقدّمك.';
   renderAchievements();
   try {
     const history = JSON.parse(localStorage.getItem(historyStorageKey()) || '[]');
