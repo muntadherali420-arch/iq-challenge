@@ -1,4 +1,4 @@
--- IQ Challenge: add a larger Arabic question bank (50 questions)
+-- IQ Challenge: add a larger Arabic question bank (51 questions)
 -- Safe to run more than once: existing question_text values are not duplicated.
 -- Run this whole script in Supabase SQL Editor.
 
@@ -65,5 +65,5 @@ where not exists (
   select 1 from public.questions q where q.question_text = n.question_text
 );
 
--- Expected additions on the first run: up to 50 questions.
+-- Expected additions on the first run: up to 51 questions.
 -- The game serves five questions per round and excludes questions already answered by each player.
