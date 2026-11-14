@@ -101,7 +101,7 @@ with new_questions(question_text, option_a, option_b, option_c, option_d, correc
 ('ما ناتج جمع 401 و18؟', '419', '421', '416', '424', 'A', '401 + 18 = 419.', 'رياضيات', 'easy'),
 ('ما ناتج جمع 405 و25؟', '432', '427', '435', '430', 'D', '405 + 25 = 430.', 'رياضيات', 'easy'),
 ('ما ناتج جمع 409 و32؟', '438', '446', '441', '443', 'C', '409 + 32 = 441.', 'رياضيات', 'easy'),
-('ما ناتج جمع 413 و39؟', '457', '452', '454', '449', 'B', '413 + 39 = 452.', 'رياضيات', 'easy'),
+('ما ناتج جمع 413 و39؟', '457', '452', '454', '449', 'B', '413 + 39 = 452.', 'رياضيات', 'easy')
 )
 insert into public.questions (question_text, option_a, option_b, option_c, option_d, correct_option, explanation, category, difficulty, is_active)
 select n.question_text, n.option_a, n.option_b, n.option_c, n.option_d, n.correct_option, n.explanation, n.category, n.difficulty, true
