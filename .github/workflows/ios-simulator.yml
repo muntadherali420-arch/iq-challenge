@@ -6,7 +6,7 @@ on:
     paths:
       - 'index.html'
       - 'package.json'
-      - 'capacitor.config.ts'
+      - 'capacitor.config.json'
       - 'vite.config.js'
       - 'scripts/**'
       - '.github/workflows/ios-simulator.yml'
@@ -15,7 +15,7 @@ on:
     paths:
       - 'index.html'
       - 'package.json'
-      - 'capacitor.config.ts'
+      - 'capacitor.config.json'
       - 'vite.config.js'
       - 'scripts/**'
       - '.github/workflows/ios-simulator.yml'
