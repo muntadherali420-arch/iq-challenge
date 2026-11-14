@@ -681,6 +681,26 @@ body{
 .coach-actions{display:flex;align-items:center;justify-content:space-between;gap:10px}.coach-actions .btn{flex:1}.coach-skip{border:0;background:transparent;color:#d7e2ff;font:700 13px system-ui;padding:12px 8px}
 @keyframes coachPoint{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(9px) rotate(5deg)}}@media(prefers-reduced-motion:reduce){.coach-hand{animation:none}}
 </style>
+
+<style>
+/* Answer feedback: keep correct/wrong states visible across theme overrides. */
+#screen-play .answer.correct,
+#screen-daily .answer.correct,
+#screen-puzzles .puzzle-answer.correct {
+  background: linear-gradient(110deg,#c9ffdf,#67e7a5) !important;
+  color: #075a38 !important;
+  border-color: #20b86d !important;
+  opacity: 1 !important;
+}
+#screen-play .answer.wrong,
+#screen-daily .answer.wrong,
+#screen-puzzles .puzzle-answer.wrong {
+  background: linear-gradient(110deg,#ffe0e7,#ffb7c6) !important;
+  color: #852342 !important;
+  border-color: #ed6687 !important;
+  opacity: 1 !important;
+}
+</style>
 </head>
 <body>
 <div id="launchScreen" role="dialog" aria-label="شاشة بداية تحدّي العقول">
@@ -1911,22 +1931,3 @@ window.setTimeout(() => {
 }, 8000);
 </script>
 </body></html>
-
-
-/* Answer feedback: keep correct/wrong states visible across theme overrides. */
-#screen-play .answer.correct,
-#screen-daily .answer.correct,
-#screen-puzzles .puzzle-answer.correct {
-  background: linear-gradient(110deg,#c9ffdf,#67e7a5) !important;
-  color: #075a38 !important;
-  border-color: #20b86d !important;
-  opacity: 1 !important;
-}
-#screen-play .answer.wrong,
-#screen-daily .answer.wrong,
-#screen-puzzles .puzzle-answer.wrong {
-  background: linear-gradient(110deg,#ffe0e7,#ffb7c6) !important;
-  color: #852342 !important;
-  border-color: #ed6687 !important;
-  opacity: 1 !important;
-}
