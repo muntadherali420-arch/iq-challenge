@@ -36,27 +36,39 @@ for select
 to authenticated
 using ((select auth.uid()) = user_id);
 
--- Questions remain readable to signed-in players only when active.
--- Only explicitly listed admin accounts can see inactive questions or write questions.
+-- Players can read active questions. Explicit admins can read all questions.
 grant select, insert, update, delete on table public.questions to authenticated;
 
+drop policy if exists "Authenticated users can read active questions" on public.questions;
 drop policy if exists "Admins manage all questions" on public.questions;
-create policy "Admins manage all questions"
+drop policy if exists "Questions visible to players and admins" on public.questions;
+create policy "Questions visible to players and admins"
 on public.questions
-for all
+for select
 to authenticated
-using (
-  exists (
-    select 1 from public.admin_users a
-    where a.user_id = (select auth.uid())
-  )
-)
-with check (
-  exists (
-    select 1 from public.admin_users a
-    where a.user_id = (select auth.uid())
-  )
-);
+using (is_active = true or public.is_current_user_admin());
+
+drop policy if exists "Admins insert questions" on public.questions;
+create policy "Admins insert questions"
+on public.questions
+for insert
+to authenticated
+with check (public.is_current_user_admin());
+
+drop policy if exists "Admins update questions" on public.questions;
+create policy "Admins update questions"
+on public.questions
+for update
+to authenticated
+using (public.is_current_user_admin())
+with check (public.is_current_user_admin());
+
+drop policy if exists "Admins delete questions" on public.questions;
+create policy "Admins delete questions"
+on public.questions
+for delete
+to authenticated
+using (public.is_current_user_admin());
 
 -- IMPORTANT: After creating your game account, find its UUID in
 -- Supabase Dashboard -> Authentication -> Users, then run:
