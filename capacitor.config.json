@@ -1,0 +1,12 @@
+{
+  "appId": "com.muntadherali.iqchallenge",
+  "appName": "تحدّي العقول",
+  "webDir": "www",
+  "backgroundColor": "#f3f8ff",
+  "ios": {
+    "contentInset": "automatic"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
