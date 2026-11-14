@@ -848,7 +848,7 @@ button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
 .daily-launch-copy{display:flex;flex:1;min-width:0;flex-direction:column;align-items:flex-start;gap:4px}
 .daily-launch-copy strong{font-size:18px;font-weight:950}
 .daily-launch-copy small{font-size:11px;color:#705c3d}
-.daily-launch-timer{font-size:12px;font-weight:900;color:#80520a;font-variant-numeric:tabular-nums}
+.daily-launch-timer{font-size:12px;font-weight:900;color:#80520a;font-variant-numeric:tabular-nums}\n.daily-launch-streak{font-size:11px;font-weight:900;color:#a04a24;background:#fff8e8;border:1px solid #f1d6a0;border-radius:999px;padding:4px 9px;margin-top:2px}
 .daily-launch-arrow{font-size:25px;font-weight:900;color:#8d641a}
 .daily-launch-card:active{transform:scale(.99)}
 @media(prefers-reduced-motion:no-preference){.daily-launch-icon{animation:dailyStarFloat 3s ease-in-out infinite}@keyframes dailyStarFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}}
@@ -887,7 +887,7 @@ button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
   </section>
   <button class="daily-launch-card" id="dailyHomeLaunch" type="button" data-open-screen="daily" aria-label="افتح تحدّي اليوم">
     <span class="daily-launch-icon" aria-hidden="true">🌟</span>
-    <span class="daily-launch-copy"><strong>تحدّي اليوم</strong><small id="dailyHomeState">تحدٍّ جديد كل يوم ومكافأة 20 نقطة</small><span class="daily-launch-timer" id="dailyHomeCountdown">⏳ يتجدد بعد --:--:--</span></span>
+    <span class="daily-launch-copy"><strong>تحدّي اليوم</strong><small id="dailyHomeState">تحدٍّ جديد كل يوم ومكافأة 20 نقطة</small><span class="daily-launch-timer" id="dailyHomeCountdown">⏳ يتجدد بعد --:--:--</span><span class="daily-launch-streak" id="dailyHomeStreak">🔥 سلسلة: 0 أيام · الأفضل: 0</span></span>
     <span class="daily-launch-arrow" aria-hidden="true">←</span>
   </button>
   <section class="card" id="authCard">
@@ -1435,6 +1435,37 @@ function updateDailyHomeCard(status = dailyHomeStatus) {
   const launch = $('dailyHomeLaunch');
   if (launch) launch.setAttribute('aria-label', labels[status] + '. ' + timer.textContent);
 }
+function updateDailyStreakDisplay(streak) {
+  const el = $('dailyHomeStreak');
+  if (!el) return;
+  if (!streak) {
+    el.textContent = '🔥 سجّل الدخول لبدء سلسلة الإنجازات';
+    return;
+  }
+  const current = Math.max(0, Number(streak.current_streak || 0));
+  const best = Math.max(0, Number(streak.best_streak || 0));
+  let milestone = '';
+  if (current >= 30) milestone = ' · 🏆 الشارة الذهبية';
+  else if (current >= 7) milestone = ' · 🥈 الشارة الفضية';
+  else if (current >= 3) milestone = ' · 🥉 الشارة البرونزية';
+  else if (current > 0) milestone = ' · استمر حتى شارة 3 أيام';
+  el.textContent = '🔥 سلسلتك: ' + current.toLocaleString('ar-IQ') +
+    ' أيام · أفضل سلسلة: ' + best.toLocaleString('ar-IQ') + milestone;
+}
+async function loadDailyStreak() {
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData.session) {
+    updateDailyStreakDisplay(null);
+    return;
+  }
+  const { data, error } = await supabase.rpc('get_daily_challenge_streak');
+  if (error || !data) {
+    const el = $('dailyHomeStreak');
+    if (el) el.textContent = '🔥 تعذّر تحميل سلسلة الإنجازات';
+    return;
+  }
+  updateDailyStreakDisplay(data);
+}
 function refreshDailyCountdown() {
   updateDailyHomeCard();
   const utcDate = new Date().toISOString().slice(0,10);
@@ -1454,12 +1485,14 @@ async function loadDailyChallenge() {
   const { data: sessionData } = await supabase.auth.getSession();
   if (!sessionData.session) {
     updateDailyHomeCard('login');
+    updateDailyStreakDisplay(null);
     questionEl.textContent = 'سجّل الدخول لعرض تحدّي اليوم.';
     answersEl.innerHTML = '';
     feedbackEl.textContent = '';
     return;
   }
   updateDailyHomeCard('loading');
+  loadDailyStreak();
   questionEl.textContent = 'جارٍ تحميل تحدّي اليوم...';
   answersEl.innerHTML = '';
   feedbackEl.textContent = '';
@@ -1532,6 +1565,7 @@ async function submitDailyAnswer(challengeId, letter) {
       ? 'أحسنت! إجابة صحيحة وربحت ' + data.points_awarded + ' نقطة مكافأة. '
       : 'اكتمل تحدّي اليوم، لكن إجابتك غير صحيحة؛ لم تحصل على 20 نقطة المكافأة. ');
   updateDailyHomeCard('completed');
+  loadDailyStreak();
   $('dailyQuestion').textContent = 'اكتمل تحدّي اليوم! 🌟';
   $('dailyAnswers').replaceChildren();
   $('dailyFeedback').textContent = prefix + (data.explanation || '') + ' مجموع نقاطك: ' + data.total_score + '.';
