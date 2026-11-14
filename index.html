@@ -1643,29 +1643,21 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
  const getClient=()=>window.iqSupabase;
  const $=id=>document.getElementById(id);
  let puzzles=[],puzzleIndex=0,answered=false,submitting=false,roundPoints=0,roundComplete=false,loading=false;
- let totalPuzzlePoints=0,currentPuzzleUserId=null,restTimer=null;
- const REST_DURATION_MS=30*60*1000;
- const progressKey=()=> 'iq-puzzle-session-v2-'+currentPuzzleUserId;
- function readProgress(){
-  try{return JSON.parse(localStorage.getItem(progressKey()))||{breakUntil:0};}
-  catch{return {breakUntil:0};}
- }
- function saveProgress(state){
-  try{localStorage.setItem(progressKey(),JSON.stringify(state));}catch(error){console.warn('Puzzle progress storage:',error);}
- }
+ let totalPuzzlePoints=0,currentPuzzleUserId=null,restTimer=null,cooldownUntil=0,serverAnswered=0,serverRoundSize=10;
  function formatRemaining(ms){
   const seconds=Math.max(0,Math.ceil(ms/1000));
   return String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');
  }
  function updateRestStatus(){
   if(!currentPuzzleUserId)return;
-  const state=readProgress(),now=Date.now(),status=$('puzzleRestStatus'),button=$('puzzleNextBtn');
-  if(state.breakUntil>now){
-   status.textContent='⏸️ استراحة 30 دقيقة بعد كل جولة · المتبقي: '+formatRemaining(state.breakUntil-now);
+  const now=Date.now(),status=$('puzzleRestStatus'),button=$('puzzleNextBtn');
+  if(cooldownUntil>now){
+   status.textContent='⏸️ استراحة 30 دقيقة بعد إكمال الجولة · المتبقي: '+formatRemaining(cooldownUntil-now);
    if(roundComplete){button.textContent='⏳ انتظر انتهاء الاستراحة';button.disabled=true;}
   }else{
-   if(state.breakUntil&&state.breakUntil<=now){state.breakUntil=0;saveProgress(state);}
-   status.textContent=roundComplete?'✅ انتهت الاستراحة — تقدر تبدأ جولة جديدة':'⏱️ بعد إكمال 10 ألغاز تبدأ استراحة 30 دقيقة';
+   if(cooldownUntil)cooldownUntil=0;
+   const remaining=Math.max(0,serverRoundSize-serverAnswered);
+   status.textContent=roundComplete?'✅ انتهت الاستراحة — تقدر تبدأ جولة جديدة':'⏱️ أكمل '+remaining+' ألغاز لبدء استراحة 30 دقيقة';
    if(roundComplete){button.textContent='ابدأ جولة جديدة';button.disabled=false;}
   }
  }
@@ -1728,20 +1720,27 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
    showScene('🔐');loading=false;return;
   }
   currentPuzzleUserId=sessionData.session.user.id;
-  const progress=readProgress();
-  if(progress.breakUntil>Date.now()){
-   roundComplete=true;puzzles=[];
-   showScene('⏸️');
-   $('puzzleLevel').textContent='استراحة';
-   $('puzzleProgressBar').style.width='100%';
-   $('puzzleTag').textContent='استراحة قصيرة';
-   setMessage('أحسنت! أكملت الجولة بنجاح.','تقدر تبدأ الجولة التالية بعد انتهاء استراحة الـ30 دقيقة. نقاطك وتقدمك محفوظة.');
-   $('puzzleAnswers').replaceChildren();
-   $('puzzleNextBtn').classList.remove('hidden');$('puzzleNextBtn').disabled=true;
-   startRestClock();loading=false;await refreshScores();return;
-  }
-  startRestClock();
-  const {data,error}=await client.rpc('get_puzzle_questions');
+   const {data:roundStatus,error:statusError}=await client.rpc('get_puzzle_round_status');
+   if(statusError){
+    setMessage('تعذّر التحقق من حالة الاستراحة.','تحقق من إعداد قاعدة البيانات ثم أعد المحاولة.');
+    $('puzzleFeedback').textContent=statusError.message;showScene('⚠️');loading=false;return;
+   }
+   cooldownUntil=roundStatus?.cooldown_until?new Date(roundStatus.cooldown_until).getTime():0;
+   serverAnswered=Number(roundStatus?.answered_count)||0;
+   serverRoundSize=Number(roundStatus?.round_size)||10;
+   if(cooldownUntil>Date.now()){
+    roundComplete=true;puzzles=[];
+    showScene('⏸️');
+    $('puzzleLevel').textContent='استراحة';
+    $('puzzleProgressBar').style.width='100%';
+    $('puzzleTag').textContent='استراحة 30 دقيقة';
+    setMessage('أحسنت! أكملت '+serverRoundSize+' ألغاز في هذه الجولة.','تقدر تبدأ الجولة التالية بعد انتهاء الاستراحة. وقت الانتظار محفوظ في قاعدة البيانات.');
+    $('puzzleAnswers').replaceChildren();
+    $('puzzleNextBtn').classList.remove('hidden');$('puzzleNextBtn').disabled=true;
+    startRestClock();loading=false;await refreshScores();return;
+   }
+   startRestClock();
+   const {data,error}=await client.rpc('get_puzzle_questions');
   if(error){
    setMessage('تعذّر تحميل الأحجيات.','تحقق من الاتصال ثم حاول مرة أخرى.');
    showScene('⚠️');loading=false;return;
@@ -1755,7 +1754,14 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
    $('puzzleNextBtn').textContent='إعادة الفحص';$('puzzleNextBtn').classList.remove('hidden');
    $('puzzleNextBtn').disabled=false;loading=false;await refreshScores();return;
   }
-  puzzles=data;puzzleIndex=0;roundPoints=0;render();
+  puzzles=data;puzzleIndex=0;roundPoints=0;
+  const {data:latestStatus}=await client.rpc('get_puzzle_round_status');
+  if(latestStatus){
+   serverAnswered=Number(latestStatus.answered_count)||0;
+   serverRoundSize=Number(latestStatus.round_size)||10;
+   cooldownUntil=latestStatus.cooldown_until?new Date(latestStatus.cooldown_until).getTime():0;
+  }
+  render();startRestClock();
   await refreshScores();
   loading=false;$('puzzleNextBtn').disabled=false;
  }
@@ -1783,6 +1789,11 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
    await refreshScores();return;
   }
   answered=true;
+  if(data.puzzle_round_answered_count!==undefined){
+   serverAnswered=Number(data.puzzle_round_answered_count)||0;
+   serverRoundSize=Number(data.puzzle_round_size)||10;
+  }
+  if(data.puzzle_cooldown_until)cooldownUntil=new Date(data.puzzle_cooldown_until).getTime();
   const correctIndex=['A','B','C','D'].indexOf(data.correct_option);
   buttons.forEach((b,j)=>{
    if(j===correctIndex)b.classList.add('correct');
@@ -1796,24 +1807,31 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
   if(data.is_correct)$('puzzleScene').classList.add('puzzle-celebrate');
   $('puzzleNextBtn').textContent=puzzleIndex===puzzles.length-1?'عرض نتيجة الجولة':'اللغز التالي ←';
   $('puzzleNextBtn').classList.remove('hidden');$('puzzleNextBtn').disabled=false;
+  updateRestStatus();
   await refreshScores();
  }
- function finishRound(){
+ async function finishRound(){
   if(roundComplete)return;
   roundComplete=true;
-  const state=readProgress();
-  state.breakUntil=Date.now()+REST_DURATION_MS;
-  saveProgress(state);
+  const client=getClient();
+  if(client){
+   const {data:status}=await client.rpc('get_puzzle_round_status');
+   if(status){
+    serverAnswered=Number(status.answered_count)||0;
+    serverRoundSize=Number(status.round_size)||10;
+    cooldownUntil=status.cooldown_until?new Date(status.cooldown_until).getTime():0;
+   }
+  }
   window.iqPlaySound?.(roundPoints>=50?'victory':'defeat');
   $('puzzleLevel').textContent=puzzles.length+' / '+puzzles.length;
   $('puzzleProgressBar').style.width='100%';
   showScene('🏆');
   $('puzzleTag').textContent='نتيجة الجولة';
-  $('puzzleQuestion').textContent='أكملت '+puzzles.length+' ألغاز!';
+  $('puzzleQuestion').textContent='أكملت '+puzzles.length+' ألغاز في هذه الجلسة!';
   $('puzzleAnswers').replaceChildren();
-  $('puzzleFeedback').textContent='نتيجتك: '+roundPoints+' من '+(puzzles.length*10)+' نقطة. نقاط الأحجيات المحفوظة: '+totalPuzzlePoints+'.';
-  $('puzzleNextBtn').textContent='⏳ استراحة 30:00';
-  $('puzzleNextBtn').classList.remove('hidden');$('puzzleNextBtn').disabled=true;
+  $('puzzleFeedback').textContent='نتيجتك في هذه الجلسة: '+roundPoints+' نقطة. تقدّم الجولة المحفوظ: '+serverAnswered+' / '+serverRoundSize+'. مجموع نقاط الأحجيات: '+totalPuzzlePoints+'.';
+  $('puzzleNextBtn').textContent=cooldownUntil>Date.now()?'⏳ استراحة 30 دقيقة':'ابدأ جولة جديدة';
+  $('puzzleNextBtn').classList.remove('hidden');$('puzzleNextBtn').disabled=cooldownUntil>Date.now();
   updateRestStatus();
  }
  $('puzzleNextBtn').addEventListener('click',()=>{
@@ -1829,7 +1847,7 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
  document.querySelectorAll('[data-open-screen="puzzles"],.nav-btn[data-screen="puzzles"]').forEach(b=>b.addEventListener('click',()=>{if((!puzzles.length||roundComplete)&&!loading)loadRound();}));
  const client=getClient();
  if(client)client.auth.onAuthStateChange((_event,session)=>{
-  if(session&&window.iqCurrentScreen==='puzzles'){currentPuzzleUserId=session.user.id;loadRound();}
+  if(session&&window.iqCurrentScreen==='puzzles'){currentPuzzleUserId=session.user.id;cooldownUntil=0;serverAnswered=0;serverRoundSize=10;loadRound();}
  });
 })();
 </script>
