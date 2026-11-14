@@ -723,6 +723,7 @@ body{
     <div class="account-line" id="accountStatus" aria-live="polite">غير مسجّل الدخول</div>
     <button class="btn secondary hidden" id="logoutBtn">تسجيل الخروج</button>
     <button class="btn secondary hidden" id="deleteAccountBtn" type="button">🗑️ حذف الحساب نهائياً</button>
+    <a class="btn secondary hidden" id="adminDashboardLink" href="./admin.html" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none">🛠️ لوحة الإدارة</a>
     <p class="small"><a href="/delete-account.html">حذف الحساب والبيانات</a> · <a href="/privacy.html">سياسة الخصوصية</a></p>
   </section>
 
@@ -1561,6 +1562,7 @@ async function showSession(session){
     status.textContent='غير مسجّل الدخول';
     el('logoutBtn').classList.add('hidden');
     el('deleteAccountBtn').classList.add('hidden');
+    el('adminDashboardLink').classList.add('hidden');
     return;
   }
   const metadataName=(user.user_metadata?.username || '').toString().trim();
@@ -1599,7 +1601,7 @@ el('loginBtn').addEventListener('click',async()=>{
   if(error){status.textContent='تعذّر تسجيل الدخول: '+error.message;return;}
   await showSession(data.session);
 });
-el('logoutBtn').addEventListener('click',async()=>{const {error}=await supabase.auth.signOut();if(error){status.textContent='تعذّر تسجيل الخروج: '+error.message;return;}el('authForm').classList.remove('hidden');status.textContent='تم تسجيل الخروج.';el('logoutBtn').classList.add('hidden');});
+el('logoutBtn').addEventListener('click',async()=>{const {error}=await supabase.auth.signOut();if(error){status.textContent='تعذّر تسجيل الخروج: '+error.message;return;}el('authForm').classList.remove('hidden');status.textContent='تم تسجيل الخروج.';el('logoutBtn').classList.add('hidden');el('adminDashboardLink').classList.add('hidden');});
 el('deleteAccountBtn').addEventListener('click',async()=>{
   if(!window.confirm('هل أنت متأكد من حذف حسابك نهائياً؟ سيتم حذف اسم اللاعب والنقاط ومحاولاتك المرتبطة بالحساب، ولا يمكن التراجع عن ذلك.')) return;
   const {data:{user},error:userError}=await supabase.auth.getUser();
