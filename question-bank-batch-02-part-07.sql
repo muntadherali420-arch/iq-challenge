@@ -101,7 +101,7 @@ with new_questions(question_text, option_a, option_b, option_c, option_d, correc
 ('أكمل النمط: 193، 196، 199، ؟', '202', '205', '199', '208', 'A', 'يزداد كل حد بمقدار 3، لذا الحد التالي 202.', 'منطق', 'medium'),
 ('أكمل النمط: 195، 199، 203، ؟', '211', '203', '215', '207', 'D', 'يزداد كل حد بمقدار 4، لذا الحد التالي 207.', 'منطق', 'medium'),
 ('أكمل النمط: 197، 202، 207، ؟', '207', '222', '212', '217', 'C', 'يزداد كل حد بمقدار 5، لذا الحد التالي 212.', 'منطق', 'medium'),
-('أكمل النمط: 199، 205، 211، ؟', '229', '217', '223', '211', 'B', 'يزداد كل حد بمقدار 6، لذا الحد التالي 217.', 'منطق', 'medium'),
+('أكمل النمط: 199، 205، 211، ؟', '229', '217', '223', '211', 'B', 'يزداد كل حد بمقدار 6، لذا الحد التالي 217.', 'منطق', 'medium')
 )
 insert into public.questions (question_text, option_a, option_b, option_c, option_d, correct_option, explanation, category, difficulty, is_active)
 select n.question_text, n.option_a, n.option_b, n.option_c, n.option_d, n.correct_option, n.explanation, n.category, n.difficulty, true
