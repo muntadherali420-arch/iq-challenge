@@ -1258,12 +1258,19 @@ async function submitDailyAnswer(challengeId, letter) {
     if (optionLetter === data.correct_option) button.classList.add('correct');
     else if (optionLetter === letter) button.classList.add('wrong');
   });
-  const prefix = data.already_answered ? 'سبق أن أرسلت إجابتك. ' : (data.is_correct ? 'إجابة صحيحة! +' + data.points_awarded + ' نقطة مكافأة. ' : 'إجابة غير صحيحة. ');
+  const prefix = data.already_answered
+    ? 'سبق أن أكملت تحدّي اليوم. '
+    : (data.is_correct
+      ? 'أحسنت! إجابة صحيحة وربحت ' + data.points_awarded + ' نقطة مكافأة. '
+      : 'اكتمل تحدّي اليوم، لكن إجابتك غير صحيحة؛ لم تحصل على 20 نقطة المكافأة. ');
+  $('dailyQuestion').textContent = 'اكتمل تحدّي اليوم! 🌟';
+  $('dailyAnswers').replaceChildren();
   $('dailyFeedback').textContent = prefix + (data.explanation || '') + ' مجموع نقاطك: ' + data.total_score + '.';
   playSound(data.is_correct ? 'correct' : 'wrong');
   applyServerStats(data);
-  // Keep the player on the daily challenge so the answer and explanation remain visible.
   await loadLeaderboard();
+  // Move straight to the main game after showing the completion result briefly.
+  window.setTimeout(() => showAppScreen('play'), 900);
 }
 
 async function loadRound() {
