@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - 'index.html'
+      - 'admin.html'
       - 'delete-account.html'
       - 'privacy.html'
       - 'sw.js'
@@ -18,6 +19,7 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'admin.html'
       - 'package.json'
       - 'capacitor.config.json'
       - 'vite.config.js'
@@ -66,6 +68,7 @@ jobs:
         run: |
           npm run build
           test -s www/index.html
+          test -s www/admin.html
           test -s www/privacy.html
           test -s www/delete-account.html
 
