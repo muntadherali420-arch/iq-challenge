@@ -771,6 +771,7 @@ body{
     <select id="difficultySelect" class="difficulty-select"><option value="all">كل المستويات</option><option value="easy">سهل</option><option value="medium">متوسط</option><option value="hard">صعب</option><option value="expert">خبير</option><option value="genius">عبقري</option></select>
     <div class="progress"><div class="bar" id="bar"></div></div>
     <div class="row small"><span id="counter">السؤال 1 من 5</span><span>10 نقاط للإجابة الصحيحة</span></div>
+    <div class="small bank-progress" id="bankProgress" aria-live="polite">جارٍ تحميل إحصائيات بنك الأسئلة...</div>
     <div class="streak-meter" id="streakMeter" aria-live="polite">🔥 سلسلة الإجابات الصحيحة: 0</div>
     <div class="scholar-feature hidden" id="scholarFeature" aria-live="polite">
  <div class="scholar-art-wrap" id="scholarArt" aria-hidden="true"></div>
@@ -1299,6 +1300,26 @@ async function submitDailyAnswer(challengeId, letter) {
   loadLeaderboard();
 }
 
+async function loadQuestionBankStatus() {
+  const statusEl = $('bankProgress');
+  if (!statusEl) return;
+  const { data, error } = await supabase.rpc('get_quiz_question_bank_status');
+  if (error || !data) {
+    statusEl.textContent = 'تعذّر تحميل عدد الأسئلة المتبقية حالياً.';
+    return;
+  }
+  const selected = $('difficultySelect')?.value || 'all';
+  const remaining = selected === 'all'
+    ? Number(data.remaining_questions || 0)
+    : Number(data.remaining_by_difficulty?.[selected] || 0);
+  const total = Number(data.total_questions || 0);
+  const answered = Number(data.answered_questions || 0);
+  statusEl.textContent = '📚 بنك الأسئلة: ' + total.toLocaleString('ar-IQ') +
+    ' سؤال · المتبقي إلك: ' + remaining.toLocaleString('ar-IQ') +
+    ' · المجاب عنه: ' + answered.toLocaleString('ar-IQ');
+}
+$('difficultySelect')?.addEventListener('change', loadQuestionBankStatus);
+
 async function loadRound() {
   const loadVersion = ++roundLoadVersion;
   roundFinished = false;
@@ -1309,6 +1330,8 @@ async function loadRound() {
     showGameMessage('سجّل الدخول أولاً حتى نحمّل الأسئلة ونحفظ نقاطك بأمان.');
     return;
   }
+  await loadQuestionBankStatus();
+
   showGameMessage('جارٍ تحميل الأسئلة...');
   const selectedDifficulty = $('difficultySelect').value;
   const { data, error } = await supabase.rpc('get_quiz_questions_by_difficulty', { p_difficulty: selectedDifficulty });
@@ -1465,6 +1488,7 @@ async function chooseAnswer(letter) {
   }
   updateStreakDisplay();
   applyServerStats(data);
+  loadQuestionBankStatus();
   $('feedback').textContent = (data.is_correct ? 'إجابة صحيحة! +' + points + ' نقاط. ' : 'إجابة غير صحيحة. ') + (data.explanation || '');
   playSound(data.is_correct ? 'correct' : 'wrong');
   $('nextBtn').textContent = qIndex === questions.length - 1 ? 'عرض النتيجة' : 'السؤال التالي';
