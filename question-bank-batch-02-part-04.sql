@@ -101,7 +101,7 @@ with new_questions(question_text, option_a, option_b, option_c, option_d, correc
 ('إذا قُسّم العدد 54 بالتساوي إلى 6 أجزاء، فما قيمة كل جزء؟', '9', '10', '8', '12', 'A', '54 ÷ 6 = 9.', 'رياضيات', 'medium'),
 ('إذا قُسّم العدد 144 بالتساوي إلى 9 أجزاء، فما قيمة كل جزء؟', '17', '15', '19', '16', 'D', '144 ÷ 9 = 16.', 'رياضيات', 'medium'),
 ('إذا قُسّم العدد 276 بالتساوي إلى 12 أجزاء، فما قيمة كل جزء؟', '22', '26', '23', '24', 'C', '276 ÷ 12 = 23.', 'رياضيات', 'medium'),
-('إذا قُسّم العدد 450 بالتساوي إلى 15 أجزاء، فما قيمة كل جزء؟', '33', '30', '31', '29', 'B', '450 ÷ 15 = 30.', 'رياضيات', 'medium'),
+('إذا قُسّم العدد 450 بالتساوي إلى 15 أجزاء، فما قيمة كل جزء؟', '33', '30', '31', '29', 'B', '450 ÷ 15 = 30.', 'رياضيات', 'medium')
 )
 insert into public.questions (question_text, option_a, option_b, option_c, option_d, correct_option, explanation, category, difficulty, is_active)
 select n.question_text, n.option_a, n.option_b, n.option_c, n.option_d, n.correct_option, n.explanation, n.category, n.difficulty, true
