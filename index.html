@@ -663,6 +663,24 @@ body{
 /* v42 — change feedback text color only; preserve the original layout */
 .puzzle-feedback{color:#203653!important}
 </style>
+<style>
+/* v53 — encouraging correct-answer streak indicator */
+.streak-meter{margin:12px 0 4px;padding:10px 13px;border:1px solid #d8c58c;border-radius:13px;background:linear-gradient(110deg,#fff6df,#f2ecff);color:#68502a;font-size:13px;font-weight:850;text-align:center;transition:transform .2s,box-shadow .2s}
+.streak-meter.streak-hot{border-color:#f0a84d;background:linear-gradient(110deg,#ffe4a8,#ffd7c9);color:#803d19;box-shadow:0 0 0 3px #ffcf6b33;animation:streakPulse .65s ease-in-out}
+@keyframes streakPulse{0%{transform:scale(.97)}55%{transform:scale(1.025)}100%{transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.streak-meter.streak-hot{animation:none}}
+</style>
+
+<style>
+/* v54 — first-time hand-pointer onboarding */
+.coach-guide{position:fixed;inset:0;z-index:10020;display:grid;place-items:center;padding:22px;background:#07132edb;backdrop-filter:blur(8px)}.coach-guide.hidden{display:none}
+.coach-card{width:min(420px,100%);position:relative;overflow:hidden;padding:22px 20px 18px;border:1px solid #ffffff38;border-radius:25px;background:linear-gradient(150deg,#182f69,#101d49 70%,#29265e);color:#fff;text-align:center;box-shadow:0 22px 70px #0009}
+.coach-top{display:flex;align-items:center;justify-content:space-between}.coach-step{font-size:12px;font-weight:850;color:#ffe18a}.coach-close{width:34px;height:34px;border:1px solid #ffffff40;border-radius:50%;background:#ffffff16;color:white;font-size:24px;line-height:1}
+.coach-hand{height:66px;margin:6px auto 0;font-size:53px;filter:drop-shadow(0 5px 5px #0006);animation:coachPoint 1s ease-in-out infinite}.coach-icon{font-size:35px;margin:4px auto}.coach-card h2{margin:8px 0;color:#ffe18a;font-size:22px}.coach-card p{min-height:66px;margin:0 auto 16px;max-width:330px;color:#e4edff;font-size:15px;line-height:1.9}
+.coach-progress{display:flex;justify-content:center;gap:7px;margin:10px 0 18px}.coach-progress i{width:23px;height:5px;border-radius:9px;background:#ffffff35}.coach-progress i.done{background:#ffd66b}
+.coach-actions{display:flex;align-items:center;justify-content:space-between;gap:10px}.coach-actions .btn{flex:1}.coach-skip{border:0;background:transparent;color:#d7e2ff;font:700 13px system-ui;padding:12px 8px}
+@keyframes coachPoint{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(9px) rotate(5deg)}}@media(prefers-reduced-motion:reduce){.coach-hand{animation:none}}
+</style>
 </head>
 <body>
 <div id="launchScreen" role="dialog" aria-label="شاشة بداية تحدّي العقول">
@@ -1661,21 +1679,3 @@ if("serviceWorker" in navigator){
 }
 </script>
 </body></html>
-<style>
-/* v53 — encouraging correct-answer streak indicator */
-.streak-meter{margin:12px 0 4px;padding:10px 13px;border:1px solid #d8c58c;border-radius:13px;background:linear-gradient(110deg,#fff6df,#f2ecff);color:#68502a;font-size:13px;font-weight:850;text-align:center;transition:transform .2s,box-shadow .2s}
-.streak-meter.streak-hot{border-color:#f0a84d;background:linear-gradient(110deg,#ffe4a8,#ffd7c9);color:#803d19;box-shadow:0 0 0 3px #ffcf6b33;animation:streakPulse .65s ease-in-out}
-@keyframes streakPulse{0%{transform:scale(.97)}55%{transform:scale(1.025)}100%{transform:scale(1)}}
-@media(prefers-reduced-motion:reduce){.streak-meter.streak-hot{animation:none}}
-</style>
-
-<style>
-/* v54 — first-time hand-pointer onboarding */
-.coach-guide{position:fixed;inset:0;z-index:10020;display:grid;place-items:center;padding:22px;background:#07132edb;backdrop-filter:blur(8px)}.coach-guide.hidden{display:none}
-.coach-card{width:min(420px,100%);position:relative;overflow:hidden;padding:22px 20px 18px;border:1px solid #ffffff38;border-radius:25px;background:linear-gradient(150deg,#182f69,#101d49 70%,#29265e);color:#fff;text-align:center;box-shadow:0 22px 70px #0009}
-.coach-top{display:flex;align-items:center;justify-content:space-between}.coach-step{font-size:12px;font-weight:850;color:#ffe18a}.coach-close{width:34px;height:34px;border:1px solid #ffffff40;border-radius:50%;background:#ffffff16;color:white;font-size:24px;line-height:1}
-.coach-hand{height:66px;margin:6px auto 0;font-size:53px;filter:drop-shadow(0 5px 5px #0006);animation:coachPoint 1s ease-in-out infinite}.coach-icon{font-size:35px;margin:4px auto}.coach-card h2{margin:8px 0;color:#ffe18a;font-size:22px}.coach-card p{min-height:66px;margin:0 auto 16px;max-width:330px;color:#e4edff;font-size:15px;line-height:1.9}
-.coach-progress{display:flex;justify-content:center;gap:7px;margin:10px 0 18px}.coach-progress i{width:23px;height:5px;border-radius:9px;background:#ffffff35}.coach-progress i.done{background:#ffd66b}
-.coach-actions{display:flex;align-items:center;justify-content:space-between;gap:10px}.coach-actions .btn{flex:1}.coach-skip{border:0;background:transparent;color:#d7e2ff;font:700 13px system-ui;padding:12px 8px}
-@keyframes coachPoint{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(9px) rotate(5deg)}}@media(prefers-reduced-motion:reduce){.coach-hand{animation:none}}
-</style>
