@@ -1784,16 +1784,16 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
   }
   if(data?.already_answered){
    answered=true;
-  if(data.puzzle_round_answered_count!==undefined){
-   serverAnswered=Number(data.puzzle_round_answered_count)||0;
-   serverRoundSize=Number(data.puzzle_round_size)||10;
-  }
-  if(data.puzzle_cooldown_until)cooldownUntil=new Date(data.puzzle_cooldown_until).getTime();
    $('puzzleFeedback').textContent='هذا اللغز مسجّل سابقاً لهذا الحساب، ولن تُحتسب له نقاط مرة ثانية.';
    $('puzzleNextBtn').classList.remove('hidden');$('puzzleNextBtn').disabled=false;
    await refreshScores();return;
   }
   answered=true;
+  if(data.puzzle_round_answered_count!==undefined){
+   serverAnswered=Number(data.puzzle_round_answered_count)||0;
+   serverRoundSize=Number(data.puzzle_round_size)||10;
+  }
+  if(data.puzzle_cooldown_until)cooldownUntil=new Date(data.puzzle_cooldown_until).getTime();
   const correctIndex=['A','B','C','D'].indexOf(data.correct_option);
   buttons.forEach((b,j)=>{
    if(j===correctIndex)b.classList.add('correct');
@@ -1807,6 +1807,7 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
   if(data.is_correct)$('puzzleScene').classList.add('puzzle-celebrate');
   $('puzzleNextBtn').textContent=puzzleIndex===puzzles.length-1?'عرض نتيجة الجولة':'اللغز التالي ←';
   $('puzzleNextBtn').classList.remove('hidden');$('puzzleNextBtn').disabled=false;
+  updateRestStatus();
   await refreshScores();
  }
  async function finishRound(){
