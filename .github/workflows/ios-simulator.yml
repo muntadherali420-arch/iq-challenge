@@ -5,6 +5,10 @@ on:
   pull_request:
     paths:
       - 'index.html'
+      - 'delete-account.html'
+      - 'privacy.html'
+      - 'sw.js'
+      - 'package-lock.json'
       - 'package.json'
       - 'capacitor.config.json'
       - 'vite.config.js'
@@ -20,6 +24,10 @@ on:
       - 'scripts/**'
       - '.github/workflows/ios-simulator.yml'
 
+concurrency:
+  group: iq-ios-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -29,6 +37,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Set up Node
         uses: actions/setup-node@v4
