@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'index.html'
+      - 'admin.html'
+      - 'admin.html'
       - 'manifest.webmanifest'
       - 'sw.js'
       - 'package.json'
@@ -16,6 +18,7 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'admin.html'
       - 'manifest.webmanifest'
       - 'sw.js'
       - 'package.json'
@@ -42,6 +45,7 @@ jobs:
       - name: Verify deployable assets
         run: |
           test -s www/index.html
+          test -s www/admin.html
           test -s www/sw.js
           test -s www/manifest.webmanifest
           grep -q '"directory": "./www"' wrangler.jsonc
