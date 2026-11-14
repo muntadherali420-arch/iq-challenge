@@ -743,6 +743,68 @@ body{
 html.iq-reduce-motion *,html.iq-reduce-motion *::before,html.iq-reduce-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 html.iq-reduce-motion .iq-confetti-layer{display:none!important}
 </style>
+
+<style>
+/* IQ UI polish v1 — cohesive mobile navigation and clearer touch targets */
+.app-screen{padding-bottom:104px}
+.game-nav{
+  width:min(760px,100%);
+  padding:9px 12px calc(9px + env(safe-area-inset-bottom));
+  background:rgba(255,247,231,.97);
+  border-top:1px solid rgba(255,255,255,.9);
+  box-shadow:0 -9px 28px rgba(19,38,91,.22);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.nav-btn{
+  min-height:58px;
+  border:1px solid transparent;
+  border-radius:15px;
+  color:#514777;
+  font-size:11px;
+  font-weight:800;
+  gap:4px;
+}
+.nav-btn span{font-size:21px}
+.nav-btn.active{
+  background:linear-gradient(145deg,#fff0a8,#ffc36c);
+  color:#39245f;
+  border-color:#fff7ce;
+  box-shadow:0 3px 0 #d99148,0 6px 14px rgba(96,57,133,.16);
+}
+.nav-btn:focus-visible,.btn:focus-visible,.mode-card:focus-visible,
+.answer:focus-visible,.puzzle-answer:focus-visible,
+.sound-toggle:focus-visible,.motion-toggle:focus-visible{
+  outline:3px solid #18a98e;
+  outline-offset:3px;
+}
+.btn{min-height:48px}
+.answer,.puzzle-answer{min-height:52px}
+.sound-toggle,.motion-toggle{min-height:42px}
+button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
+.auth-input:focus-visible,.difficulty-select:focus-visible{
+  outline:3px solid #18a98e;
+  outline-offset:2px;
+  border-color:#18a98e;
+}
+@media(min-width:700px){
+  .game-nav{
+    width:min(760px,calc(100% - 32px));
+    border:1px solid rgba(255,255,255,.9);
+    border-bottom:0;
+    border-radius:20px 20px 0 0;
+  }
+}
+@media(max-width:360px){
+  .game-nav{gap:2px;padding-left:7px;padding-right:7px}
+  .nav-btn{font-size:10px;padding-left:1px;padding-right:1px}
+  .nav-btn span{font-size:19px}
+}
+@media(prefers-reduced-motion:reduce){
+  .nav-btn,.btn,.answer,.puzzle-answer{transition:none!important}
+}
+</style>
+
 </head>
 <body>
 <div id="launchScreen" role="dialog" aria-label="شاشة بداية تحدّي العقول">
