@@ -9,7 +9,9 @@ for (const file of [
   'sw.js',
   'icon.svg',
   'icon-192.png',
-  'icon-512.png'
+  'icon-512.png',
+  'privacy.html',
+  'delete-account.html'
 ]) {
   await copyFile(file, `www/${file}`);
 }
