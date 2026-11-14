@@ -1847,4 +1847,15 @@ if(location.hostname!=="localhost" && location.hostname!=="127.0.0.1" && "servic
  });
 }
 </script>
+
+<script>
+// Safety fallback: never leave the launch overlay covering the app indefinitely
+// if module startup or an initialization request stalls.
+window.setTimeout(() => {
+  const launchScreen = document.getElementById('launchScreen');
+  if (!launchScreen || launchScreen.classList.contains('launch-hidden')) return;
+  launchScreen.classList.add('launch-hidden');
+  window.setTimeout(() => launchScreen.remove(), 650);
+}, 8000);
+</script>
 </body></html>
