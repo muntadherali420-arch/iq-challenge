@@ -29,9 +29,9 @@ button:disabled{opacity:.6}.status{min-height:28px;color:#173b9e;font-size:14px;
 <p id="status" class="status" role="status" aria-live="polite"></p>
 <a class="link" href="/">العودة إلى تحدّي العقول</a>
 </main>
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-const supabase=createClient('https://dkaoptjafnilyztlznmk.supabase.co','sb_publishable_wzAJmA21MoRZhkokNj2RFw_lLqi8U9C');
+<script>
+const SUPABASE_URL='https://dkaoptjafnilyztlznmk.supabase.co';
+const SUPABASE_KEY='sb_publishable_wzAJmA21MoRZhkokNj2RFw_lLqi8U9C';
 const form=document.getElementById('deleteForm');
 const button=document.getElementById('deleteButton');
 const status=document.getElementById('status');
@@ -42,21 +42,38 @@ form.addEventListener('submit',async event=>{
  if(!window.confirm('تأكيد أخير: هل تريد حذف الحساب وكل بيانات اللعب المرتبطة به نهائياً؟')) return;
  button.disabled=true;
  status.textContent='جارٍ التحقق من بيانات الدخول...';
- const {error:loginError}=await supabase.auth.signInWithPassword({email,password});
- if(loginError){
-  status.textContent='تعذّر تسجيل الدخول. تحقق من البريد وكلمة المرور؛ لم يُحذف الحساب.';
-  button.disabled=false;return;
+ try{
+  const loginResponse=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=password',{
+   method:'POST',
+   headers:{apikey:SUPABASE_KEY,'Content-Type':'application/json'},
+   body:JSON.stringify({email,password})
+  });
+  const session=await loginResponse.json();
+  if(!loginResponse.ok||!session.access_token||!session.user?.id){
+   status.textContent='تعذّر تسجيل الدخول. تحقق من البريد وكلمة المرور؛ لم يُحذف الحساب.';
+   button.disabled=false;return;
+  }
+  status.textContent='تم التحقق. جارٍ حذف الحساب...';
+  const deleteResponse=await fetch(SUPABASE_URL+'/functions/v1/delete-account',{
+   method:'POST',
+   headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'}
+  });
+  const result=await deleteResponse.json().catch(()=>({}));
+  if(!deleteResponse.ok||result.success!==true){
+   status.textContent='تعذّر إكمال الحذف الآن. لم نؤكد حذف الحساب؛ حاول لاحقاً.';
+   button.disabled=false;return;
+  }
+  const id=session.user.id;
+  localStorage.removeItem('iq-best-round:'+id);
+  localStorage.removeItem('iq-round-history:'+id);
+  localStorage.removeItem('iq-puzzle-session-v1-'+id);
+  localStorage.removeItem('iq-puzzle-session-v2-'+id);
+  form.reset();
+  status.textContent='تم حذف الحساب وبيانات اللعب المرتبطة به بنجاح.';
+ }catch(error){
+  status.textContent='تعذّر الاتصال بالخدمة. لم نؤكد حذف الحساب؛ حاول لاحقاً.';
+  button.disabled=false;
  }
- status.textContent='تم التحقق. جارٍ حذف الحساب...';
- const {data,error}=await supabase.functions.invoke('delete-account',{method:'POST'});
- if(error||data?.success!==true){
-  status.textContent='تعذّر إكمال الحذف الآن. لم نؤكد حذف الحساب؛ حاول لاحقاً.';
-  await supabase.auth.signOut({scope:'local'});
-  button.disabled=false;return;
- }
- await supabase.auth.signOut({scope:'local'});
- form.reset();
- status.textContent='تم حذف الحساب وبيانات اللعب المرتبطة به بنجاح.';
 });
 </script>
 </body>
