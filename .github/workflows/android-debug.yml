@@ -6,7 +6,7 @@ on:
     paths:
       - 'index.html'
       - 'package.json'
-      - 'capacitor.config.ts'
+      - 'capacitor.config.json'
       - 'vite.config.js'
       - 'scripts/**'
       - '.github/workflows/android-debug.yml'
@@ -15,13 +15,13 @@ on:
     paths:
       - 'index.html'
       - 'package.json'
-      - 'capacitor.config.ts'
+      - 'capacitor.config.json'
       - 'vite.config.js'
       - 'scripts/**'
       - '.github/workflows/android-debug.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   android-debug:
@@ -51,6 +51,19 @@ jobs:
 
       - name: Install JavaScript dependencies
         run: npm install --no-audit --no-fund
+
+      - name: Commit generated npm lockfile
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          if git diff --cached --quiet; then
+            echo "Lockfile is already current"
+          else
+            git commit -m "chore: lock mobile build dependencies"
+            git push origin "HEAD:${GITHUB_HEAD_REF}"
+          fi
 
       - name: Build web assets
         run: npm run build
