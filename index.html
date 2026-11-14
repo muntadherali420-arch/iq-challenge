@@ -1788,7 +1788,7 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
 </script>
 
 <script>
-if(!window.iqIsNative && "serviceWorker" in navigator){
+if(location.hostname!=="localhost" && location.hostname!=="127.0.0.1" && "serviceWorker" in navigator){
  let iqRefreshing=false;
  navigator.serviceWorker.addEventListener("controllerchange",()=>{
   if(!iqRefreshing){iqRefreshing=true;window.location.reload();}
