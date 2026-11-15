@@ -560,6 +560,10 @@ body{
 .launch-percent{font-size:12px;color:#b8caff;margin:11px 0 22px;font-variant-numeric:tabular-nums}
 #launchStart{width:min(330px,88%);border:1px solid #fff4c4;border-radius:18px;padding:16px 20px;background:linear-gradient(110deg,#ffe27a,#ffb64e);color:#26305e;font:900 17px system-ui;box-shadow:0 7px 0 #9c632f,0 14px 30px #0005;opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s}
 #launchStart.ready{opacity:1;transform:translateY(0)}
+#launchProgressFill{width:0;animation:none!important;transition:width .18s linear}
+#launchStart:disabled{opacity:.45;transform:translateY(8px);cursor:wait}
+#launchStart.ready{opacity:1;transform:translateY(0);cursor:pointer}
+
 .launch-note{font-size:11px;color:#b9c9ed;margin-top:19px}
 @keyframes riverLoad{to{width:100%}}@keyframes riverFlow{to{transform:translateX(28px)}}@keyframes launchFloat{50%{transform:translateY(-9px) rotate(2deg)}}@keyframes launchOrbit{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){#launchScreen *,#launchScreen *:before{animation-duration:.01ms!important}}
@@ -1079,6 +1083,63 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
 
 </head>
 <body>
+<section id="launchScreen" role="status" aria-live="polite" aria-label="شاشة بدء تحدّي العقول">
+  <div class="launch-content">
+    <div class="launch-mark" aria-hidden="true">🧠</div>
+    <h1 class="launch-title">تحدّي العقول</h1>
+    <div class="launch-sub">IQ CHALLENGE</div>
+    <p class="launch-tagline" id="launchStatus">نجهّز عالم التحدّي ونحمّل الأسئلة...</p>
+    <div class="launch-river" role="progressbar" aria-label="تحميل اللعبة" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <div class="launch-river-fill" id="launchProgressFill"></div>
+    </div>
+    <div class="launch-percent" id="launchPercent">0%</div>
+    <button id="launchStart" type="button" disabled>ابدأ التحدّي</button>
+    <p class="launch-note">عبقور راح يرحّب بيك ويرشدك داخل اللعبة</p>
+  </div>
+</section>
+<script>
+(()=> {
+  const screen=document.getElementById('launchScreen');
+  const fill=document.getElementById('launchProgressFill');
+  const percent=document.getElementById('launchPercent');
+  const status=document.getElementById('launchStatus');
+  const bar=screen?.querySelector('[role="progressbar"]');
+  const button=document.getElementById('launchStart');
+  if(!screen||!fill||!percent||!status||!button)return;
+  let progress=3,ready=false,retry=false;
+  const timer=window.setInterval(()=>{
+    if(ready||retry)return;
+    progress=Math.min(91,progress+(progress<45?2.4:progress<75?1.1:.35));
+    fill.style.width=progress+'%';
+    percent.textContent=Math.floor(progress)+'%';
+    bar?.setAttribute('aria-valuenow',String(Math.floor(progress)));
+  },180);
+  window.addEventListener('iq:app-ready',()=>{
+    if(ready)return;
+    ready=true;window.clearInterval(timer);
+    fill.style.width='100%';percent.textContent='100%';
+    bar?.setAttribute('aria-valuenow','100');
+    status.textContent='اللعبة جاهزة! عبقور ينتظرك.';
+    button.disabled=false;button.textContent='ابدأ التحدّي 🎮';
+    button.classList.add('ready');
+    screen.dataset.ready='true';
+  },{once:true});
+  window.setTimeout(()=>{
+    if(ready)return;
+    retry=true;window.clearInterval(timer);
+    status.textContent='تأخر الاتصال بالخادم. تأكد من الإنترنت واضغط لإعادة المحاولة.';
+    button.disabled=false;button.textContent='إعادة المحاولة ↻';
+    button.classList.add('ready');
+    screen.dataset.retry='true';
+  },22000);
+  button.addEventListener('click',()=>{
+    if(screen.dataset.retry==='true'){window.location.reload();return;}
+    if(!ready)return;
+    screen.classList.add('launch-hidden');
+    window.setTimeout(()=>screen.remove(),650);
+  });
+})();
+</script>
 <div id="levelUpToast" role="status" aria-live="polite" aria-atomic="true"><strong id="levelUpTitle">🎉 ارتقيت بمستواك!</strong><span id="levelUpMessage"></span></div>
 
 <main class="wrap">
@@ -1362,6 +1423,13 @@ window.addEventListener('offline', () => {
 });
 
 const $ = id => document.getElementById(id);
+function withTimeout(promise, milliseconds, label) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = window.setTimeout(() => reject(new Error(label || 'انتهت مهلة الاتصال')), milliseconds);
+  });
+  return Promise.race([promise, timeout]).finally(() => window.clearTimeout(timer));
+}
 function showAppScreen(name){
   document.querySelectorAll('.app-screen').forEach(screen=>screen.classList.toggle('active',screen.id==='screen-'+name));
   document.querySelectorAll('.nav-btn').forEach(button=>button.classList.toggle('active',button.dataset.screen===name));
@@ -1950,7 +2018,7 @@ async function submitDailyAnswer(challengeId, letter) {
 async function loadQuestionBankStatus() {
   const statusEl = $('bankProgress');
   if (!statusEl) return;
-  const { data, error } = await supabase.rpc('get_quiz_question_bank_status');
+  const { data, error } = await withTimeout(supabase.rpc('get_quiz_question_bank_status'), 8000, 'انتهت مهلة تحميل إحصائيات الأسئلة');
   if (error || !data) {
     statusEl.textContent = 'تعذّر تحميل عدد الأسئلة المتبقية حالياً.';
     return;
@@ -1971,17 +2039,41 @@ async function loadRound() {
   const loadVersion = ++roundLoadVersion;
   roundFinished = false;
   nextTransitioning = false;
-  const { data: sessionData } = await supabase.auth.getSession();
+  let sessionData;
+  try {
+    const sessionResult = await withTimeout(supabase.auth.getSession(), 10000, 'انتهت مهلة تجهيز جلسة اللاعب');
+    sessionData = sessionResult.data;
+  } catch (error) {
+    void iqReportDiagnostic('auth_session_error', error.message, { name: error.name });
+    showGameMessage('الاتصال تأخر أثناء تجهيز اللاعب. افحص الإنترنت واضغط «العب جولة جديدة» للمحاولة مرة ثانية.');
+    return;
+  }
   if (loadVersion !== roundLoadVersion) return;
   if (!sessionData.session) {
     showGameMessage('جارٍ تجهيز اللعب التلقائي. إذا استمر التعطّل، تحقق من اتصال الإنترنت وإعدادات الدخول التلقائي.');
     return;
   }
-  await loadQuestionBankStatus();
+  // The optional bank counter must never block the actual question request.
+  void loadQuestionBankStatus().catch(error => {
+    void iqReportDiagnostic('question_load_error', error.message, { name: error.name, reason: 'bank_status_timeout' });
+  });
 
   showGameMessage('جارٍ تحميل الأسئلة...');
   const selectedDifficulty = $('difficultySelect').value;
-  const { data, error } = await supabase.rpc('get_quiz_questions_by_difficulty', { p_difficulty: selectedDifficulty });
+  let questionResult;
+  try {
+    questionResult = await withTimeout(
+      supabase.rpc('get_quiz_questions_by_difficulty', { p_difficulty: selectedDifficulty }),
+      15000,
+      'انتهت مهلة تحميل الأسئلة'
+    );
+  } catch (error) {
+    void iqReportDiagnostic('question_load_error', error.message, { name: error.name, reason: 'question_rpc_timeout' });
+    showGameMessage('تأخر تحميل الأسئلة بسبب الاتصال بالخادم. افحص الإنترنت ثم اضغط «العب جولة جديدة».');
+    $('feedback').textContent = error.message;
+    return;
+  }
+  const { data, error } = questionResult;
   if (loadVersion !== roundLoadVersion) return;
   const { data: latestSession } = await supabase.auth.getSession();
   if (loadVersion !== roundLoadVersion || latestSession.session?.user?.id !== sessionData.session.user.id) return;
@@ -2201,33 +2293,53 @@ $('refreshLeaderboard').addEventListener('click', loadLeaderboard);
 $('difficultySelect').addEventListener('change', loadRound);
 $('resetBtn').classList.add('hidden');
 
-const { data: initialSession } = await supabase.auth.getSession();
+let initialSession = { session: null };
+try {
+  const sessionResult = await withTimeout(supabase.auth.getSession(), 12000, 'انتهت مهلة قراءة جلسة اللاعب');
+  initialSession = sessionResult.data || initialSession;
+} catch (error) {
+  console.warn('Could not read the current player session:', error.message);
+  void iqReportDiagnostic('auth_session_error', error.message, { name: error.name, reason: 'get_session_timeout' });
+}
 if (!initialSession.session) {
-  // Start a guest session automatically: players enter the game without an account-choice screen.
-  const { data: guestData, error: guestError } = await supabase.auth.signInAnonymously();
-  if (guestData?.session) initialSession.session = guestData.session;
-  else {
-    console.warn('Automatic guest session unavailable:', guestError?.message);
-    void iqReportDiagnostic('auth_session_error', guestError?.message, { code: guestError?.code, status: guestError?.status });
-    showGameMessage('تعذّر تجهيز اللعب التلقائي حالياً. يرجى المحاولة بعد قليل.');
+  // Create the anonymous player session automatically; no account-choice screen is shown.
+  try {
+    const guestResult = await withTimeout(supabase.auth.signInAnonymously(), 12000, 'انتهت مهلة إنشاء جلسة اللعب التلقائي');
+    if (guestResult.data?.session) initialSession.session = guestResult.data.session;
+    else if (guestResult.error) {
+      console.warn('Automatic guest session unavailable:', guestResult.error.message);
+      void iqReportDiagnostic('auth_session_error', guestResult.error.message, { code: guestResult.error.code, status: guestResult.error.status });
+      showGameMessage('تعذّر إنشاء جلسة اللعب التلقائي: ' + guestResult.error.message + '. تأكد من تفعيل Anonymous Sign-Ins في Supabase ثم أعد المحاولة.');
+    }
+  } catch (error) {
+    console.warn('Automatic guest session timed out:', error.message);
+    void iqReportDiagnostic('auth_session_error', error.message, { name: error.name, reason: 'anonymous_sign_in_timeout' });
+    showGameMessage('تأخر إنشاء جلسة اللعب التلقائي. افحص الإنترنت واضغط «العب جولة جديدة» للمحاولة مرة ثانية.');
   }
 }
 if (initialSession.session) {
   setBestRoundPlayer(initialSession.session.user.id);
   window.iqSetAccountMode?.(initialSession.session);
   if (!initialSession.session.user.is_anonymous) {
-    await loadLeaderboard();
-    await loadDailyChallenge();
+    void loadLeaderboard().catch(error => console.warn('Leaderboard startup skipped:', error));
+    void loadDailyChallenge().catch(error => console.warn('Daily challenge startup skipped:', error));
   }
   void iqReportDiagnostic('session_ready', 'تم تجهيز جلسة اللاعب');
-  const { data: stats, error: statsError } = await supabase.rpc('get_quiz_stats');
-  if (statsError) void iqReportDiagnostic('startup_stats_error', statsError.message, { code: statsError.code });
-  applyServerStats(stats);
+  // Stats are secondary; let the question round start without waiting for them.
+  void withTimeout(supabase.rpc('get_quiz_stats'), 10000, 'انتهت مهلة تحميل النقاط')
+    .then(({ data, error }) => {
+      if (error) void iqReportDiagnostic('startup_stats_error', error.message, { code: error.code });
+      else applyServerStats(data);
+    })
+    .catch(error => void iqReportDiagnostic('startup_stats_error', error.message, { name: error.name }));
   await loadRound();
 } else {
   window.iqSetAccountMode?.(null);
-  showGameMessage('جارٍ تجهيز اللعبة...');
+  if (!$('question').textContent.trim()) {
+    showGameMessage('اللعبة جاهزة، لكن تعذّر إنشاء جلسة اللاعب. افحص إعدادات الدخول التلقائي والإنترنت.');
+  }
 }
+window.dispatchEvent(new Event('iq:app-ready'));
 let playerRefreshVersion = 0;
 supabase.auth.onAuthStateChange(async (_event, session) => {
   const refreshVersion = ++playerRefreshVersion;
@@ -2684,14 +2796,21 @@ if(location.hostname!=="localhost" && location.hostname!=="127.0.0.1" && "servic
 </script>
 
 <script>
-// Safety fallback: never leave the launch overlay covering the app indefinitely
-// if module startup or an initialization request stalls.
+// If the app module fails before it can signal readiness, keep the launch screen
+// visible and offer a retry instead of silently removing the loading screen.
 window.setTimeout(() => {
   const launchScreen = document.getElementById('launchScreen');
-  if (!launchScreen || launchScreen.classList.contains('launch-hidden')) return;
-  launchScreen.classList.add('launch-hidden');
-  window.setTimeout(() => launchScreen.remove(), 650);
-}, 8000);
+  const launchStart = document.getElementById('launchStart');
+  if (!launchScreen || launchScreen.dataset.ready === 'true' || launchScreen.dataset.retry === 'true') return;
+  const status = document.getElementById('launchStatus');
+  if (status) status.textContent = 'تعذّر إكمال تشغيل اللعبة. اضغط إعادة المحاولة أو افحص اتصال الإنترنت.';
+  if (launchStart) {
+    launchStart.disabled = false;
+    launchStart.textContent = 'إعادة المحاولة ↻';
+    launchStart.classList.add('ready');
+  }
+  launchScreen.dataset.retry = 'true';
+}, 22000);
 </script>
 
 <script>
@@ -2989,6 +3108,8 @@ import { TextToSpeech } from '@capacitor-community/text-to-speech';
  if(launchScreen)new MutationObserver(syncScreen).observe(launchScreen,{attributes:true,attributeFilter:['class']});
  const launchStart=document.getElementById('launchStart');
  if(launchStart)launchStart.addEventListener('click',()=>{
+  const launchScreen=document.getElementById('launchScreen');
+  if(!launchScreen || launchScreen.dataset.ready!=='true' || !launchScreen.classList.contains('launch-hidden'))return;
   // Start speech synchronously within the real tap gesture for Android WebView.
   const welcome='أهلاً بك! أنا عبقور، مرشدك في تحدّي العقول. خلّينا نبدأ رحلة المعرفة ونصعد سويّة إلى القمّة!';
   speak(welcome);
