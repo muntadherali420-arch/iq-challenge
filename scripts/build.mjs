@@ -1,8 +1,15 @@
 import { build } from 'vite';
 import { mkdir, copyFile } from 'node:fs/promises';
 
-await build();
-await mkdir('www', { recursive: true });
+// Vite must write the actual app bundle to the same directory served by Cloudflare
+// Workers Assets and packaged by Capacitor.
+await build({
+  build: {
+    outDir: 'www',
+    emptyOutDir: true
+  }
+});
+
 await mkdir('assets', { recursive: true });
 await copyFile('icon.svg', 'assets/icon.svg');
 
