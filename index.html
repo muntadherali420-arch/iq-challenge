@@ -1121,38 +1121,6 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
     <span class="daily-launch-copy"><strong>تحدّي اليوم</strong><small id="dailyHomeState">تحدٍّ جديد كل يوم ومكافأة 20 نقطة</small><span class="daily-launch-timer" id="dailyHomeCountdown">⏳ يتجدد بعد --:--:--</span><span class="daily-launch-streak" id="dailyHomeStreak">🔥 سلسلة: 0 أيام · الأفضل: 0</span></span>
     <span class="daily-launch-arrow" aria-hidden="true">←</span>
   </button>
-  <section class="card" id="authCard">
-    <div class="row"><strong>حساب اللاعب</strong><span class="tag">تسجيل آمن</span></div>
-    <p class="auth-note">أنشئ حساباً أو سجّل دخولك حتى نربط تقدمك بحسابك. استخدم بريداً إلكترونياً تملكه.</p>
-    <div class="auth-grid" id="authForm">
-      <input class="auth-input" id="usernameInput" type="text" autocomplete="nickname" placeholder="اسم مستعار (لا تكتب بريدك أو معلوماتك الشخصية)">
-      <input class="auth-input" id="emailInput" type="email" autocomplete="email" placeholder="البريد الإلكتروني">
-      <input class="auth-input" id="passwordInput" type="password" autocomplete="current-password" placeholder="كلمة المرور (6 أحرف على الأقل)">
-      <div class="auth-actions"><button class="btn" id="signupBtn">إنشاء حساب / ترقية حساب الضيف</button><button class="btn secondary" id="loginBtn">تسجيل الدخول</button></div>
-      <button class="btn secondary hidden" id="completeUpgradeBtn" type="button">تأكيد كلمة المرور وإكمال الحساب</button>
-    </div>
-    <button class="btn" id="guestStartBtn" type="button">🎮 العب كضيف بدون تسجيل</button>
-    <div class="account-line" id="accountStatus" aria-live="polite">غير مسجّل الدخول</div>
-    <button class="btn secondary hidden" id="logoutBtn">تسجيل الخروج</button>
-    <button class="btn secondary hidden" id="deleteAccountBtn" type="button">🗑️ حذف الحساب نهائياً</button>
-    <a class="btn secondary hidden" id="adminDashboardLink" href="./admin.html" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none">🛠️ لوحة الإدارة</a>
-    <p class="small"><a href="/delete-account.html">حذف الحساب والبيانات</a> · <a href="/privacy.html">سياسة الخصوصية</a></p>
-  </section>
-
-  <section class="stats">
-    <div class="stat"><b id="levelStat">1</b><span>المستوى الحالي</span></div>
-    <div class="stat"><b id="bestStat">0</b><span>أفضل نتيجة</span></div>
-    <div class="stat"><b id="playedStat">0</b><span>جولات مكتملة</span></div>
-  </section>
-  <section class="card" id="progressCard">
-    <div class="row"><strong>🚀 تقدّم اللاعب</strong><span class="tag" id="playerRankName">🌱 مبتدئ</span></div>
-    <div class="level-caption"><span id="levelProgressText">ابدأ رحلتك!</span><span id="levelProgressCount">0 / 10 إجابات</span></div>
-    <div class="level-progress"><div id="levelProgressBar"></div></div>
-    <div class="small" id="levelProgressHint">كل 10 إجابات محفوظة ترفع مستواك درجة.</div>
-    <div class="row" style="margin-top:18px"><strong>🏅 شارات الإنجاز</strong><span class="tag" id="achievementCount">0 / 5</span></div>
-    <div class="achievement-grid" id="achievementGrid"></div>
-  </section>
-
   </div>
   <div class="app-screen" id="screen-daily">
   <section class="card" id="dailyCard">
@@ -1220,10 +1188,43 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
   </section>
   </div>
   <div class="app-screen" id="screen-profile">
+  <section class="card" id="authCard">
+    <div class="row"><strong>حساب اللاعب</strong><span class="tag">تسجيل آمن</span></div>
+    <p class="auth-note">أنشئ حساباً أو سجّل دخولك حتى نربط تقدمك بحسابك. استخدم بريداً إلكترونياً تملكه.</p>
+    <div class="auth-grid" id="authForm">
+      <input class="auth-input" id="usernameInput" type="text" autocomplete="nickname" placeholder="اسم مستعار (لا تكتب بريدك أو معلوماتك الشخصية)">
+      <input class="auth-input" id="emailInput" type="email" autocomplete="email" placeholder="البريد الإلكتروني">
+      <input class="auth-input" id="passwordInput" type="password" autocomplete="current-password" placeholder="كلمة المرور (6 أحرف على الأقل)">
+      <div class="auth-actions"><button class="btn" id="signupBtn">إنشاء حساب / ترقية حساب الضيف</button><button class="btn secondary" id="loginBtn">تسجيل الدخول</button></div>
+      <button class="btn secondary hidden" id="completeUpgradeBtn" type="button">تأكيد كلمة المرور وإكمال الحساب</button>
+    </div>
+    <button class="btn hidden" id="guestStartBtn" type="button" aria-hidden="true" tabindex="-1">اللعب كضيف</button>
+    <div class="account-line" id="accountStatus" aria-live="polite">غير مسجّل الدخول</div>
+    <button class="btn secondary hidden" id="logoutBtn">تسجيل الخروج</button>
+    <button class="btn secondary hidden" id="deleteAccountBtn" type="button">🗑️ حذف الحساب نهائياً</button>
+    <a class="btn secondary hidden" id="adminDashboardLink" href="./admin.html" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none">🛠️ لوحة الإدارة</a>
+    <p class="small"><a href="/delete-account.html">حذف الحساب والبيانات</a> · <a href="/privacy.html">سياسة الخصوصية</a></p>
+  </section>
+
+  <section class="stats">
+    <div class="stat"><b id="levelStat">1</b><span>المستوى الحالي</span></div>
+    <div class="stat"><b id="bestStat">0</b><span>أفضل نتيجة</span></div>
+    <div class="stat"><b id="playedStat">0</b><span>جولات مكتملة</span></div>
+  </section>
+  <section class="card" id="progressCard">
+    <div class="row"><strong>🚀 تقدّم اللاعب</strong><span class="tag" id="playerRankName">🌱 مبتدئ</span></div>
+    <div class="level-caption"><span id="levelProgressText">ابدأ رحلتك!</span><span id="levelProgressCount">0 / 10 إجابات</span></div>
+    <div class="level-progress"><div id="levelProgressBar"></div></div>
+    <div class="small" id="levelProgressHint">كل 10 إجابات محفوظة ترفع مستواك درجة.</div>
+    <div class="row" style="margin-top:18px"><strong>🏅 شارات الإنجاز</strong><span class="tag" id="achievementCount">0 / 5</span></div>
+    <div class="achievement-grid" id="achievementGrid"></div>
+  </section>
+
+
   <!-- Guest mode and account perks -->
   <section class="card hidden" id="accountPerksCard">
     <div class="row"><strong>⭐ امتيازات الحساب</strong><span class="tag">افتح مزايا إضافية</span></div>
-    <p class="small">اللعب كضيف متاح مجاناً. أنشئ حساباً حتى تحفظ تقدمك وتشارك في لوحة المتصدرين وتحدّي اليوم وسلسلة الإنجازات.</p>
+    <p class="small">أنت تلعب الآن مباشرةً دون تسجيل. أنشئ حساباً اختيارياً لفتح الامتيازات الإضافية.</p>
     <ul class="small"><li>حفظ النقاط والمستويات على حسابك.</li><li>المشاركة في لوحة المتصدرين.</li><li>تحدّي يومي وشارات وسلاسل إنجاز.</li><li>استعادة تقدمك عند تسجيل الدخول من جهاز آخر.</li></ul>
     <button class="btn" type="button" id="guestUpgradeJump">أنشئ حساباً واحتفظ بتقدمك</button>
   </section>
@@ -1257,7 +1258,7 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
     <button class="btn secondary" id="refreshLeaderboard">تحديث لوحة المتصدرين</button>
     <div class="leaderboard-list" id="leaderboardList"><div class="small">سجّل الدخول لعرض لوحة المتصدرين.</div></div>
   </section>
-  <div class="footer">نسخة اختبارية محلية — لا يوجد شراء أو جوائز نقدية أو إعلانات في هذه النسخة.</div>
+  <div class="footer">تحدّى نفسك، واجمع النقاط، وأنشئ حساباً اختيارياً لفتح المزيد من المزايا.</div>
   </div>
   <nav class="game-nav" aria-label="التنقل الرئيسي">
     <button class="nav-btn active" type="button" data-screen="home"><span>🏠</span>الرئيسية</button>
@@ -1699,7 +1700,7 @@ async function loadLeaderboard() {
   const list = $('leaderboardList');
   const { data: authData } = await supabase.auth.getSession();
   if (!authData.session || authData.session.user.is_anonymous) {
-    list.textContent = 'لوحة المتصدرين من امتيازات الحساب المسجّل. أنشئ حساباً للمشاركة.';
+    list.textContent = 'لوحة المتصدرين من امتيازات الحساب المسجّل. أنشئ حساباً من الملف الشخصي للمشاركة.';
     return;
   }
   list.innerHTML = '<div class="small">جارٍ تحميل الترتيب...</div>';
@@ -1751,7 +1752,7 @@ function updateDailyHomeCard(status = dailyHomeStatus) {
   const labels = {
     available: 'متاح الآن — جاوب واربح 20 نقطة',
     completed: 'أكملت تحدّي اليوم — انتظر التحدّي الجديد',
-    login: 'سجّل الدخول حتى تشارك وتجمع النقاط',
+    login: 'العب مباشرة — أنشئ حساباً لفتح الامتيازات',
     guest: 'تحدّي اليوم من امتيازات الحساب المسجّل',
     missing: 'لا يوجد تحدٍّ مجدول لهذا اليوم',
     loading: 'جارٍ التحقق من تحدّي اليوم...',
@@ -1824,7 +1825,7 @@ function refreshDailyCountdown() {
 }
 window.setInterval(refreshDailyCountdown, 1000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshDailyCountdown(); });
-updateDailyHomeCard('login');
+updateDailyHomeCard('guest');
 $('refreshAchievements')?.addEventListener('click', loadDailyStreak);
 async function loadDailyChallenge() {
   const loadVersion = ++dailyLoadVersion;
@@ -2179,6 +2180,15 @@ $('difficultySelect').addEventListener('change', loadRound);
 $('resetBtn').classList.add('hidden');
 
 const { data: initialSession } = await supabase.auth.getSession();
+if (!initialSession.session) {
+  // Start a guest session automatically: players enter the game without an account-choice screen.
+  const { data: guestData, error: guestError } = await supabase.auth.signInAnonymously();
+  if (guestData?.session) initialSession.session = guestData.session;
+  else {
+    console.warn('Automatic guest session unavailable:', guestError?.message);
+    showGameMessage('تعذّر تجهيز اللعب التلقائي حالياً. يرجى المحاولة بعد قليل.');
+  }
+}
 if (initialSession.session) {
   setBestRoundPlayer(initialSession.session.user.id);
   window.iqSetAccountMode?.(initialSession.session);
@@ -2191,7 +2201,7 @@ if (initialSession.session) {
   await loadRound();
 } else {
   window.iqSetAccountMode?.(null);
-  showGameMessage('اضغط «العب كضيف» للبدء فوراً، أو أنشئ حساباً لحفظ تقدمك ومزايا إضافية.');
+  showGameMessage('جارٍ تجهيز اللعبة...');
 }
 let playerRefreshVersion = 0;
 supabase.auth.onAuthStateChange(async (_event, session) => {
@@ -2228,7 +2238,7 @@ supabase.auth.onAuthStateChange(async (_event, session) => {
     $('dailyAnswers').replaceChildren();
     $('dailyFeedback').textContent = '';
     $('leaderboardList').textContent = 'سجّل الدخول أو العب كضيف للبدء.';
-    showGameMessage('اضغط «العب كضيف» للبدء، أو سجّل الدخول بحسابك.');
+    showGameMessage('جارٍ تجهيز اللعبة...');
   }
 });
 </script>
