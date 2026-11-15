@@ -1,34 +1,51 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
 <defs>
- <linearGradient id="sky" x2="1" y2="1"><stop stop-color="#071d76"/><stop offset=".55" stop-color="#1768dc"/><stop offset="1" stop-color="#8d35db"/></linearGradient>
- <linearGradient id="pink" x2=".8" y2="1"><stop stop-color="#ffd1df"/><stop offset=".52" stop-color="#ff8db3"/><stop offset="1" stop-color="#e94e87"/></linearGradient>
- <linearGradient id="gold" x2="0" y2="1"><stop stop-color="#fff7a8"/><stop offset=".5" stop-color="#ffc52f"/><stop offset="1" stop-color="#ed8b12"/></linearGradient>
- <linearGradient id="blue" x2="1" y2="1"><stop stop-color="#73eaff"/><stop offset="1" stop-color="#1453d3"/></linearGradient>
- <filter id="shadow"><feGaussianBlur stdDeviation="12"/></filter>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#19d7f5"/><stop offset=".46" stop-color="#2873ed"/><stop offset="1" stop-color="#7134d9"/></linearGradient>
+ <linearGradient id="brainL" x1=".15" y1="0" x2=".8" y2="1"><stop stop-color="#ffb8d2"/><stop offset=".5" stop-color="#ff78ad"/><stop offset="1" stop-color="#e94b91"/></linearGradient>
+ <linearGradient id="brainR" x1=".1" y1="0" x2=".9" y2="1"><stop stop-color="#ff9bc5"/><stop offset=".55" stop-color="#f45b9c"/><stop offset="1" stop-color="#cf347e"/></linearGradient>
+ <linearGradient id="cap" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#344bd2"/><stop offset="1" stop-color="#171d75"/></linearGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff29b"/><stop offset=".5" stop-color="#ffd23f"/><stop offset="1" stop-color="#ff9f25"/></linearGradient>
+ <linearGradient id="lens" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9af4ff"/><stop offset=".55" stop-color="#35b9f5"/><stop offset="1" stop-color="#3864df"/></linearGradient>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="13"/></filter>
+ <filter id="glow"><feGaussianBlur stdDeviation="8"/></filter>
 </defs>
-<rect x="8" y="8" width="496" height="496" rx="112" fill="#06154c"/>
-<rect x="17" y="17" width="478" height="478" rx="102" fill="url(#sky)" stroke="#ffe58a" stroke-width="10"/>
-<circle cx="256" cy="245" r="190" fill="#6be7ff" opacity=".13"/>
-<g fill="#fff4a6"><path d="M90 80l9 20 22 3-16 14 4 22-19-11-19 11 4-22-16-14 22-3z"/><path d="M423 100l8 17 18 3-13 12 3 18-16-9-15 9 3-18-13-12 18-3z"/></g>
-<!-- graduation cap -->
-<path d="M105 142L255 78l151 64-151 62z" fill="#171b52" stroke="#ffdb70" stroke-width="11" stroke-linejoin="round"/>
-<path d="M145 163v38q110 65 220 0v-38" fill="#252565" stroke="#ffdb70" stroke-width="8"/>
-<path d="M402 143v76" stroke="#ffdb70" stroke-width="9" stroke-linecap="round"/><circle cx="402" cy="229" r="12" fill="url(#gold)"/>
-<!-- brain -->
-<ellipse cx="256" cy="300" rx="160" ry="145" fill="#06123e" opacity=".45" filter="url(#shadow)"/>
-<path d="M256 178c-25-30-67-31-89-4-38-9-70 21-65 59-32 23-33 68-5 95-15 40 7 80 45 87 11 35 50 51 83 31 13 15 24 22 31 22z" fill="url(#pink)" stroke="#ffbfd2" stroke-width="9"/>
-<path d="M256 178c25-30 67-31 89-4 38-9 70 21 65 59 32 23 33 68 5 95 15 40-7 80-45 87-11 35-50 51-83 31-13 15-24 22-31 22z" fill="url(#pink)" stroke="#ffbfd2" stroke-width="9"/>
-<g fill="none" stroke="#ffcade" stroke-width="10" stroke-linecap="round"><path d="M160 221q-28 30 4 55m-42 31q38-3 43 36m-13 34q35-16 54 17m-12-144q25 7 24 34m-9 53q-4 24 20 37"/><path d="M352 221q28 30-4 55m42 31q-38-3-43 36m13 34q-35-16-54 17m12-144q-25 7-24 34m9 53q4 24-20 37"/></g>
-<!-- glasses -->
-<path d="M108 274q62-37 128 0l-7 59q-8 25-57 20-44-3-55-28z" fill="url(#blue)" stroke="#073d9e" stroke-width="12"/>
-<path d="M276 274q62-37 128 0l-9 51q-11 25-55 28-49 5-57-20z" fill="url(#blue)" stroke="#073d9e" stroke-width="12"/>
-<path d="M235 290q21-15 42 0" fill="none" stroke="#073d9e" stroke-width="12" stroke-linecap="round"/>
-<g fill="#fff"><ellipse cx="173" cy="304" rx="27" ry="29"/><ellipse cx="339" cy="304" rx="27" ry="29"/></g>
-<g fill="#512c22"><ellipse cx="181" cy="308" rx="13" ry="18"/><ellipse cx="331" cy="308" rx="13" ry="18"/></g>
-<g fill="#fff"><circle cx="187" cy="298" r="6"/><circle cx="337" cy="298" r="6"/></g>
-<path d="M206 376q50 54 100 0" fill="#a92356" stroke="#9c2752" stroke-width="8" stroke-linecap="round"/>
-<path d="M226 386q30 20 60 0" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
-<!-- IQ badge -->
-<path d="M93 434q0-18 22-18h282q22 0 22 18v35H93z" fill="#092c88" stroke="#ffdf78" stroke-width="8"/>
-<text x="256" y="462" text-anchor="middle" font-family="Arial,sans-serif" font-size="42" font-weight="900" letter-spacing="8" fill="url(#gold)">IQ</text>
+<rect x="10" y="10" width="492" height="492" rx="112" fill="#09266f"/>
+<rect x="18" y="18" width="476" height="476" rx="100" fill="url(#bg)" stroke="#fff2a0" stroke-width="9"/>
+<circle cx="250" cy="245" r="202" fill="#fff" opacity=".07"/>
+<g fill="#fff6b5"><path d="M91 105l10 23 25 3-19 17 5 25-21-13-21 13 5-25-19-17 25-3z"/><path d="M414 112l7 17 19 3-14 13 3 19-16-9-16 9 3-19-14-13 19-3z"/></g>
+<g transform="translate(0 4)">
+ <ellipse cx="256" cy="390" rx="151" ry="26" fill="#08194f" opacity=".35" filter="url(#shadow)"/>
+ <!-- warm brain body -->
+ <path d="M255 151c-24-32-68-37-94-10-39-10-75 18-76 58-31 25-35 71-7 101-17 41 6 84 47 91 14 36 57 50 91 27 14 14 28 22 40 22z" fill="url(#brainL)" stroke="#ffe0ec" stroke-width="9" stroke-linejoin="round"/>
+ <path d="M257 151c24-32 68-37 94-10 39-10 75 18 76 58 31 25 35 71 7 101 17 41-6 84-47 91-14 36-57 50-91 27-14 14-28 22-40 22z" fill="url(#brainR)" stroke="#ffd0e3" stroke-width="9" stroke-linejoin="round"/>
+ <g fill="none" stroke="#ffd2e4" stroke-width="10" stroke-linecap="round" opacity=".85">
+  <path d="M137 214q-22 28 7 52-17 24 4 44m-18 29q32-8 42 27m-1-127q28 9 17 35m-6 53q-3 23 20 32"/>
+  <path d="M375 214q22 28-7 52 17 24-4 44m18 29q-32-8-42 27m1-127q-28 9-17 35m6 53q3 23-20 32"/>
+  <path d="M224 169q-20 22-3 43-18 22-2 42m37 10q-19 18-4 38-16 18-3 38"/>
+  <path d="M289 169q20 22 3 43 18 22 2 42m-37 10q19 18 4 38 16 18 3 38"/>
+ </g>
+ <!-- glasses -->
+ <path d="M111 268q58-29 125 0l-7 47q-6 27-53 27-52 0-59-30z" fill="url(#lens)" stroke="#123fbb" stroke-width="12"/>
+ <path d="M276 268q67-29 125 0l-6 44q-7 30-59 30-47 0-53-27z" fill="url(#lens)" stroke="#123fbb" stroke-width="12"/>
+ <path d="M235 281q21-15 42 0" fill="none" stroke="#123fbb" stroke-width="12" stroke-linecap="round"/>
+ <g fill="#fff"><ellipse cx="174" cy="296" rx="23" ry="25"/><ellipse cx="339" cy="296" rx="23" ry="25"/></g>
+ <g fill="#24306d"><ellipse cx="180" cy="300" rx="11" ry="15"/><ellipse cx="333" cy="300" rx="11" ry="15"/></g>
+ <g fill="#fff"><circle cx="185" cy="290" r="6"/><circle cx="338" cy="290" r="6"/></g>
+ <ellipse cx="142" cy="344" rx="17" ry="9" fill="#ffb4c9" opacity=".8"/><ellipse cx="371" cy="344" rx="17" ry="9" fill="#ffb4c9" opacity=".8"/>
+ <path d="M213 363q43 42 86 0" fill="none" stroke="#9e245a" stroke-width="12" stroke-linecap="round"/>
+ <path d="M235 370q21 13 42 0" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+ <!-- graduation cap -->
+ <path d="M106 151l150-72 150 72-150 69z" fill="url(#cap)" stroke="#ffe17a" stroke-width="10" stroke-linejoin="round"/>
+ <path d="M145 178v35q111 61 222 0v-35" fill="#2937a1" stroke="#ffe17a" stroke-width="7" stroke-linejoin="round"/>
+ <path d="M403 151v69" stroke="#ffd23f" stroke-width="9" stroke-linecap="round"/><circle cx="403" cy="229" r="12" fill="url(#gold)" stroke="#fff2a0" stroke-width="4"/>
+</g>
+<!-- tiny lightbulb -->
+<g transform="translate(73 190) rotate(-17)">
+ <circle cx="0" cy="0" r="38" fill="#fff3a0" opacity=".28" filter="url(#glow)"/>
+ <path d="M0-29c-20 0-32 15-29 32 2 12 13 18 16 29h26c3-11 14-17 16-29C32-14 20-29 0-29z" fill="url(#gold)" stroke="#fff6bb" stroke-width="6"/>
+ <path d="M-12 32h24m-21 9h18" stroke="#fff0a2" stroke-width="7" stroke-linecap="round"/>
+ <path d="M0-18v17m-10-8 10 8 10-8" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<path d="M112 430q0-17 18-17h252q18 0 18 17v38H112z" fill="#102d9a" stroke="#fff0a0" stroke-width="7"/>
+<text x="256" y="461" text-anchor="middle" font-family="Arial,sans-serif" font-size="42" font-weight="900" letter-spacing="10" fill="url(#gold)">IQ</text>
 </svg>

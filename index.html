@@ -12,6 +12,10 @@
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="manifest" href="/manifest.webmanifest">
 <title>IQ Challenge — تحدّي العقول</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Lalezar&display=swap" rel="stylesheet">
+
 <style>
 :root{--bg:#101827;--panel:#192438;--panel2:#22314b;--ink:#f4f7fb;--muted:#aebbd0;--gold:#ffd166;--mint:#62e6bd;--pink:#ff8fab}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0%,#273a5a 0,transparent 34%),var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
@@ -556,6 +560,10 @@ body{
 .launch-percent{font-size:12px;color:#b8caff;margin:11px 0 22px;font-variant-numeric:tabular-nums}
 #launchStart{width:min(330px,88%);border:1px solid #fff4c4;border-radius:18px;padding:16px 20px;background:linear-gradient(110deg,#ffe27a,#ffb64e);color:#26305e;font:900 17px system-ui;box-shadow:0 7px 0 #9c632f,0 14px 30px #0005;opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s}
 #launchStart.ready{opacity:1;transform:translateY(0)}
+#launchProgressFill{width:0;animation:none!important;transition:width .18s linear}
+#launchStart:disabled{opacity:.45;transform:translateY(8px);cursor:wait}
+#launchStart.ready{opacity:1;transform:translateY(0);cursor:pointer}
+
 .launch-note{font-size:11px;color:#b9c9ed;margin-top:19px}
 @keyframes riverLoad{to{width:100%}}@keyframes riverFlow{to{transform:translateX(28px)}}@keyframes launchFloat{50%{transform:translateY(-9px) rotate(2deg)}}@keyframes launchOrbit{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){#launchScreen *,#launchScreen *:before{animation-duration:.01ms!important}}
@@ -680,6 +688,74 @@ body{
 @media(prefers-reduced-motion:reduce){.iq-mentor-toggle,.mentor-eye,.mentor-hand,.iq-mentor-bubble{animation:none!important}}
 .wrap{padding-top:150px}
 @media(max-width:380px){.wrap{padding-top:122px}}
+
+/* v71 — animated artwork throughout the app */
+@media(prefers-reduced-motion:no-preference){
+ img:not([data-motion="off"]){
+  transform-origin:center;
+  backface-visibility:hidden;
+  animation:iqImageReveal .7s cubic-bezier(.2,.75,.25,1) both,iqImageFloat 5.8s ease-in-out .7s infinite;
+ }
+ img:not([data-motion="off"]):hover{
+  filter:saturate(1.08) brightness(1.035) drop-shadow(0 7px 10px #17214a30);
+ }
+ img:not([data-motion="off"]):active{
+  transform:scale(.96);
+ }
+ svg[role="img"]:not(.iq-mentor-svg){
+  transform-origin:center;
+  animation:iqImageReveal .7s cubic-bezier(.2,.75,.25,1) both,iqIllustrationFloat 5.4s ease-in-out .7s infinite;
+ }
+ .visual-scene{
+  transform-origin:center;
+  animation:iqSceneFloat 5.2s ease-in-out infinite;
+ }
+ .visual-object-art,.visual-object,.visual-answer{
+  transform-origin:center;
+  animation:iqArtPop .55s cubic-bezier(.2,.8,.2,1) both;
+ }
+ .visual-object-art{display:inline-block}
+ .scholar-art-wrap,.puzzle-mascot,.daily-launch-icon{
+  filter:drop-shadow(0 7px 9px #15265a24);
+ }
+ .scholar-art-wrap svg,.puzzle-mascot svg{
+  filter:drop-shadow(0 7px 5px #15265a30);
+ }
+ .mode-card:active,.visual-object:active,.visual-answer:active{
+  transform:scale(.97);
+ }
+}
+@keyframes iqImageReveal{
+ from{opacity:0;transform:translateY(10px) scale(.92);filter:blur(2px)}
+ to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+}
+@keyframes iqImageFloat{
+ 0%,100%{transform:translateY(0) scale(1)}
+ 50%{transform:translateY(-4px) scale(1.012)}
+}
+@keyframes iqIllustrationFloat{
+ 0%,100%{transform:translateY(0) rotate(0)}
+ 50%{transform:translateY(-3px) rotate(1deg)}
+}
+@keyframes iqSceneFloat{
+ 0%,100%{transform:translateY(0) scale(1)}
+ 50%{transform:translateY(-3px) scale(1.008)}
+}
+@keyframes iqArtPop{
+ 0%{opacity:0;transform:scale(.78) rotate(-4deg)}
+ 75%{opacity:1;transform:scale(1.06) rotate(1deg)}
+ 100%{opacity:1;transform:scale(1) rotate(0)}
+}
+@media(prefers-reduced-motion:reduce){
+ img:not([data-motion="off"]),svg[role="img"]:not(.iq-mentor-svg),.visual-scene,.visual-object-art,.visual-object,.visual-answer{
+  animation:none!important;transform:none!important;filter:none!important
+ }
+}
+
+
+#accountPerksCard ul{padding-inline-start:22px;line-height:1.9}
+#completeUpgradeBtn{width:100%;margin-top:10px}
+
 </style>
 <style>
 /* v53 — encouraging correct-answer streak indicator */
@@ -946,22 +1022,126 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;bac
 @media(max-width:390px){.wrap{padding-top:132px}.iq-mentor{width:calc(100vw - 10px);gap:5px}.iq-mentor-toggle{width:100px;height:104px}.iq-mentor-bubble{font-size:11px;padding:7px}.mode-card{min-height:82px;padding:10px 12px}.mode-card strong{font-size:20px}}
 @media(prefers-reduced-motion:reduce){.iq-mentor-toggle{animation:none!important}}
 </style>
+
+<style id="iq-cartoon-refresh">
+/* Cartoon typography and vivid storybook colors */
+:root{--iq-royal:#1749c8;--iq-blue:#16b9ee;--iq-purple:#7737dc;--iq-pink:#ff6f9d;--iq-gold:#ffd23f;--iq-green:#25cb87;--iq-cream:#fff3dc}
+body,button,input,select,textarea{font-family:'Baloo Bhaijaan 2','Noto Sans Arabic',system-ui,sans-serif!important}
+h1,h2,h3,.mode-card strong,.btn,.nav-btn,.launch-title{font-family:'Lalezar','Baloo Bhaijaan 2',sans-serif!important;font-weight:400!important;letter-spacing:.1px}
+body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radial-gradient(circle at 88% 24%,#ffb2d1 0,transparent 22%),linear-gradient(155deg,#0756c9 0%,#168fe8 42%,#5965e8 76%,#8b4bdc 100%)!important;color:#fff!important}
+.wrap{padding-top:132px!important}
+.top{border:3px solid #9af0ff!important;border-radius:25px!important;background:linear-gradient(120deg,#082b85,#1459cf 62%,#5125ad)!important;box-shadow:0 7px 0 #08266f,0 14px 28px #041a5b66!important}
+.top h1,.top .sub{color:#fff!important}
+.hero{background:linear-gradient(140deg,#fff9e8,#ffe7bd 58%,#fff3d9)!important;border:3px solid #fff!important;border-radius:30px!important;box-shadow:0 7px 0 #d68d3c,0 15px 28px #06266b55!important;color:#263675!important}
+.hero h2{font-family:'Lalezar','Baloo Bhaijaan 2',sans-serif!important;color:#173d9b!important;text-shadow:0 2px #bdeaff!important}
+.hero p{color:#42517e!important}
+.eyebrow{color:#d77a00!important}
+.card,.stat{border:2px solid #fff!important;border-radius:24px!important;background:linear-gradient(145deg,#fffdf5,#ffe9c9)!important;box-shadow:0 6px 0 #c9864c66,0 12px 24px #061d6240!important;color:#26356f!important}
+.card .small,.card .auth-note,.card .feedback,.card .level-caption,.stat span{color:#4e5c85!important}
+#progressCard{background:linear-gradient(135deg,#233caa,#6931c8 65%,#8c38c7)!important;border:3px solid #a8eaff!important;color:#fff!important}
+#progressCard .small,#progressCard .level-caption,#progressCard strong{color:#fff!important}
+#progressCard .achievement{background:linear-gradient(145deg,#8650e8,#42229d)!important;border:1px solid #d0baff!important;color:#fff!important}
+#progressCard .achievement small{color:#f5eaff!important}
+#dailyCard{background:linear-gradient(135deg,#ffdc65,#ff9d3e)!important;border:3px solid #fff2b5!important;color:#633700!important}
+#historyCard,#leaderboardCard{background:linear-gradient(135deg,#dff7ff,#e9e2ff)!important;border:3px solid #fff!important;color:#26356f!important}
+.mode-card{border:3px solid #fff!important;border-radius:25px!important;box-shadow:0 7px 0 #10266d77,0 13px 24px #071d5a55!important}
+.mode-million{background:linear-gradient(115deg,#a83df1,#5622c6)!important}
+.mode-puzzle{background:linear-gradient(115deg,#65e34c,#08a96a)!important}
+.mode-visual{background:linear-gradient(115deg,#32c8ff,#1455db)!important}
+.mode-card strong{color:#fff!important;text-shadow:0 2px 2px #14235d66!important}
+.daily-launch-card{background:linear-gradient(110deg,#ffb72f,#f15c25)!important;border:3px solid #fff3bd!important;border-radius:25px!important;box-shadow:0 7px 0 #a23b1c,0 12px 24px #061a5555!important}
+.answer,.puzzle-answer,.visual-answer{font-family:'Baloo Bhaijaan 2','Noto Sans Arabic',sans-serif!important;font-size:17px!important;font-weight:800!important;border:2px solid #c3d9ff!important;border-radius:19px!important;background:linear-gradient(145deg,#fff,#e4efff)!important;color:#243b82!important;box-shadow:0 4px 0 #a9c1ec!important}
+.answer.correct,.puzzle-answer.correct,.visual-answer.correct{background:linear-gradient(110deg,#caffdf,#6de7aa)!important;color:#075a3b!important;border-color:#1dbb79!important}
+.answer.wrong,.puzzle-answer.wrong,.visual-answer.wrong{background:linear-gradient(110deg,#ffe1e9,#ffb6c9)!important;color:#852342!important;border-color:#ec6688!important}
+.btn{border:2px solid #fff2bd!important;border-radius:18px!important;background:linear-gradient(110deg,#ffe36b,#ff9f29)!important;color:#593300!important;box-shadow:0 5px 0 #b96d20!important}
+.btn.secondary{background:linear-gradient(110deg,#8149ec,#4821b5)!important;color:#fff!important;box-shadow:0 5px 0 #2c1478!important}
+.game-nav{background:linear-gradient(110deg,#092a81,#164ec1)!important;border:2px solid #9deaff!important;box-shadow:0 -5px 20px #09265d44!important}
+.nav-btn{color:#f8f5ff!important;font-family:'Lalezar','Baloo Bhaijaan 2',sans-serif!important;font-size:14px!important}
+.nav-btn.active{background:linear-gradient(145deg,#fff08c,#ffbd55)!important;color:#4a2c72!important}
+.question,.puzzle-question,.visual-question{font-family:'Baloo Bhaijaan 2','Noto Sans Arabic',sans-serif!important;font-weight:800!important;color:#273b7a!important}
+.score{background:linear-gradient(120deg,#092b86,#061d62)!important;color:#ffe36b!important;border:2px solid #ffe88c!important}
+.sound-toggle{border-radius:50%!important}
+.launch-title{font-size:clamp(38px,9vw,54px)!important;color:#fff2a8!important;text-shadow:0 4px 0 #5227a2!important}
+.footer{color:#f2f6ff!important}
+@media(max-width:390px){.wrap{padding-top:116px!important}.top{gap:7px}.hero{padding:19px 15px!important}.mode-card strong{font-size:21px!important}}
+/* عبقور: مكان علوي متغيّر حسب الشاشة، وفقاعة مستقلة لا تغطي محتوى اللعبة */
+.wrap{padding-top:136px!important}
+.iq-mentor{position:fixed!important;top:calc(env(safe-area-inset-top,0px) + 8px)!important;left:8px!important;right:auto!important;bottom:auto!important;transform:none!important;width:86px!important;height:86px!important;display:block!important;z-index:10010!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;pointer-events:none!important;overflow:visible!important}
+.iq-mentor[data-position="right"]{left:auto!important;right:8px!important}
+.iq-mentor:not(.is-visible){display:none!important}.iq-mentor.is-visible{display:block!important}
+.iq-mentor::before{content:"";position:absolute;inset:8px;border-radius:50%;background:radial-gradient(circle,#fff5b9 0%,#ff9bc8 44%,#4ccfff 72%,transparent 74%);filter:blur(5px);opacity:.85;z-index:-1;animation:mentorAura 3.2s ease-in-out infinite}
+.iq-mentor-bubble{position:absolute!important;top:0!important;bottom:auto!important;left:calc(100% + 8px)!important;right:auto!important;flex:none!important;width:min(205px,calc(100vw - 112px))!important;max-width:none!important;min-width:0!important;padding:8px 10px!important;border:2px solid #fff!important;border-radius:19px 19px 19px 6px!important;background:linear-gradient(145deg,#fffdf1,#ffe5a8)!important;color:#263675!important;box-shadow:0 4px 0 #d78b36,0 8px 18px #061d6244!important;font-size:12px!important;font-weight:800!important;line-height:1.4!important;text-align:center!important;pointer-events:none!important}
+.iq-mentor[data-position="right"] .iq-mentor-bubble{left:auto!important;right:calc(100% + 8px)!important;border-radius:19px 19px 6px 19px!important}
+.iq-mentor-bubble[hidden]{display:none!important}
+.iq-mentor-toggle{position:relative!important;display:block!important;width:86px!important;height:86px!important;padding:0!important;border:0!important;border-radius:50%!important;background:transparent!important;box-shadow:none!important;filter:drop-shadow(0 7px 7px #091d60aa)!important;animation:mentorFloat 2.5s ease-in-out infinite!important;pointer-events:auto!important}
+.iq-mentor-svg{width:100%!important;height:100%!important;filter:drop-shadow(0 4px 2px #50144766)!important}
+.iq-mentor.is-speaking .iq-mentor-toggle{filter:drop-shadow(0 0 13px #fff36a) drop-shadow(0 7px 7px #091d60aa)!important}
+@keyframes mentorAura{0%,100%{transform:scale(.92);opacity:.65}50%{transform:scale(1.08);opacity:1}}
+@media(max-width:390px){.wrap{padding-top:120px!important}.iq-mentor{width:76px!important;height:76px!important;left:7px!important;right:auto!important}.iq-mentor[data-position="right"]{left:auto!important;right:7px!important}.iq-mentor-toggle{width:76px!important;height:76px!important}.iq-mentor-bubble{width:min(190px,calc(100vw - 100px))!important;font-size:11px!important;padding:7px 8px!important}}
+@media(prefers-reduced-motion:reduce){.iq-mentor::before{animation:none!important}}
+</style>
+
 </head>
 <body>
+<section id="launchScreen" role="status" aria-live="polite" aria-label="شاشة بدء تحدّي العقول">
+  <div class="launch-content">
+    <div class="launch-mark" aria-hidden="true">🧠</div>
+    <h1 class="launch-title">تحدّي العقول</h1>
+    <div class="launch-sub">IQ CHALLENGE</div>
+    <p class="launch-tagline" id="launchStatus">نجهّز عالم التحدّي ونحمّل الأسئلة...</p>
+    <div class="launch-river" role="progressbar" aria-label="تحميل اللعبة" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <div class="launch-river-fill" id="launchProgressFill"></div>
+    </div>
+    <div class="launch-percent" id="launchPercent">0%</div>
+    <button id="launchStart" type="button" disabled>ابدأ التحدّي</button>
+    <p class="launch-note">عبقور راح يرحّب بيك ويرشدك داخل اللعبة</p>
+  </div>
+</section>
+<script>
+(()=> {
+  const screen=document.getElementById('launchScreen');
+  const fill=document.getElementById('launchProgressFill');
+  const percent=document.getElementById('launchPercent');
+  const status=document.getElementById('launchStatus');
+  const bar=screen?.querySelector('[role="progressbar"]');
+  const button=document.getElementById('launchStart');
+  if(!screen||!fill||!percent||!status||!button)return;
+  let progress=3,ready=false,retry=false;
+  const timer=window.setInterval(()=>{
+    if(ready||retry)return;
+    progress=Math.min(91,progress+(progress<45?2.4:progress<75?1.1:.35));
+    fill.style.width=progress+'%';
+    percent.textContent=Math.floor(progress)+'%';
+    bar?.setAttribute('aria-valuenow',String(Math.floor(progress)));
+  },180);
+  window.addEventListener('iq:app-ready',()=>{
+    if(ready)return;
+    ready=true;window.clearInterval(timer);
+    fill.style.width='100%';percent.textContent='100%';
+    bar?.setAttribute('aria-valuenow','100');
+    status.textContent='اللعبة جاهزة! عبقور ينتظرك.';
+    button.disabled=false;button.textContent='ابدأ التحدّي 🎮';
+    button.classList.add('ready');
+    screen.dataset.ready='true';
+  },{once:true});
+  window.setTimeout(()=>{
+    if(ready)return;
+    retry=true;window.clearInterval(timer);
+    status.textContent='تأخر الاتصال بالخادم. تأكد من الإنترنت واضغط لإعادة المحاولة.';
+    button.disabled=false;button.textContent='إعادة المحاولة ↻';
+    button.classList.add('ready');
+    screen.dataset.retry='true';
+  },22000);
+  button.addEventListener('click',()=>{
+    if(screen.dataset.retry==='true'){window.location.reload();return;}
+    if(!ready)return;
+    screen.classList.add('launch-hidden');
+    window.setTimeout(()=>screen.remove(),650);
+  });
+})();
+</script>
 <div id="levelUpToast" role="status" aria-live="polite" aria-atomic="true"><strong id="levelUpTitle">🎉 ارتقيت بمستواك!</strong><span id="levelUpMessage"></span></div>
 
-<div id="launchScreen" role="dialog" aria-label="شاشة بداية تحدّي العقول">
- <div class="launch-content">
-  <div class="launch-mark">🧠</div>
-  <h1 class="launch-title">تحدّي العقول</h1>
-  <div class="launch-sub">IQ CHALLENGE</div>
-  <p class="launch-tagline">استعدّ… اختبر ذكاءك واصنع إنجازك</p>
-  <div class="launch-river"><div class="launch-river-fill"></div></div>
-  <div class="launch-percent" id="launchPercent">جارٍ تجهيز عالم التحدّي…</div>
-  <button id="launchStart" type="button">ابدأ التحدّي 🎮</button>
-  <div class="launch-note">الموسيقى تبدأ عند الضغط على زر البدء</div>
- </div>
-</div>
 <main class="wrap">
   <header class="top">
     <div class="brand"><div class="logo" aria-label="شعار الدماغ">🧠</div><div><h1>تحدّي العقول</h1><div class="sub">IQ CHALLENGE · النسخة التجريبية 0.1</div></div></div>
@@ -984,36 +1164,6 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;bac
     <span class="daily-launch-copy"><strong>تحدّي اليوم</strong><small id="dailyHomeState">تحدٍّ جديد كل يوم ومكافأة 20 نقطة</small><span class="daily-launch-timer" id="dailyHomeCountdown">⏳ يتجدد بعد --:--:--</span><span class="daily-launch-streak" id="dailyHomeStreak">🔥 سلسلة: 0 أيام · الأفضل: 0</span></span>
     <span class="daily-launch-arrow" aria-hidden="true">←</span>
   </button>
-  <section class="card" id="authCard">
-    <div class="row"><strong>حساب اللاعب</strong><span class="tag">تسجيل آمن</span></div>
-    <p class="auth-note">أنشئ حساباً أو سجّل دخولك حتى نربط تقدمك بحسابك. استخدم بريداً إلكترونياً تملكه.</p>
-    <div class="auth-grid" id="authForm">
-      <input class="auth-input" id="usernameInput" type="text" autocomplete="nickname" placeholder="اسم مستعار (لا تكتب بريدك أو معلوماتك الشخصية)">
-      <input class="auth-input" id="emailInput" type="email" autocomplete="email" placeholder="البريد الإلكتروني">
-      <input class="auth-input" id="passwordInput" type="password" autocomplete="current-password" placeholder="كلمة المرور (6 أحرف على الأقل)">
-      <div class="auth-actions"><button class="btn" id="signupBtn">إنشاء حساب</button><button class="btn secondary" id="loginBtn">تسجيل الدخول</button></div>
-    </div>
-    <div class="account-line" id="accountStatus" aria-live="polite">غير مسجّل الدخول</div>
-    <button class="btn secondary hidden" id="logoutBtn">تسجيل الخروج</button>
-    <button class="btn secondary hidden" id="deleteAccountBtn" type="button">🗑️ حذف الحساب نهائياً</button>
-    <a class="btn secondary hidden" id="adminDashboardLink" href="./admin.html" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none">🛠️ لوحة الإدارة</a>
-    <p class="small"><a href="/delete-account.html">حذف الحساب والبيانات</a> · <a href="/privacy.html">سياسة الخصوصية</a></p>
-  </section>
-
-  <section class="stats">
-    <div class="stat"><b id="levelStat">1</b><span>المستوى الحالي</span></div>
-    <div class="stat"><b id="bestStat">0</b><span>أفضل نتيجة</span></div>
-    <div class="stat"><b id="playedStat">0</b><span>جولات مكتملة</span></div>
-  </section>
-  <section class="card" id="progressCard">
-    <div class="row"><strong>🚀 تقدّم اللاعب</strong><span class="tag" id="playerRankName">🌱 مبتدئ</span></div>
-    <div class="level-caption"><span id="levelProgressText">ابدأ رحلتك!</span><span id="levelProgressCount">0 / 10 إجابات</span></div>
-    <div class="level-progress"><div id="levelProgressBar"></div></div>
-    <div class="small" id="levelProgressHint">كل 10 إجابات محفوظة ترفع مستواك درجة.</div>
-    <div class="row" style="margin-top:18px"><strong>🏅 شارات الإنجاز</strong><span class="tag" id="achievementCount">0 / 5</span></div>
-    <div class="achievement-grid" id="achievementGrid"></div>
-  </section>
-
   </div>
   <div class="app-screen" id="screen-daily">
   <section class="card" id="dailyCard">
@@ -1081,7 +1231,46 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;bac
   </section>
   </div>
   <div class="app-screen" id="screen-profile">
-  <section class="card" <section class="card achievements-center" id="achievementsCenter">
+  <section class="card" id="authCard">
+    <div class="row"><strong>حساب اللاعب</strong><span class="tag">تسجيل آمن</span></div>
+    <p class="auth-note">التسجيل اختياري. أنشئ حساباً أو سجّل الدخول لحفظ تقدمك وفتح لوحة المتصدرين والتحديات اليومية.</p>
+    <div class="auth-grid" id="authForm">
+      <input class="auth-input" id="usernameInput" type="text" autocomplete="nickname" placeholder="اسم مستعار (لا تكتب بريدك أو معلوماتك الشخصية)">
+      <input class="auth-input" id="emailInput" type="email" autocomplete="email" placeholder="البريد الإلكتروني">
+      <input class="auth-input" id="passwordInput" type="password" autocomplete="current-password" placeholder="كلمة المرور (6 أحرف على الأقل)">
+      <div class="auth-actions"><button class="btn" id="signupBtn">إنشاء حساب</button><button class="btn secondary" id="loginBtn">تسجيل الدخول</button></div>
+      <button class="btn secondary hidden" id="completeUpgradeBtn" type="button">تأكيد كلمة المرور وإكمال الحساب</button>
+    </div>
+    <div class="account-line" id="accountStatus" aria-live="polite">غير مسجّل الدخول</div>
+    <button class="btn secondary hidden" id="logoutBtn">تسجيل الخروج</button>
+    <button class="btn secondary hidden" id="deleteAccountBtn" type="button">🗑️ حذف الحساب نهائياً</button>
+    <a class="btn secondary hidden" id="adminDashboardLink" href="./admin.html" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none">🛠️ لوحة الإدارة</a>
+    <p class="small"><a href="/delete-account.html">حذف الحساب والبيانات</a> · <a href="/privacy.html">سياسة الخصوصية</a></p>
+  </section>
+
+  <section class="stats">
+    <div class="stat"><b id="levelStat">1</b><span>المستوى الحالي</span></div>
+    <div class="stat"><b id="bestStat">0</b><span>أفضل نتيجة</span></div>
+    <div class="stat"><b id="playedStat">0</b><span>جولات مكتملة</span></div>
+  </section>
+  <section class="card" id="progressCard">
+    <div class="row"><strong>🚀 تقدّم اللاعب</strong><span class="tag" id="playerRankName">🌱 مبتدئ</span></div>
+    <div class="level-caption"><span id="levelProgressText">ابدأ رحلتك!</span><span id="levelProgressCount">0 / 10 إجابات</span></div>
+    <div class="level-progress"><div id="levelProgressBar"></div></div>
+    <div class="small" id="levelProgressHint">كل 10 إجابات محفوظة ترفع مستواك درجة.</div>
+    <div class="row" style="margin-top:18px"><strong>🏅 شارات الإنجاز</strong><span class="tag" id="achievementCount">0 / 5</span></div>
+    <div class="achievement-grid" id="achievementGrid"></div>
+  </section>
+
+
+  <!-- Guest mode and account perks -->
+  <section class="card hidden" id="accountPerksCard">
+    <div class="row"><strong>⭐ امتيازات الحساب</strong><span class="tag">افتح مزايا إضافية</span></div>
+    <p class="small">أنت تلعب الآن مباشرةً دون تسجيل. أنشئ حساباً اختيارياً لفتح الامتيازات الإضافية.</p>
+    <ul class="small"><li>حفظ النقاط والمستويات على حسابك.</li><li>المشاركة في لوحة المتصدرين.</li><li>تحدّي يومي وشارات وسلاسل إنجاز.</li><li>استعادة تقدمك عند تسجيل الدخول من جهاز آخر.</li></ul>
+    <button class="btn" type="button" id="guestUpgradeJump">أنشئ حساباً واحتفظ بتقدمك</button>
+  </section>
+  <section class="card achievements-center" id="achievementsCenter">
   <div class="row"><strong>🏅 مركز إنجازاتي</strong><span class="tag">شاراتي</span></div>
   <p class="small">اجمع الإنجازات بالمشاركة اليومية، وتابع تقدمك نحو الشارات التالية.</p>
   <div class="achievement-stats">
@@ -1098,7 +1287,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;bac
   <button class="btn secondary" type="button" id="refreshAchievements">تحديث الإنجازات</button>
 </section>
 
-id="historyCard">
+<section class="card" id="historyCard">
     <div class="row"><strong>📚 سجل إنجازاتي</strong><span class="tag">على هذا الجهاز</span></div>
     <p class="small">ملخص إنجازات حسابك، وآخر الجولات المسجلة على هذا الجهاز.</p>
     <div class="level-caption" id="historySummary"><span>الجولات المكتملة: 0</span><span>المسجلة هنا: 0</span></div>
@@ -1111,7 +1300,7 @@ id="historyCard">
     <button class="btn secondary" id="refreshLeaderboard">تحديث لوحة المتصدرين</button>
     <div class="leaderboard-list" id="leaderboardList"><div class="small">سجّل الدخول لعرض لوحة المتصدرين.</div></div>
   </section>
-  <div class="footer">نسخة اختبارية محلية — لا يوجد شراء أو جوائز نقدية أو إعلانات في هذه النسخة.</div>
+  <div class="footer">تحدّى نفسك، واجمع النقاط، وأنشئ حساباً اختيارياً لفتح المزيد من المزايا.</div>
   </div>
   <nav class="game-nav" aria-label="التنقل الرئيسي">
     <button class="nav-btn active" type="button" data-screen="home"><span>🏠</span>الرئيسية</button>
@@ -1121,6 +1310,28 @@ id="historyCard">
     <button class="nav-btn" type="button" data-screen="profile"><span>🏆</span>إنجازاتي</button>
   </nav>
 </main>
+
+<script>
+(()=>{
+ const $=id=>document.getElementById(id);
+ window.iqSetAccountMode=(session)=>{
+  const guest=!!session?.user?.is_anonymous;
+  $('accountPerksCard')?.classList.toggle('hidden',!guest);
+  $('achievementsCenter')?.classList.toggle('hidden',guest);
+  $('leaderboardCard')?.classList.toggle('hidden',guest);
+  const hint=$('authCard')?.querySelector('.auth-note');
+  if(hint) hint.textContent=guest
+   ? 'تلعب الآن دون تسجيل. أنشئ حساباً اختيارياً حتى تحفظ تقدمك وتفتح الامتيازات.'
+   : 'أنشئ حساباً أو سجّل دخولك حتى تحفظ تقدمك وتستفيد من مزايا الحساب.';
+  document.body.classList.toggle('iq-guest-mode',guest);
+ };
+ $('guestUpgradeJump')?.addEventListener('click',()=>{
+  $('authCard')?.scrollIntoView({behavior:'smooth',block:'center'});
+  $('usernameInput')?.focus();
+ });
+})();
+</script>
+
 <aside class="iq-mentor is-visible" id="iqMentor" aria-label="عبقور، مرشد تحدّي العقول">
  <div class="iq-mentor-bubble" id="iqMentorBubble" role="status" aria-live="polite">أهلاً! أنا عبقور، مرشدك في التحدّي. اضغط عليّ للمساعدة!</div>
  <button class="iq-mentor-toggle" id="iqMentorToggle" type="button" aria-label="تحدّث مع عبقور، مرشد اللعبة" aria-expanded="true">
@@ -1159,7 +1370,66 @@ const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_wzAJmA21MoRZhkokNj2RFw_lLqi8U9C
 const supabase = window.iqSupabase || createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 window.iqSupabase = supabase;
 
+// Privacy-safe diagnostics: never collect emails, passwords, tokens, answers, URLs, or stack traces.
+let iqDiagnosticCount = 0;
+function iqSafeDiagnosticMessage(value) {
+  return String(value || 'Unknown error')
+    .replace(/https?:\/\/\S+/gi, '[url]')
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[email]')
+    .replace(/(access_token|refresh_token|password|authorization|apikey)\s*[:=]\s*[^\s,;]+/gi, '$1=[redacted]')
+    .replace(/\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g, '[token]')
+    .slice(0, 500);
+}
+async function iqReportDiagnostic(eventType, message, details = {}) {
+  if (iqDiagnosticCount >= 30) return;
+  iqDiagnosticCount += 1;
+  try {
+    const { data } = await supabase.auth.getSession();
+    const userId = data.session?.user?.id;
+    if (!userId) return;
+    const safeDetails = {};
+    ['code', 'status', 'name', 'line', 'column', 'reason'].forEach(key => {
+      const value = details?.[key];
+      if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+        safeDetails[key] = typeof value === 'string' ? iqSafeDiagnosticMessage(value).slice(0, 120) : value;
+      }
+    });
+    const activeScreen = window.iqCurrentScreen ||
+      document.querySelector('.app-screen.active')?.id?.replace('screen-', '') || 'unknown';
+    const { error } = await supabase.from('app_diagnostics').insert({
+      user_id: userId,
+      event_type: eventType,
+      screen: String(activeScreen).slice(0, 40),
+      message: iqSafeDiagnosticMessage(message),
+      details: safeDetails,
+      app_version: '0.1.0',
+      platform: Capacitor.getPlatform()
+    });
+    if (error) console.debug('Diagnostic upload unavailable:', error.code || error.message);
+  } catch (error) {
+    console.debug('Diagnostic upload skipped:', error?.message || error);
+  }
+}
+window.iqReportDiagnostic = iqReportDiagnostic;
+window.addEventListener('error', event => {
+  void iqReportDiagnostic('app_error', event.message, { line: event.lineno || 0, column: event.colno || 0 });
+});
+window.addEventListener('unhandledrejection', event => {
+  const reason = event.reason;
+  void iqReportDiagnostic('promise_rejection', reason?.message || reason, { name: reason?.name || typeof reason });
+});
+window.addEventListener('offline', () => {
+  void iqReportDiagnostic('network_offline', 'انقطع اتصال الإنترنت');
+});
+
 const $ = id => document.getElementById(id);
+function withTimeout(promise, milliseconds, label) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = window.setTimeout(() => reject(new Error(label || 'انتهت مهلة الاتصال')), milliseconds);
+  });
+  return Promise.race([promise, timeout]).finally(() => window.clearTimeout(timer));
+}
 function showAppScreen(name){
   document.querySelectorAll('.app-screen').forEach(screen=>screen.classList.toggle('active',screen.id==='screen-'+name));
   document.querySelectorAll('.nav-btn').forEach(button=>button.classList.toggle('active',button.dataset.screen===name));
@@ -1332,20 +1602,6 @@ $('soundToggle').addEventListener('click', () => {
 });
 updateSoundButton();
 window.iqCurrentScreen = document.querySelector('.app-screen.active')?.id?.replace('screen-','') || 'home';
-(()=>{
- const screen=document.getElementById('launchScreen'),button=document.getElementById('launchStart'),percent=document.getElementById('launchPercent');
- if(!screen||!button)return;
- setTimeout(()=>{percent.textContent='اكتمل التجهيز…';button.classList.add('ready');},2750);
- button.addEventListener('click',async()=>{
-  button.disabled=true;button.textContent='لحظة ونبدأ…';
-  if(soundEnabled){await startBackgroundMusic();}
-  screen.classList.add('launch-hidden');
-  setTimeout(()=>{
-   screen.remove();
-   if(typeof window.iqStartCoachGuide==='function') window.iqStartCoachGuide();
-  },700);
- });
-})();
 let questions = [], qIndex = 0, earned = 0, locked = false;
 let roundFinished = false, nextTransitioning = false;
 let currentStreak = 0, bestStreak = 0;
@@ -1528,6 +1784,11 @@ function applyServerStats(data) {
 async function loadLeaderboard() {
   const loadVersion = ++leaderboardLoadVersion;
   const list = $('leaderboardList');
+  const { data: authData } = await supabase.auth.getSession();
+  if (!authData.session || authData.session.user.is_anonymous) {
+    list.textContent = 'لوحة المتصدرين من امتيازات الحساب المسجّل. أنشئ حساباً من الملف الشخصي للمشاركة.';
+    return;
+  }
   list.innerHTML = '<div class="small">جارٍ تحميل الترتيب...</div>';
   const { data, error } = await supabase.rpc('get_quiz_leaderboard');
   if (loadVersion !== leaderboardLoadVersion) return;
@@ -1577,7 +1838,8 @@ function updateDailyHomeCard(status = dailyHomeStatus) {
   const labels = {
     available: 'متاح الآن — جاوب واربح 20 نقطة',
     completed: 'أكملت تحدّي اليوم — انتظر التحدّي الجديد',
-    login: 'سجّل الدخول حتى تشارك وتجمع النقاط',
+    login: 'العب مباشرة — أنشئ حساباً لفتح الامتيازات',
+    guest: 'تحدّي اليوم من امتيازات الحساب المسجّل',
     missing: 'لا يوجد تحدٍّ مجدول لهذا اليوم',
     loading: 'جارٍ التحقق من تحدّي اليوم...',
     error: 'تعذّر التحقق — حاول مرة ثانية'
@@ -1623,10 +1885,10 @@ function renderAchievementCenter(streak) {
 }
 async function loadDailyStreak() {
   const { data: sessionData } = await supabase.auth.getSession();
-  if (!sessionData.session) {
+  if (!sessionData.session || sessionData.session.user.is_anonymous) {
     updateDailyStreakDisplay(null);
     renderAchievementCenter(null);
-    $('achievementNext').textContent = 'سجّل الدخول حتى نعرض إنجازاتك المحفوظة.';
+    $('achievementNext').textContent = 'تحدّي اليوم والشارات من امتيازات الحساب المسجّل.';
     return;
   }
   const { data, error } = await supabase.rpc('get_daily_challenge_streak');
@@ -1649,7 +1911,7 @@ function refreshDailyCountdown() {
 }
 window.setInterval(refreshDailyCountdown, 1000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshDailyCountdown(); });
-updateDailyHomeCard('login');
+updateDailyHomeCard('guest');
 $('refreshAchievements')?.addEventListener('click', loadDailyStreak);
 async function loadDailyChallenge() {
   const loadVersion = ++dailyLoadVersion;
@@ -1657,10 +1919,10 @@ async function loadDailyChallenge() {
   const answersEl = $('dailyAnswers');
   const feedbackEl = $('dailyFeedback');
   const { data: sessionData } = await supabase.auth.getSession();
-  if (!sessionData.session) {
-    updateDailyHomeCard('login');
+  if (!sessionData.session || sessionData.session.user.is_anonymous) {
+    updateDailyHomeCard(sessionData.session ? 'guest' : 'login');
     updateDailyStreakDisplay(null);
-    questionEl.textContent = 'سجّل الدخول لعرض تحدّي اليوم.';
+    questionEl.textContent = sessionData.session ? 'تحدّي اليوم متاح للحسابات المسجّلة فقط. أنشئ حساباً للمشاركة.' : 'تابع اللعب في بقية الأقسام، وأنشئ حساباً للمزايا الإضافية.';
     answersEl.innerHTML = '';
     feedbackEl.textContent = '';
     return;
@@ -1675,6 +1937,7 @@ async function loadDailyChallenge() {
   // Ignore stale responses so the same four answer buttons are never appended twice.
   if (loadVersion !== dailyLoadVersion) return;
   if (error) {
+    void iqReportDiagnostic('daily_load_error', error.message, { code: error.code, status: error.status });
     updateDailyHomeCard('error');
     questionEl.textContent = 'تعذّر تحميل تحدّي اليوم.';
     feedbackEl.textContent = error.message;
@@ -1711,8 +1974,9 @@ async function loadDailyChallenge() {
 }
 async function submitDailyAnswer(challengeId, letter) {
   const { data: submitSession } = await supabase.auth.getSession();
-  const submitUserId = submitSession.session?.user?.id;
-  if (!submitUserId) return;
+  const submitUser = submitSession.session?.user;
+  const submitUserId = submitUser?.id;
+  if (!submitUserId || submitUser.is_anonymous) return;
   const answerLoadVersion = dailyLoadVersion;
   const buttons = [...$('dailyAnswers').children];
   buttons.forEach(button => button.disabled = true);
@@ -1724,6 +1988,7 @@ async function submitDailyAnswer(challengeId, letter) {
   const { data: latestSession } = await supabase.auth.getSession();
   if (latestSession.session?.user?.id !== submitUserId || answerLoadVersion !== dailyLoadVersion) return;
   if (error) {
+    void iqReportDiagnostic('daily_answer_error', error.message, { code: error.code, status: error.status });
     buttons.forEach(button => button.disabled = false);
     $('dailyFeedback').textContent = 'تعذّر حفظ الإجابة: ' + error.message;
     return;
@@ -1753,7 +2018,7 @@ async function submitDailyAnswer(challengeId, letter) {
 async function loadQuestionBankStatus() {
   const statusEl = $('bankProgress');
   if (!statusEl) return;
-  const { data, error } = await supabase.rpc('get_quiz_question_bank_status');
+  const { data, error } = await withTimeout(supabase.rpc('get_quiz_question_bank_status'), 8000, 'انتهت مهلة تحميل إحصائيات الأسئلة');
   if (error || !data) {
     statusEl.textContent = 'تعذّر تحميل عدد الأسئلة المتبقية حالياً.';
     return;
@@ -1774,21 +2039,46 @@ async function loadRound() {
   const loadVersion = ++roundLoadVersion;
   roundFinished = false;
   nextTransitioning = false;
-  const { data: sessionData } = await supabase.auth.getSession();
-  if (loadVersion !== roundLoadVersion) return;
-  if (!sessionData.session) {
-    showGameMessage('سجّل الدخول أولاً حتى نحمّل الأسئلة ونحفظ نقاطك بأمان.');
+  let sessionData;
+  try {
+    const sessionResult = await withTimeout(supabase.auth.getSession(), 10000, 'انتهت مهلة تجهيز جلسة اللاعب');
+    sessionData = sessionResult.data;
+  } catch (error) {
+    void iqReportDiagnostic('auth_session_error', error.message, { name: error.name });
+    showGameMessage('الاتصال تأخر أثناء تجهيز اللاعب. افحص الإنترنت واضغط «العب جولة جديدة» للمحاولة مرة ثانية.');
     return;
   }
-  await loadQuestionBankStatus();
+  if (loadVersion !== roundLoadVersion) return;
+  if (!sessionData.session) {
+    showGameMessage('جارٍ تجهيز اللعب التلقائي. إذا استمر التعطّل، تحقق من اتصال الإنترنت وإعدادات الدخول التلقائي.');
+    return;
+  }
+  // The optional bank counter must never block the actual question request.
+  void loadQuestionBankStatus().catch(error => {
+    void iqReportDiagnostic('question_load_error', error.message, { name: error.name, reason: 'bank_status_timeout' });
+  });
 
   showGameMessage('جارٍ تحميل الأسئلة...');
   const selectedDifficulty = $('difficultySelect').value;
-  const { data, error } = await supabase.rpc('get_quiz_questions_by_difficulty', { p_difficulty: selectedDifficulty });
+  let questionResult;
+  try {
+    questionResult = await withTimeout(
+      supabase.rpc('get_quiz_questions_by_difficulty', { p_difficulty: selectedDifficulty }),
+      15000,
+      'انتهت مهلة تحميل الأسئلة'
+    );
+  } catch (error) {
+    void iqReportDiagnostic('question_load_error', error.message, { name: error.name, reason: 'question_rpc_timeout' });
+    showGameMessage('تأخر تحميل الأسئلة بسبب الاتصال بالخادم. افحص الإنترنت ثم اضغط «العب جولة جديدة».');
+    $('feedback').textContent = error.message;
+    return;
+  }
+  const { data, error } = questionResult;
   if (loadVersion !== roundLoadVersion) return;
   const { data: latestSession } = await supabase.auth.getSession();
   if (loadVersion !== roundLoadVersion || latestSession.session?.user?.id !== sessionData.session.user.id) return;
   if (error) {
+    void iqReportDiagnostic('question_load_error', error.message, { code: error.code, status: error.status });
     showGameMessage('تعذّر تحميل الأسئلة. تأكد من تنفيذ ملف إعداد Supabase SQL ثم أعد المحاولة.');
     $('feedback').textContent = error.message;
     return;
@@ -1921,6 +2211,7 @@ async function chooseAnswer(letter) {
     return;
   }
   if (error) {
+    void iqReportDiagnostic('answer_submit_error', error.message, { code: error.code, status: error.status });
     locked = false;
     buttons.forEach(b => b.disabled = false);
     $('feedback').textContent = 'تعذّر حفظ الإجابة: ' + error.message;
@@ -2002,31 +2293,70 @@ $('refreshLeaderboard').addEventListener('click', loadLeaderboard);
 $('difficultySelect').addEventListener('change', loadRound);
 $('resetBtn').classList.add('hidden');
 
-const { data: initialSession } = await supabase.auth.getSession();
+let initialSession = { session: null };
+try {
+  const sessionResult = await withTimeout(supabase.auth.getSession(), 12000, 'انتهت مهلة قراءة جلسة اللاعب');
+  initialSession = sessionResult.data || initialSession;
+} catch (error) {
+  console.warn('Could not read the current player session:', error.message);
+  void iqReportDiagnostic('auth_session_error', error.message, { name: error.name, reason: 'get_session_timeout' });
+}
+if (!initialSession.session) {
+  // Create the anonymous player session automatically; no account-choice screen is shown.
+  try {
+    const guestResult = await withTimeout(supabase.auth.signInAnonymously(), 12000, 'انتهت مهلة إنشاء جلسة اللعب التلقائي');
+    if (guestResult.data?.session) initialSession.session = guestResult.data.session;
+    else if (guestResult.error) {
+      console.warn('Automatic guest session unavailable:', guestResult.error.message);
+      void iqReportDiagnostic('auth_session_error', guestResult.error.message, { code: guestResult.error.code, status: guestResult.error.status });
+      showGameMessage('تعذّر إنشاء جلسة اللعب التلقائي: ' + guestResult.error.message + '. تأكد من تفعيل Anonymous Sign-Ins في Supabase ثم أعد المحاولة.');
+    }
+  } catch (error) {
+    console.warn('Automatic guest session timed out:', error.message);
+    void iqReportDiagnostic('auth_session_error', error.message, { name: error.name, reason: 'anonymous_sign_in_timeout' });
+    showGameMessage('تأخر إنشاء جلسة اللعب التلقائي. افحص الإنترنت واضغط «العب جولة جديدة» للمحاولة مرة ثانية.');
+  }
+}
 if (initialSession.session) {
   setBestRoundPlayer(initialSession.session.user.id);
-}
-await loadLeaderboard();
-if (initialSession.session) {
-  const { data: stats } = await supabase.rpc('get_quiz_stats');
-  applyServerStats(stats);
-  await loadDailyChallenge();
+  window.iqSetAccountMode?.(initialSession.session);
+  if (!initialSession.session.user.is_anonymous) {
+    void loadLeaderboard().catch(error => console.warn('Leaderboard startup skipped:', error));
+    void loadDailyChallenge().catch(error => console.warn('Daily challenge startup skipped:', error));
+  }
+  void iqReportDiagnostic('session_ready', 'تم تجهيز جلسة اللاعب');
+  // Stats are secondary; let the question round start without waiting for them.
+  void withTimeout(supabase.rpc('get_quiz_stats'), 10000, 'انتهت مهلة تحميل النقاط')
+    .then(({ data, error }) => {
+      if (error) void iqReportDiagnostic('startup_stats_error', error.message, { code: error.code });
+      else applyServerStats(data);
+    })
+    .catch(error => void iqReportDiagnostic('startup_stats_error', error.message, { name: error.name }));
   await loadRound();
 } else {
-  showGameMessage('سجّل الدخول أولاً حتى نحمّل الأسئلة ونحفظ نقاطك بأمان.');
+  window.iqSetAccountMode?.(null);
+  if (!$('question').textContent.trim()) {
+    showGameMessage('اللعبة جاهزة، لكن تعذّر إنشاء جلسة اللاعب. افحص إعدادات الدخول التلقائي والإنترنت.');
+  }
 }
+window.dispatchEvent(new Event('iq:app-ready'));
 let playerRefreshVersion = 0;
 supabase.auth.onAuthStateChange(async (_event, session) => {
   const refreshVersion = ++playerRefreshVersion;
   if (session) {
+    window.iqSetAccountMode?.(session);
     setBestRoundPlayer(session.user.id);
     // Clear the previous account's visible stats while the new account loads.
     totalScore = 0;
     answeredCount = 0;
     questionAnsweredCount = 0;
     updateStats();
-    loadLeaderboard();
-    loadDailyChallenge();
+    if (!session.user.is_anonymous) {
+      loadLeaderboard();
+      loadDailyChallenge();
+    } else {
+      $('leaderboardList').textContent = 'لوحة المتصدرين من امتيازات الحساب المسجّل.';
+    }
     loadRound();
     const { data: stats, error } = await supabase.rpc('get_quiz_stats');
     if (refreshVersion !== playerRefreshVersion) return;
@@ -2036,6 +2366,7 @@ supabase.auth.onAuthStateChange(async (_event, session) => {
     }
     applyServerStats(stats);
   } else {
+    window.iqSetAccountMode?.(null);
     setBestRoundPlayer('guest');
     totalScore = 0;
     answeredCount = 0;
@@ -2043,8 +2374,8 @@ supabase.auth.onAuthStateChange(async (_event, session) => {
     $('dailyQuestion').textContent = 'سجّل الدخول لعرض تحدّي اليوم.';
     $('dailyAnswers').replaceChildren();
     $('dailyFeedback').textContent = '';
-    $('leaderboardList').textContent = 'سجّل الدخول لعرض لوحة المتصدرين.';
-    showGameMessage('سجّل الدخول أولاً حتى نحمّل الأسئلة ونحفظ نقاطك بأمان.');
+    $('leaderboardList').textContent = 'جارٍ تجهيز اللعب التلقائي. يمكنك إنشاء حساب من تبويب إنجازاتي.';
+    showGameMessage('جارٍ تجهيز اللعبة...');
   }
 });
 </script>
@@ -2059,9 +2390,57 @@ async function showSession(session){
   const user=session?.user;
   if(!user){
     status.textContent='غير مسجّل الدخول';
+    el('authForm').classList.remove('hidden');
     el('logoutBtn').classList.add('hidden');
     el('deleteAccountBtn').classList.add('hidden');
     el('adminDashboardLink').classList.add('hidden');
+    el('completeUpgradeBtn').classList.add('hidden');
+    window.iqSetAccountMode?.(null);
+    return;
+  }
+  window.iqSetAccountMode?.(session);
+  window.iqSetBestRoundPlayer?.(user.id);
+  const pendingUpgrade=localStorage.getItem('iq-guest-upgrade-pending')==='1';
+  if(user.is_anonymous){
+    status.textContent=pendingUpgrade
+      ? 'أرسلنا رسالة تأكيد إلى بريدك. افتحها لإكمال إعداد حسابك مع الاحتفاظ بتقدمك.'
+      : 'تلعب الآن دون تسجيل — تقدمك محفوظ على هذا الجهاز.';
+    el('authForm').classList.remove('hidden');
+    el('logoutBtn').classList.add('hidden');
+    el('deleteAccountBtn').classList.add('hidden');
+    el('adminDashboardLink').classList.add('hidden');
+    el('completeUpgradeBtn').classList.add('hidden');
+    el('usernameInput').classList.remove('hidden');
+    el('emailInput').classList.remove('hidden');
+    el('passwordInput').classList.remove('hidden');
+    el('signupBtn').classList.remove('hidden');
+    el('loginBtn').classList.remove('hidden');
+    el('signupBtn').textContent='ربط تقدمي بحساب';
+    el('loginBtn').textContent='دخول إلى حساب موجود';
+    return;
+  }
+  if(pendingUpgrade && !(user.email_confirmed_at || user.confirmed_at)){
+    status.textContent='بانتظار تأكيد البريد الإلكتروني. افتح رسالة التأكيد التي وصلتك.';
+    el('authForm').classList.add('hidden');
+    el('logoutBtn').classList.add('hidden');
+    el('deleteAccountBtn').classList.add('hidden');
+    el('completeUpgradeBtn').classList.add('hidden');
+    return;
+  }
+  if(pendingUpgrade && (user.email_confirmed_at || user.confirmed_at)){
+    status.textContent='تم تأكيد البريد. أدخل كلمة مرور لحماية حسابك وإكمال الترقية.';
+    el('authForm').classList.remove('hidden');
+    el('usernameInput').classList.add('hidden');
+    el('emailInput').classList.add('hidden');
+    el('signupBtn').classList.add('hidden');
+    el('loginBtn').classList.add('hidden');
+    el('passwordInput').classList.remove('hidden');
+    el('passwordInput').value='';
+    el('passwordInput').placeholder='أنشئ كلمة مرور من 6 أحرف على الأقل';
+    el('passwordInput').autocomplete='new-password';
+    el('completeUpgradeBtn').classList.remove('hidden');
+    el('logoutBtn').classList.add('hidden');
+    el('deleteAccountBtn').classList.add('hidden');
     return;
   }
   const metadataName=(user.user_metadata?.username || '').toString().trim();
@@ -2069,13 +2448,19 @@ async function showSession(session){
   if(profileReadError) console.warn('Profile lookup:',profileReadError.message);
   const savedName=(profile?.username || '').toString().trim();
   const candidate=metadataName || savedName;
-  // Never publish an email address as a leaderboard display name.
   const username=(candidate && !candidate.includes('@') ? candidate : 'لاعب-'+user.id.slice(0,6)).slice(0,32);
-  window.iqSetBestRoundPlayer?.(user.id);
   status.textContent='مسجّل الدخول: '+username;
+  el('authForm').classList.add('hidden');
+  el('completeUpgradeBtn').classList.add('hidden');
   el('logoutBtn').classList.remove('hidden');
   el('deleteAccountBtn').classList.remove('hidden');
-  el('authForm').classList.add('hidden');
+  el('adminDashboardLink').classList.add('hidden');
+  el('usernameInput').classList.remove('hidden');
+  el('emailInput').classList.remove('hidden');
+  el('signupBtn').classList.remove('hidden');
+  el('loginBtn').classList.remove('hidden');
+  el('signupBtn').textContent='إنشاء حساب';
+  el('loginBtn').textContent='تسجيل الدخول';
   // Only the display name is public; the email remains in Supabase Auth.
   const {error}=await supabase.from('profiles').upsert({id:user.id,username},{onConflict:'id'});
   if(error) console.warn('Profile setup:',error.message);
@@ -2084,7 +2469,31 @@ el('signupBtn').addEventListener('click',async()=>{
   const username=el('usernameInput').value.trim();
   const email=el('emailInput').value.trim();
   const password=el('passwordInput').value;
-  if(!username||username.length<3||username.length>24||username.includes('@')||!email||password.length<6){status.textContent='اختر اسماً مستعاراً من 3 إلى 24 حرفاً دون بريد إلكتروني، وأدخل بريدك وكلمة مرور من 6 أحرف على الأقل.';return;}
+  if(!username||username.length<3||username.length>24||username.includes('@')||!email){
+    status.textContent='اختر اسماً مستعاراً من 3 إلى 24 حرفاً دون بريد إلكتروني، وأدخل بريدك الإلكتروني.';
+    return;
+  }
+  const {data:sessionData}=await supabase.auth.getSession();
+  const currentUser=sessionData.session?.user;
+  if(currentUser?.is_anonymous){
+    setBusy(true);status.textContent='جارٍ ربط تقدم الضيف ببريدك الإلكتروني...';
+    const {data,error}=await supabase.auth.updateUser({email, data:{username}});
+    setBusy(false);
+    if(error){
+      status.textContent='تعذّر ربط البريد. إذا كان البريد مستخدماً بحساب سابق، سجّل الدخول لذلك الحساب؛ لن ننقل تقدم الضيف إليه تلقائياً.';
+      console.warn('Guest account upgrade:',error.message);
+      return;
+    }
+    localStorage.setItem('iq-guest-upgrade-pending','1');
+    status.textContent='تم إرسال رسالة تأكيد إلى بريدك. افتحها من دون تسجيل الخروج، وبعد التأكيد ارجع للتطبيق وأنشئ كلمة مرور. سيبقى تقدم الضيف مرتبطاً بالحساب نفسه.';
+    const {data:latest}=await supabase.auth.getSession();
+    await showSession(latest.session);
+    return;
+  }
+  if(password.length<6){
+    status.textContent='كلمة المرور يجب أن تكون 6 أحرف على الأقل.';
+    return;
+  }
   setBusy(true);status.textContent='جارٍ إنشاء الحساب...';
   const {data,error}=await supabase.auth.signUp({email,password,options:{data:{username}}});
   setBusy(false);
@@ -2092,12 +2501,27 @@ el('signupBtn').addEventListener('click',async()=>{
   if(data.session){await showSession(data.session);status.textContent='تم إنشاء الحساب وتسجيل الدخول: '+username;}
   else status.textContent='تم إرسال طلب التسجيل. افحص بريدك إذا طُلب تأكيده، ثم سجّل الدخول.';
 });
+el('completeUpgradeBtn').addEventListener('click',async()=>{
+  const password=el('passwordInput').value;
+  if(password.length<6){status.textContent='كلمة المرور يجب أن تكون 6 أحرف على الأقل.';return;}
+  el('completeUpgradeBtn').disabled=true;status.textContent='جارٍ إكمال إنشاء الحساب...';
+  const {data,error}=await supabase.auth.updateUser({password});
+  el('completeUpgradeBtn').disabled=false;
+  if(error){status.textContent='تعذّر حفظ كلمة المرور: '+error.message;return;}
+  localStorage.removeItem('iq-guest-upgrade-pending');
+  const {data:latest}=await supabase.auth.getSession();
+  await showSession(latest.session);
+  status.textContent='تم إنشاء حسابك بنجاح، وتقدم الضيف أصبح محفوظاً بحسابك.';
+});
 el('loginBtn').addEventListener('click',async()=>{
   const email=el('emailInput').value.trim();const password=el('passwordInput').value;
   if(!email||!password){status.textContent='أدخل البريد الإلكتروني وكلمة المرور.';return;}
+  const {data:current}=await supabase.auth.getSession();
+  if(current.session?.user?.is_anonymous && !window.confirm('إذا دخلت إلى حساب موجود، تقدم الضيف الحالي لن ينتقل تلقائياً إلى ذلك الحساب. هل تريد المتابعة؟')) return;
   setBusy(true);status.textContent='جارٍ تسجيل الدخول...';
   const {data,error}=await supabase.auth.signInWithPassword({email,password});setBusy(false);
   if(error){status.textContent='تعذّر تسجيل الدخول: '+error.message;return;}
+  localStorage.removeItem('iq-guest-upgrade-pending');
   await showSession(data.session);
 });
 el('logoutBtn').addEventListener('click',async()=>{const {error}=await supabase.auth.signOut();if(error){status.textContent='تعذّر تسجيل الخروج: '+error.message;return;}el('authForm').classList.remove('hidden');status.textContent='تم تسجيل الخروج.';el('logoutBtn').classList.add('hidden');el('adminDashboardLink').classList.add('hidden');});
@@ -2133,8 +2557,8 @@ el('deleteAccountBtn').addEventListener('click',async()=>{
 });
 
 const {data:{session}}=await supabase.auth.getSession();
-if(session) await showSession(session);
-supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authForm').classList.remove('hidden');showSession(null);}});
+await showSession(session);
+supabase.auth.onAuthStateChange((_event,newSession)=>{void showSession(newSession);});
 </script>
 
 <script>
@@ -2277,6 +2701,7 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authFo
   });
   submitting=false;
   if(error){
+   void iqReportDiagnostic('puzzle_answer_error', error.message, { code: error.code, status: error.status });
    buttons.forEach(b=>b.disabled=false);
    $('puzzleFeedback').textContent='تعذّر تسجيل الإجابة. تحقق من الاتصال ثم اضغط مرة أخرى.';
    return;
@@ -2371,14 +2796,21 @@ if(location.hostname!=="localhost" && location.hostname!=="127.0.0.1" && "servic
 </script>
 
 <script>
-// Safety fallback: never leave the launch overlay covering the app indefinitely
-// if module startup or an initialization request stalls.
+// If the app module fails before it can signal readiness, keep the launch screen
+// visible and offer a retry instead of silently removing the loading screen.
 window.setTimeout(() => {
   const launchScreen = document.getElementById('launchScreen');
-  if (!launchScreen || launchScreen.classList.contains('launch-hidden')) return;
-  launchScreen.classList.add('launch-hidden');
-  window.setTimeout(() => launchScreen.remove(), 650);
-}, 8000);
+  const launchStart = document.getElementById('launchStart');
+  if (!launchScreen || launchScreen.dataset.ready === 'true' || launchScreen.dataset.retry === 'true') return;
+  const status = document.getElementById('launchStatus');
+  if (status) status.textContent = 'تعذّر إكمال تشغيل اللعبة. اضغط إعادة المحاولة أو افحص اتصال الإنترنت.';
+  if (launchStart) {
+    launchStart.disabled = false;
+    launchStart.textContent = 'إعادة المحاولة ↻';
+    launchStart.classList.add('ready');
+  }
+  launchScreen.dataset.retry = 'true';
+}, 22000);
 </script>
 
 <script>
@@ -2563,7 +2995,8 @@ window.setTimeout(() => {
 
 </script>
 
-<script>
+<script type="module">
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
 (()=>{
  const mentor=document.getElementById('iqMentor'),bubble=document.getElementById('iqMentorBubble'),toggle=document.getElementById('iqMentorToggle');
  if(!mentor||!bubble||!toggle)return;
@@ -2576,25 +3009,44 @@ window.setTimeout(() => {
   profile:['تابع إنجازاتك ورتبك؛ كل إجابة صحيحة تقرّبك من هدفك.','استمر بالتعلّم، وكل محاولة تضيف لك خبرة!']
  };
  const defaultTips={home:tips.home[0],play:tips.play[0],daily:tips.daily[0],puzzles:tips.puzzles[0],visual:tips.visual[0],profile:tips.profile[0]};
- let tipIndex=0,currentScreen='home',speaking=false;
- function speak(message){
-  if(!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window))return;
+ let tipIndex=0,currentScreen='home',speaking=false,bubbleTimer=null;
+ async function speak(message){
+  if(!message)return false;
+  speaking=true;mentor.classList.add('is-speaking');
   try{
-   window.speechSynthesis.cancel();
-   const utterance=new SpeechSynthesisUtterance(message);
-   utterance.lang='ar-IQ';utterance.rate=.92;utterance.pitch=1.12;
-   const voices=window.speechSynthesis.getVoices();
-   const arabic=voices.find(v=>/^ar([-_]|$)/i.test(v.lang));
-   if(arabic)utterance.voice=arabic;
-   utterance.onstart=()=>{speaking=true;mentor.classList.add('is-speaking')};
-   const stop=()=>{speaking=false;mentor.classList.remove('is-speaking')};
-   utterance.onend=stop;utterance.onerror=stop;
-   window.speechSynthesis.speak(utterance);
-  }catch(error){speaking=false;mentor.classList.remove('is-speaking')}
+   await TextToSpeech.stop().catch(()=>{});
+   let language='ar-IQ';
+   try{
+    const result=await TextToSpeech.getSupportedLanguages();
+    const arabic=(result?.languages||[]).find(lang=>/^ar-IQ$/i.test(lang))
+      ||(result?.languages||[]).find(lang=>/^ar([-_]|$)/i.test(lang));
+    if(arabic)language=arabic;
+   }catch(_){}
+   await TextToSpeech.speak({text:message,lang:language,rate:.88,pitch:1.08,volume:1,queueStrategy:0});
+   speaking=false;mentor.classList.remove('is-speaking');return true;
+  }catch(nativeError){
+   if('speechSynthesis' in window&&'SpeechSynthesisUtterance' in window){
+    try{
+     const synth=window.speechSynthesis;synth.cancel();
+     const utterance=new SpeechSynthesisUtterance(message);
+     utterance.lang='ar-IQ';utterance.rate=.88;utterance.pitch=1.08;utterance.volume=1;
+     const voices=synth.getVoices();const voice=voices.find(v=>/^ar([-_]|$)/i.test(v.lang));
+     if(voice)utterance.voice=voice;
+     utterance.onend=utterance.onerror=()=>{speaking=false;mentor.classList.remove('is-speaking')};
+     synth.resume();synth.speak(utterance);return true;
+    }catch(_){}
+   }
+   speaking=false;mentor.classList.remove('is-speaking');
+   bubble.textContent='تعذّر تشغيل الصوت العربي. قد يحتاج الجهاز إلى تفعيل محرك النطق وتوفير صوت عربي.';
+   bubble.hidden=false;return false;
+  }
  }
  function show(message,state='idle',say=false){
   if(!message)return;
   bubble.textContent=message;bubble.hidden=false;
+  if(bubbleTimer)clearTimeout(bubbleTimer);
+  toggle.setAttribute('aria-expanded','true');
+  bubbleTimer=setTimeout(()=>{bubble.hidden=true;toggle.setAttribute('aria-expanded','false')},7000);
   mentor.classList.remove('is-thinking','is-happy','is-speaking','is-curious','is-worried','is-celebrating');
   if(state==='thinking')mentor.classList.add('is-thinking');
   if(state==='happy'||state==='celebrating')mentor.classList.add('is-happy');
@@ -2604,12 +3056,31 @@ window.setTimeout(() => {
   toggle.setAttribute('aria-expanded','true');
   if(say)speak(message);
  }
+ let revealTimer=null,welcomeTimer=null;
  function syncScreen(){
   const active=document.querySelector('.app-screen.active');
   const name=active?.id?.replace('screen-','')||'home';
   currentScreen=Object.prototype.hasOwnProperty.call(tips,name)?name:'home';
-  mentor.classList.add('is-visible');
-  tipIndex=0;show(defaultTips[currentScreen],currentScreen==='play'?'thinking':'idle',false);
+  const mentorPositions={home:'left',play:'right',daily:'left',puzzles:'right',visual:'left',profile:'right'};
+  mentor.dataset.position=mentorPositions[currentScreen]||'left';
+  mentor.dataset.screen=currentScreen;
+  const launch=document.getElementById('launchScreen');
+  if(launch&&!launch.classList.contains('launch-hidden')){
+   mentor.classList.remove('is-visible');
+   bubble.hidden=true;
+   return;
+  }
+  if(revealTimer)clearTimeout(revealTimer);
+  if(launch){
+   mentor.classList.remove('is-visible');
+   revealTimer=setTimeout(()=>mentor.classList.add('is-visible'),720);
+  }else{
+   mentor.classList.add('is-visible');
+  }
+  tipIndex=0;
+  if(bubbleTimer)clearTimeout(bubbleTimer);
+  bubble.hidden=true;toggle.setAttribute('aria-expanded','false');
+  mentor.classList.remove('is-thinking','is-happy','is-speaking','is-curious','is-worried','is-celebrating');
  }
  toggle.addEventListener('click',()=>{
   const list=tips[currentScreen]||tips.home;
@@ -2633,9 +3104,19 @@ window.setTimeout(() => {
  const resultTitle=document.getElementById('resultTitle');
  if(resultTitle)new MutationObserver(()=>{if((resultTitle.textContent||'').trim())show('أحسنت! أنهيت الجولة، استعد للتحدّي القادم! 🎓','celebrating');}).observe(resultTitle,{childList:true,characterData:true,subtree:true});
  syncScreen();
+ const launchScreen=document.getElementById('launchScreen');
+ if(launchScreen)new MutationObserver(syncScreen).observe(launchScreen,{attributes:true,attributeFilter:['class']});
  const launchStart=document.getElementById('launchStart');
  if(launchStart)launchStart.addEventListener('click',()=>{
-  window.setTimeout(()=>show('أهلاً بك! أنا عبقور، مرشدك في تحدّي العقول. خلّينا نبدأ رحلة المعرفة ونصعد سويّة إلى القمّة!','happy',true),450);
+  const launchScreen=document.getElementById('launchScreen');
+  if(!launchScreen || launchScreen.dataset.ready!=='true' || !launchScreen.classList.contains('launch-hidden'))return;
+  // Start speech synchronously within the real tap gesture for Android WebView.
+  const welcome='أهلاً بك! أنا عبقور، مرشدك في تحدّي العقول. خلّينا نبدأ رحلة المعرفة ونصعد سويّة إلى القمّة!';
+  speak(welcome);
+  if(bubbleTimer)clearTimeout(bubbleTimer);
+  // Keep welcome timing separate: launch-screen observers may reschedule mentor visibility.
+  if(welcomeTimer)clearTimeout(welcomeTimer);
+  welcomeTimer=setTimeout(()=>show(welcome,'happy',false),760);
  },{once:true});
  document.addEventListener('click',event=>{
   const nav=event.target.closest('[data-screen],[data-open-screen]');if(!nav)return;
