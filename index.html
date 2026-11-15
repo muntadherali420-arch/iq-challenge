@@ -1260,7 +1260,7 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
   $('leaderboardCard')?.classList.toggle('hidden',guest);
   const hint=$('authCard')?.querySelector('.auth-note');
   if(hint) hint.textContent=guest
-   ? 'أنت تلعب كضيف. تقدر تكمل اللعب مجاناً، أو تنشئ حساباً ببريد جديد حتى تحتفظ بتقدمك وتفتح الامتيازات.'
+   ? 'تلعب الآن دون تسجيل. أنشئ حساباً اختيارياً حتى تحفظ تقدمك وتفتح الامتيازات.'
    : 'أنشئ حساباً أو سجّل دخولك حتى تحفظ تقدمك وتستفيد من مزايا الحساب.';
   document.body.classList.toggle('iq-guest-mode',guest);
  };
@@ -1802,7 +1802,7 @@ async function loadDailyChallenge() {
   if (!sessionData.session || sessionData.session.user.is_anonymous) {
     updateDailyHomeCard(sessionData.session ? 'guest' : 'login');
     updateDailyStreakDisplay(null);
-    questionEl.textContent = sessionData.session ? 'تحدّي اليوم متاح للحسابات المسجّلة فقط. أنشئ حساباً للمشاركة.' : 'سجّل الدخول أو العب كضيف في بقية أقسام اللعبة.';
+    questionEl.textContent = sessionData.session ? 'تحدّي اليوم متاح للحسابات المسجّلة فقط. أنشئ حساباً للمشاركة.' : 'تابع اللعب في بقية الأقسام، وأنشئ حساباً للمزايا الإضافية.';
     answersEl.innerHTML = '';
     feedbackEl.textContent = '';
     return;
@@ -1920,7 +1920,7 @@ async function loadRound() {
   const { data: sessionData } = await supabase.auth.getSession();
   if (loadVersion !== roundLoadVersion) return;
   if (!sessionData.session) {
-    showGameMessage('سجّل الدخول أولاً حتى نحمّل الأسئلة ونحفظ نقاطك بأمان.');
+    showGameMessage('جارٍ تجهيز اللعب التلقائي. إذا استمر التعطّل، تحقق من اتصال الإنترنت وإعدادات الدخول التلقائي.');
     return;
   }
   await loadQuestionBankStatus();
@@ -2203,7 +2203,7 @@ supabase.auth.onAuthStateChange(async (_event, session) => {
     $('dailyQuestion').textContent = 'سجّل الدخول لعرض تحدّي اليوم.';
     $('dailyAnswers').replaceChildren();
     $('dailyFeedback').textContent = '';
-    $('leaderboardList').textContent = 'سجّل الدخول أو العب كضيف للبدء.';
+    $('leaderboardList').textContent = 'جارٍ تجهيز اللعب التلقائي. يمكنك إنشاء حساب من تبويب إنجازاتي.';
     showGameMessage('جارٍ تجهيز اللعبة...');
   }
 });
@@ -2232,8 +2232,8 @@ async function showSession(session){
   const pendingUpgrade=localStorage.getItem('iq-guest-upgrade-pending')==='1';
   if(user.is_anonymous){
     status.textContent=pendingUpgrade
-      ? 'أرسلنا رسالة تأكيد إلى بريدك. افتحها لإكمال ربط حسابك مع الاحتفاظ بتقدمك.'
-      : 'تلعب الآن كضيف — تقدمك محفوظ على هذا الجهاز.';
+      ? 'أرسلنا رسالة تأكيد إلى بريدك. افتحها لإكمال إعداد حسابك مع الاحتفاظ بتقدمك.'
+      : 'تلعب الآن دون تسجيل — تقدمك محفوظ على هذا الجهاز.';
     el('authForm').classList.remove('hidden');
     el('logoutBtn').classList.add('hidden');
     el('deleteAccountBtn').classList.add('hidden');
