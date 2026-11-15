@@ -993,15 +993,15 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
 .footer{color:#f2f6ff!important}
 @media(max-width:390px){.wrap{padding-top:116px!important}.top{gap:7px}.hero{padding:19px 15px!important}.mode-card strong{font-size:21px!important}}
 /* عبقور: شخصية عائمة مستقلة في الزاوية العليا، بلا بطاقة أو إطار حاضن */
-.iq-mentor{position:fixed!important;top:calc(env(safe-area-inset-top,0px) + 9px)!important;right:12px!important;left:auto!important;transform:none!important;width:112px!important;height:112px!important;display:block!important;z-index:10010!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;pointer-events:none!important;overflow:visible!important}
+.iq-mentor{position:fixed!important;top:auto!important;right:auto!important;left:10px!important;bottom:calc(env(safe-area-inset-bottom,0px) + 82px)!important;transform:none!important;width:88px!important;height:88px!important;display:block!important;z-index:10010!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;pointer-events:none!important;overflow:visible!important}
 .iq-mentor::before{content:"";position:absolute;inset:8px;border-radius:50%;background:radial-gradient(circle,#fff5b9 0%,#ff9bc8 44%,#4ccfff 72%,transparent 74%);filter:blur(5px);opacity:.85;z-index:-1;animation:mentorAura 3.2s ease-in-out infinite}
-.iq-mentor-bubble{position:absolute!important;top:17px!important;right:calc(100% + 9px)!important;left:auto!important;flex:none!important;width:min(210px,54vw)!important;max-width:none!important;min-width:0!important;padding:8px 12px!important;border:2px solid #fff!important;border-radius:19px 19px 6px 19px!important;background:linear-gradient(145deg,#fffdf1,#ffe5a8)!important;color:#263675!important;box-shadow:0 4px 0 #d78b36,0 8px 18px #061d6244!important;font-size:13px!important;font-weight:800!important;line-height:1.45!important;text-align:center!important;pointer-events:none!important}
+.iq-mentor-bubble{position:absolute!important;bottom:8px!important;left:calc(100% + 9px)!important;right:auto!important;top:auto!important;flex:none!important;width:min(205px,58vw)!important;max-width:none!important;min-width:0!important;padding:8px 12px!important;border:2px solid #fff!important;border-radius:19px 19px 19px 6px!important;background:linear-gradient(145deg,#fffdf1,#ffe5a8)!important;color:#263675!important;box-shadow:0 4px 0 #d78b36,0 8px 18px #061d6244!important;font-size:13px!important;font-weight:800!important;line-height:1.45!important;text-align:center!important;pointer-events:none!important}
 .iq-mentor-bubble[hidden]{display:none!important}
 .iq-mentor-toggle{position:relative!important;display:block!important;width:112px!important;height:112px!important;padding:0!important;border:0!important;border-radius:50%!important;background:transparent!important;box-shadow:none!important;filter:drop-shadow(0 7px 7px #091d60aa)!important;animation:mentorFloat 2.5s ease-in-out infinite!important;pointer-events:auto!important}
 .iq-mentor-svg{width:100%!important;height:100%!important;filter:drop-shadow(0 4px 2px #50144766)!important}
 .iq-mentor.is-speaking .iq-mentor-toggle{filter:drop-shadow(0 0 13px #fff36a) drop-shadow(0 7px 7px #091d60aa)!important}
 @keyframes mentorAura{0%,100%{transform:scale(.92);opacity:.65}50%{transform:scale(1.08);opacity:1}}
-@media(max-width:390px){.iq-mentor{width:94px!important;height:94px!important;top:calc(env(safe-area-inset-top,0px) + 7px)!important;right:8px!important}.iq-mentor-toggle{width:94px!important;height:94px!important}.iq-mentor-bubble{top:12px!important;width:min(180px,53vw)!important;font-size:11px!important;padding:7px 9px!important}}
+@media(max-width:390px){.iq-mentor{width:76px!important;height:76px!important;left:7px!important;bottom:calc(env(safe-area-inset-bottom,0px) + 78px)!important}.iq-mentor-toggle{width:76px!important;height:76px!important}.iq-mentor-bubble{bottom:5px!important;width:min(190px,61vw)!important;font-size:11px!important;padding:7px 9px!important}}
 @media(prefers-reduced-motion:reduce){.iq-mentor::before{animation:none!important}}
 </style>
 
@@ -2635,7 +2635,7 @@ window.setTimeout(() => {
   profile:['تابع إنجازاتك ورتبك؛ كل إجابة صحيحة تقرّبك من هدفك.','استمر بالتعلّم، وكل محاولة تضيف لك خبرة!']
  };
  const defaultTips={home:tips.home[0],play:tips.play[0],daily:tips.daily[0],puzzles:tips.puzzles[0],visual:tips.visual[0],profile:tips.profile[0]};
- let tipIndex=0,currentScreen='home',speaking=false;
+ let tipIndex=0,currentScreen='home',speaking=false,bubbleTimer=null;
  function speak(message){
   if(!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window))return;
   try{
@@ -2654,6 +2654,9 @@ window.setTimeout(() => {
  function show(message,state='idle',say=false){
   if(!message)return;
   bubble.textContent=message;bubble.hidden=false;
+  if(bubbleTimer)clearTimeout(bubbleTimer);
+  toggle.setAttribute('aria-expanded','true');
+  bubbleTimer=setTimeout(()=>{bubble.hidden=true;toggle.setAttribute('aria-expanded','false')},7000);
   mentor.classList.remove('is-thinking','is-happy','is-speaking','is-curious','is-worried','is-celebrating');
   if(state==='thinking')mentor.classList.add('is-thinking');
   if(state==='happy'||state==='celebrating')mentor.classList.add('is-happy');
@@ -2668,7 +2671,10 @@ window.setTimeout(() => {
   const name=active?.id?.replace('screen-','')||'home';
   currentScreen=Object.prototype.hasOwnProperty.call(tips,name)?name:'home';
   mentor.classList.add('is-visible');
-  tipIndex=0;show(defaultTips[currentScreen],currentScreen==='play'?'thinking':'idle',false);
+  tipIndex=0;
+  if(bubbleTimer)clearTimeout(bubbleTimer);
+  bubble.hidden=true;toggle.setAttribute('aria-expanded','false');
+  mentor.classList.remove('is-thinking','is-happy','is-speaking','is-curious','is-worried','is-celebrating');
  }
  toggle.addEventListener('click',()=>{
   const list=tips[currentScreen]||tips.home;
