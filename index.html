@@ -2600,11 +2600,13 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{void showSession(newSessio
  async function refreshScores(){
   const client=getClient();
   if(!client)return;
-  const {data,error}=await client.rpc('get_quiz_stats');
-  if(error||!data)return;
+  try {
+   const {data,error}=await withTimeout(client.rpc('get_quiz_stats'),8000,'انتهت مهلة تحديث النقاط');
+   if(error||!data)return;
   totalPuzzlePoints=Number(data.puzzle_total_score)||0;
   $('puzzleScore').textContent='⭐ '+totalPuzzlePoints+' نقطة';
-  const total=$('totalScore');if(total)total.textContent=Number(data.total_score)||0;
+   const total=$('totalScore');if(total)total.textContent=Number(data.total_score)||0;
+  } catch(error) { console.warn('Puzzle score refresh skipped:',error.message); }
  }
  function render(){
   const p=puzzles[puzzleIndex];
@@ -2637,13 +2639,27 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{void showSession(newSessio
   $('puzzleNextBtn').classList.add('hidden');
   $('puzzleAnswers').replaceChildren();
   setMessage('جارٍ تحميل 10 ألغاز جديدة…','');
-  const {data:sessionData}=await client.auth.getSession();
+  let sessionData;
+  try {
+   const sessionResult=await withTimeout(client.auth.getSession(),8000,'انتهت مهلة التحقق من جلسة اللاعب');
+   sessionData=sessionResult.data;
+  } catch(error) {
+   setMessage('تعذّر التحقق من جلسة اللاعب.','تأكد من اتصال الإنترنت ثم حاول تحميل الأحجيات مجدداً.');
+   $('puzzleFeedback').textContent=error.message;showScene('⚠️');loading=false;return;
+  }
   if(!sessionData?.session){
    setMessage('سجّل الدخول أولاً حتى نحفظ محاولاتك ونقاطك بالحساب.','بعد تسجيل الدخول، افتح قسم الأحجيات وابدأ الجولة.');
    showScene('🔐');loading=false;return;
   }
   currentPuzzleUserId=sessionData.session.user.id;
-   const {data:roundStatus,error:statusError}=await client.rpc('get_puzzle_round_status');
+   let roundStatus,statusError;
+   try {
+    const statusResult=await withTimeout(client.rpc('get_puzzle_round_status'),10000,'انتهت مهلة التحقق من استراحة الأحجيات');
+    roundStatus=statusResult.data;statusError=statusResult.error;
+   } catch(error) {
+    setMessage('تأخر التحقق من حالة الجولة.','تحقق من الاتصال ثم أعد المحاولة.');
+    $('puzzleFeedback').textContent=error.message;showScene('⚠️');loading=false;return;
+   }
    if(statusError){
     setMessage('تعذّر التحقق من حالة الاستراحة.','تحقق من إعداد قاعدة البيانات ثم أعد المحاولة.');
     $('puzzleFeedback').textContent=statusError.message;showScene('⚠️');loading=false;return;
@@ -2663,7 +2679,14 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{void showSession(newSessio
     startRestClock();loading=false;await refreshScores();return;
    }
    startRestClock();
-   const {data,error}=await client.rpc('get_puzzle_questions');
+   let data,error;
+  try {
+   const questionResult=await withTimeout(client.rpc('get_puzzle_questions'),15000,'انتهت مهلة تحميل الأحجيات');
+   data=questionResult.data;error=questionResult.error;
+  } catch(loadError) {
+   setMessage('تأخر تحميل الأحجيات بسبب الاتصال بالخادم.','افحص الإنترنت ثم اضغط إعادة المحاولة.');
+   $('puzzleFeedback').textContent=loadError.message;showScene('⚠️');loading=false;return;
+  }
   if(error){
    setMessage('تعذّر تحميل الأحجيات.','تحقق من الاتصال ثم حاول مرة أخرى.');
    showScene('⚠️');loading=false;return;
@@ -2678,7 +2701,11 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{void showSession(newSessio
    $('puzzleNextBtn').disabled=false;loading=false;await refreshScores();return;
   }
   puzzles=data;puzzleIndex=0;roundPoints=0;
-  const {data:latestStatus}=await client.rpc('get_puzzle_round_status');
+  let latestStatus=null;
+  try {
+   const latestResult=await withTimeout(client.rpc('get_puzzle_round_status'),8000,'انتهت مهلة تحديث حالة الجولة');
+   latestStatus=latestResult.data;
+  } catch(error) { console.warn('Puzzle round status refresh skipped:',error.message); }
   if(latestStatus){
    serverAnswered=Number(latestStatus.answered_count)||0;
    serverRoundSize=Number(latestStatus.round_size)||10;
