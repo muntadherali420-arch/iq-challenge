@@ -1,0 +1,79 @@
+/* IQ Challenge — polished screen surfaces and section hierarchy */
+.app-screen{padding-inline:2px}
+.app-screen.active{animation:iqPolishEnter .34s cubic-bezier(.2,.75,.25,1) both}
+@keyframes iqPolishEnter{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+.app-screen .card{
+  position:relative;overflow:hidden;
+  border-radius:26px!important;
+  box-shadow:0 7px 0 #102e8950,0 14px 26px #082c7d2b!important;
+}
+.app-screen .card>.row:first-child{gap:12px;align-items:center}
+.app-screen .card h2,.app-screen .card h3{
+  letter-spacing:.1px;text-wrap:balance;
+}
+.app-screen .tag{font-weight:900;box-shadow:inset 0 0 0 1px #ffffff65}
+#screen-puzzles .puzzle-shell{
+  background:linear-gradient(145deg,#fff3c9 0%,#ffe0a9 48%,#f6d7ff 100%)!important;
+  border:3px solid #fff4c7!important;color:#30205f!important;
+  box-shadow:0 7px 0 #a65a9a66,0 15px 28px #102c8c44!important;
+}
+#screen-puzzles .puzzle-head h2{color:#39206f!important;font-size:clamp(22px,5vw,29px)}
+#screen-puzzles .puzzle-level{background:linear-gradient(135deg,#ffe36b,#ffb54c);color:#563400;box-shadow:0 3px 0 #c77b29}
+#screen-puzzles .puzzle-progress{background:#d8c8ed!important}
+#screen-puzzles #puzzleProgressBar{background:linear-gradient(90deg,#24c98a,#47b8f3,#a47af2)!important}
+#screen-puzzles .puzzle-scene{
+  min-height:158px;border:2px solid #fff!important;
+  background:radial-gradient(circle at 50% 35%,#a8eaff,#6c8cf2 58%,#6145bd)!important;
+  box-shadow:inset 0 0 0 2px #ffffff35,0 6px 0 #5943a366!important;
+}
+#screen-puzzles .puzzle-question{color:#352064!important;font-weight:900;line-height:1.65}
+#screen-puzzles .puzzle-answer{
+  background:linear-gradient(145deg,#fff,#e8edff)!important;color:#30205f!important;
+  border:2px solid #b9c9f4!important;border-radius:17px!important;
+  box-shadow:0 4px 0 #9aaee0!important;font-weight:850;min-height:58px;
+}
+#screen-puzzles .puzzle-answer.correct{background:linear-gradient(110deg,#caffdf,#76e9b1)!important;color:#075a3b!important;border-color:#20b978!important}
+#screen-puzzles .puzzle-answer.wrong{background:linear-gradient(110deg,#ffe0e8,#ffb8ca)!important;color:#852342!important;border-color:#eb7190!important}
+#screen-puzzles .puzzle-feedback{color:#49336d!important;font-weight:750}
+#screen-puzzles .puzzle-rest-status{border:1px solid #f0cf82;background:linear-gradient(110deg,#fff8df,#eee9ff);box-shadow:0 3px 10px #664c9a12}
+#screen-profile .achievement-grid{gap:10px}
+#screen-profile .achievement{
+  border-radius:18px!important;min-height:82px;
+  box-shadow:0 3px 0 #263c8a18;
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+#screen-profile .achievement-icon{filter:drop-shadow(0 3px 2px #17265b24)}
+#screen-home .mode-grid{gap:13px}
+#screen-home .mode-card{
+  min-height:194px;border:2px solid #ffffffa8;border-radius:25px!important;
+  box-shadow:0 6px 0 #102d8155,0 13px 25px #092d7d30!important;
+}
+#screen-home .mode-icon{font-size:38px;filter:drop-shadow(0 4px 3px #071e6944)}
+#screen-home .mode-card strong{font-size:clamp(17px,4vw,21px)}
+#screen-home .mode-go{padding:6px 12px;border-radius:99px;background:#ffffff20;border:1px solid #ffffff50}
+#screen-daily #dailyCard{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#fff0a8,#ffc75d 58%,#ff9e69)!important;
+  border:3px solid #fff3c0!important;
+  box-shadow:0 6px 0 #bd741e,0 14px 25px #0a347d38!important;
+}
+#screen-daily #dailyCard .btn{border-radius:99px}
+#screen-play #game{
+  box-shadow:0 7px 0 #b76c34,0 15px 28px #092e7e38!important;
+}
+#screen-play .answers{gap:12px}
+#screen-play .answer{min-height:62px;border-radius:19px!important;font-size:clamp(15px,3.8vw,18px)}
+@media(hover:hover){
+ #screen-profile .achievement:hover{transform:translateY(-3px);box-shadow:0 7px 14px #142c7130}
+ #screen-home .mode-card:hover{transform:translateY(-4px) scale(1.01)}
+}
+@media(max-width:390px){
+ #screen-puzzles .puzzle-shell{padding:14px!important}
+ #screen-puzzles .puzzle-scene{min-height:135px}
+ #screen-home .mode-card{min-height:166px}
+ #screen-play .answer{min-height:56px}
+}
+@media(prefers-reduced-motion:reduce){
+ .app-screen.active{animation:none!important}
+ #screen-profile .achievement{transition:none!important}
+}
