@@ -894,6 +894,58 @@ button:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.72}
 #levelUpToast span{display:block;margin-top:3px;font-size:.9rem}
 @media(prefers-reduced-motion:reduce){#levelUpToast{transition:none}}
 </style>
+
+<style>
+/* IQ Challenge — bright, storybook-inspired home redesign */
+:root{--bg:#123b9c;--panel:#fff8ec;--panel2:#edf3ff;--ink:#162b63;--muted:#4d5c87;--gold:#ffd23f;--mint:#23d18b;--pink:#ff6d9a}
+html{background:#123b9c}
+body{min-height:100vh;background:
+ radial-gradient(ellipse at 50% 8%,#63c9ff88 0,transparent 38%),
+ radial-gradient(ellipse at 8% 65%,#ffd48b66 0,transparent 25%),
+ radial-gradient(ellipse at 95% 68%,#7be0ff55 0,transparent 26%),
+ linear-gradient(180deg,#082a83 0%,#1766cf 45%,#8bc8f4 78%,#f8d7a0 100%);color:#fff}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background-image:radial-gradient(#fff9 1px,transparent 1.8px);background-size:46px 46px;opacity:.22}
+.wrap{max-width:650px;padding:158px 14px 110px}
+.top{padding:10px 13px;border:2px solid #83d9ff;border-radius:22px;background:linear-gradient(120deg,#09276eeF,#164caceF);box-shadow:0 7px 0 #071d60,0 12px 25px #06194a66;color:#fff}
+.top h1,.top .sub{color:#fff}.top .sub{opacity:.8}
+.brand .logo{border-radius:50%;background:linear-gradient(145deg,#fff2a4,#ffb92f);box-shadow:0 4px 0 #b66d1a,0 0 20px #ffdc70a6}
+.score{border:2px solid #ffe88c;border-radius:99px;background:linear-gradient(145deg,#123b9d,#071e61);color:#ffe36b;font-size:20px}
+.sound-toggle{width:48px;height:48px;border-radius:50%;font-size:21px;background:linear-gradient(145deg,#45aaff,#1450d1);border:2px solid #a9e5ff;color:#fff;box-shadow:0 4px 0 #0b328c}
+.hero{margin-top:15px;padding:24px 20px;border:3px solid #ffe28a;border-radius:28px;background:linear-gradient(135deg,#fffdf7,#fff0d7);box-shadow:0 7px 0 #d28a37,0 14px 28px #082b8055;color:#172d67;text-align:center}
+.hero h2{font-size:clamp(25px,6vw,34px);font-weight:1000;color:#173e9c;text-shadow:0 2px 0 #d6e7ff}
+.hero p{color:#354a80;font-weight:700}
+.eyebrow{color:#e18a00}
+.mode-grid{display:grid;grid-template-columns:1fr;gap:13px;margin:18px 0}
+.mode-card{position:relative;min-height:90px;display:grid;grid-template-columns:64px 1fr;grid-template-rows:auto auto auto;align-items:center;column-gap:12px;padding:12px 17px;border:3px solid #ffffffb8;border-radius:25px;text-align:right;color:#fff;box-shadow:0 7px 0 #091c5a70,0 12px 22px #061a5555;overflow:hidden}
+.mode-card .mode-icon{grid-column:1;grid-row:1/4;font-size:42px;filter:drop-shadow(0 3px 2px #14235d88)}
+.mode-card .mode-kicker{grid-column:2;font-size:11px;color:#fff4b9;font-weight:900}
+.mode-card strong{grid-column:2;font-size:23px;font-weight:1000;text-shadow:0 2px 2px #17225d66}
+.mode-card small{grid-column:2;color:#fff;font-size:11px;font-weight:700}
+.mode-card .mode-go{display:none}
+.mode-million{background:linear-gradient(110deg,#8c32e8,#4b1bb2)}
+.mode-puzzle{background:linear-gradient(110deg,#46d923,#079c49)}
+.mode-visual{background:linear-gradient(110deg,#229cff,#124bd6)}
+.daily-launch-card{width:100%;display:flex;align-items:center;gap:14px;margin:12px 0;padding:15px 18px;border:3px solid #fff3bd;border-radius:25px;background:linear-gradient(110deg,#ffb12b,#ed5a13);color:#fff;box-shadow:0 7px 0 #9a3a14,0 12px 22px #061a5555;text-align:right}
+.daily-launch-icon{font-size:42px}.daily-launch-copy strong{display:block;font-size:22px}.daily-launch-copy small,.daily-launch-timer,.daily-launch-streak{display:block;color:#fff8e9;font-size:11px;font-weight:750}
+.card,.stat{border:2px solid #fff3d4;border-radius:22px;background:linear-gradient(145deg,#fffdf7,#ffe9c8);color:#172d67;box-shadow:0 6px 0 #bc824a66,0 10px 22px #071d5a33}
+.card .small,.card .auth-note,.card .feedback,.card .level-caption,.stat span{color:#465782}
+.btn{border:2px solid #fff2bd;border-radius:17px;background:linear-gradient(110deg,#ffdf52,#ff9f24);color:#563000;box-shadow:0 5px 0 #b96d20}
+.btn.secondary{background:linear-gradient(110deg,#7441ed,#4520ad);color:#fff;box-shadow:0 5px 0 #2a1473}
+.stats .stat{background:linear-gradient(145deg,#fff0be,#ffc96e)}
+.stats .stat:nth-child(2){background:linear-gradient(145deg,#d9f9ff,#75d7ff)}
+.stats .stat:nth-child(3){background:linear-gradient(145deg,#e8dcff,#b69cff)}
+#progressCard{background:linear-gradient(135deg,#173a9c,#4325a6);border-color:#a8dfff;color:#fff}
+#progressCard .small,#progressCard .level-caption{color:#e9efff}
+#progressCard .achievement{background:linear-gradient(145deg,#6d43ce,#38218b);border-color:#bca8ff;color:#fff}
+#progressCard .achievement small{color:#f1eaff}
+.answer{border:2px solid #c8dcff;border-radius:17px;background:linear-gradient(145deg,#fff,#e2edff);color:#1c3473;box-shadow:0 4px 0 #9bb6e4}
+.iq-mentor{top:max(8px,env(safe-area-inset-top));width:min(96vw,520px);padding:6px 10px;border:2px solid #a8eaff;border-radius:27px;background:linear-gradient(110deg,#09276eee,#1553bcee 58%,#5424a8ee);box-shadow:0 8px 0 #071d60aa,0 14px 30px #04174788;gap:12px}
+.iq-mentor-toggle{width:132px;height:132px;border:3px solid #fff3b1;background:radial-gradient(circle at 35% 22%,#fff4be,#ffb5d0 48%,#e65b91 85%);box-shadow:0 5px 0 #9a3c72,0 0 28px #78e6ffb8;cursor:pointer}
+.iq-mentor-bubble{max-width:320px;border:3px solid #ffcb4b;border-radius:22px 22px 7px 22px;background:linear-gradient(145deg,#fff,#fff0d7);color:#142f78;font-size:14px;box-shadow:0 5px 0 #bf7b28}
+.iq-mentor-toggle:active{transform:scale(.94)}
+@media(max-width:390px){.wrap{padding-top:132px}.iq-mentor{width:calc(100vw - 10px);gap:5px}.iq-mentor-toggle{width:100px;height:104px}.iq-mentor-bubble{font-size:11px;padding:7px}.mode-card{min-height:82px;padding:10px 12px}.mode-card strong{font-size:20px}}
+@media(prefers-reduced-motion:reduce){.iq-mentor-toggle{animation:none!important}}
+</style>
 </head>
 <body>
 <div id="levelUpToast" role="status" aria-live="polite" aria-atomic="true"><strong id="levelUpTitle">🎉 ارتقيت بمستواك!</strong><span id="levelUpMessage"></span></div>
@@ -2516,60 +2568,80 @@ window.setTimeout(() => {
  const mentor=document.getElementById('iqMentor'),bubble=document.getElementById('iqMentorBubble'),toggle=document.getElementById('iqMentorToggle');
  if(!mentor||!bubble||!toggle)return;
  const tips={
-  home:['أهلاً بك! اختر نمط اللعب الذي يعجبك، وأنا أرافقك خطوة بخطوة.','ابدأ بطريق القمّة إذا تحب الأسئلة المتدرجة وجمع النقاط.','تقدر تدخل تحدّي اليوم حتى تحافظ على سلسلة إنجازاتك!'],
+  home:['أهلاً بك! أنا عبقور، مرشدك في تحدّي العقول. اضغط على الأزرار لنبدأ رحلتنا!','اختر المسابقة أو الألغاز أو اختبار الصور، وأنا أساعدك خطوة بخطوة.','تحدّي اليوم يتجدد يومياً؛ جرّب تحافظ على سلسلة إنجازاتك!'],
   play:['اقرأ السؤال بهدوء، ثم قارن بين الاختيارات قبل ما تجاوب.','إذا واجهت سؤالاً صعباً، خذ وقتك وفكّر بجزء من السؤال أولاً.','تذكّر: الدقة أهم من السرعة. اختَر بعد ما تتأكد!'],
-  daily:['هذا تحدّي اليوم! ركّز حتى تجمع مكافأتك اليومية.','حاول تشارك كل يوم حتى تطوّر سلسلة إنجازاتك.'],
-  puzzles:['الألغاز تحتاج تفكير خارج الصندوق… انتبه لصياغة السؤال!','جرّب تقرأ اللغز مرة ثانية؛ أحياناً الحل بتفصيل صغير.','لا تتسرّع، وفكّر بأكثر من احتمال.'],
+  daily:['هذا تحدّي اليوم! ركّز حتى تجمع نقاطك اليومية.','حاول تشارك كل يوم حتى تطوّر سلسلة إنجازاتك.'],
+  puzzles:['الألغاز تحتاج تفكير خارج الصندوق… انتبه لصياغة السؤال!','جرّب تقرأ اللغز مرة ثانية؛ أحياناً الحل بتفصيل صغير.'],
   visual:['دقّق بالصورة من الأطراف إلى الوسط، ولا تفوّت التفاصيل.','قارن الأشكال والألوان والعناصر قبل اختيار الإجابة.'],
-  profile:['تابع إنجازاتك ورتبك؛ كل إجابة صحيحة تقرّبك من هدفك.','استمر بالتعلّم، مو شرط تكون كل الإجابات صحيحة من أول محاولة!']
+  profile:['تابع إنجازاتك ورتبك؛ كل إجابة صحيحة تقرّبك من هدفك.','استمر بالتعلّم، وكل محاولة تضيف لك خبرة!']
  };
  const defaultTips={home:tips.home[0],play:tips.play[0],daily:tips.daily[0],puzzles:tips.puzzles[0],visual:tips.visual[0],profile:tips.profile[0]};
- let bubbleOpen=true,lastMessage=defaultTips.home,tipIndex=0,currentScreen='home',speakTimer=null;
- function show(message,state='idle',speak=false){
-  if(!message)return;lastMessage=message;bubble.textContent=message;bubble.hidden=!bubbleOpen;
+ let tipIndex=0,currentScreen='home',speaking=false;
+ function speak(message){
+  if(!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window))return;
+  try{
+   window.speechSynthesis.cancel();
+   const utterance=new SpeechSynthesisUtterance(message);
+   utterance.lang='ar-IQ';utterance.rate=.92;utterance.pitch=1.12;
+   const voices=window.speechSynthesis.getVoices();
+   const arabic=voices.find(v=>/^ar([-_]|$)/i.test(v.lang));
+   if(arabic)utterance.voice=arabic;
+   utterance.onstart=()=>{speaking=true;mentor.classList.add('is-speaking')};
+   const stop=()=>{speaking=false;mentor.classList.remove('is-speaking')};
+   utterance.onend=stop;utterance.onerror=stop;
+   window.speechSynthesis.speak(utterance);
+  }catch(error){speaking=false;mentor.classList.remove('is-speaking')}
+ }
+ function show(message,state='idle',say=false){
+  if(!message)return;
+  bubble.textContent=message;bubble.hidden=false;
   mentor.classList.remove('is-thinking','is-happy','is-speaking','is-curious','is-worried','is-celebrating');
   if(state==='thinking')mentor.classList.add('is-thinking');
-  if(state==='happy')mentor.classList.add('is-happy');
+  if(state==='happy'||state==='celebrating')mentor.classList.add('is-happy');
   if(state==='curious')mentor.classList.add('is-curious');
   if(state==='worried')mentor.classList.add('is-worried');
-  if(state==='celebrating'){mentor.classList.add('is-happy','is-celebrating');}
-  if(state==='curious' || state==='worried' || state==='celebrating') mentor.classList.add('is-happy');
-  if(speak&&'speechSynthesis' in window&&'SpeechSynthesisUtterance' in window){
-   try{window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(message);utterance.lang='ar';utterance.rate=.94;utterance.pitch=1.08;
-    utterance.onstart=()=>{mentor.classList.add('is-speaking')};utterance.onend=()=>mentor.classList.remove('is-speaking');utterance.onerror=()=>mentor.classList.remove('is-speaking');window.speechSynthesis.speak(utterance);
-   }catch(e){mentor.classList.remove('is-speaking')}
-  }
+  if(state==='celebrating')mentor.classList.add('is-celebrating');
+  toggle.setAttribute('aria-expanded','true');
+  if(say)speak(message);
  }
  function syncScreen(){
-  const active=document.querySelector('.app-screen.active');const name=active?.id?.replace('screen-','')||'home';
-  currentScreen=['home','play','daily','puzzles','visual','profile'].includes(name)?name:'home';
-  mentor.classList.toggle('is-visible',!!active);
+  const active=document.querySelector('.app-screen.active');
+  const name=active?.id?.replace('screen-','')||'home';
+  currentScreen=Object.prototype.hasOwnProperty.call(tips,name)?name:'home';
+  mentor.classList.add('is-visible');
   tipIndex=0;show(defaultTips[currentScreen],currentScreen==='play'?'thinking':'idle',false);
  }
  toggle.addEventListener('click',()=>{
-  const list=tips[currentScreen]||tips.home;const message=list[tipIndex%list.length];tipIndex++;
-  bubbleOpen=true;bubble.hidden=false;toggle.setAttribute('aria-expanded','true');show(message,currentScreen==='play'?'thinking':'idle',true);
+  const list=tips[currentScreen]||tips.home;
+  const message=list[tipIndex%list.length];tipIndex++;
+  show(message,currentScreen==='play'?'thinking':'happy',true);
+  toggle.animate?.([{transform:'scale(1)'},{transform:'scale(1.09) rotate(-4deg)'},{transform:'scale(1)'}],{duration:420,easing:'ease-out'});
  });
  document.querySelectorAll('.app-screen').forEach(screen=>new MutationObserver(syncScreen).observe(screen,{attributes:true,attributeFilter:['class']}));
  const watchFeedback=id=>{
   const el=document.getElementById(id);if(!el)return;
   new MutationObserver(()=>{
    const value=(el.textContent||'').trim();if(!value)return;
-   if(/اكتملت الجولة|أكملت الجولة|فزت|مبروك.*مستوى|وصلت.*المستوى|تهانينا/i.test(value))show('يا سلام! إنجاز رائع! أنت تقترب من قمة العقول! 🏆','celebrating');
-   else if(/إجابة غير صحيحة|غير صحيح|خطأ|حاول|الإجابة الصحيحة/i.test(value))show('لا بأس، كل محاولة تعلّمنا شيئاً جديداً. جرّب مرة ثانية! 💡','worried');
+   if(/إجابة غير صحيحة|غير صحيح|خطأ|حاول|الإجابة الصحيحة/i.test(value))show('لا بأس، كل محاولة تعلّمنا شيئاً جديداً. جرّب مرة ثانية! 💡','worried');
+   else if(/اكتملت الجولة|أكملت الجولة|فزت|مبروك.*مستوى|وصلت.*المستوى|تهانينا/i.test(value))show('يا سلام! إنجاز رائع! أنت تقترب من قمة العقول! 🏆','celebrating');
    else if(/إجابة صحيحة|أحسنت|رائع|ممتاز|مبروك/i.test(value))show('أحسنت! إجابة رائعة، استمر بهذا التركيز! 🎉','happy');
-
   }).observe(el,{childList:true,subtree:true,characterData:true});
  };
  ['feedback','dailyFeedback','puzzleFeedback'].forEach(watchFeedback);
  const levelToast=document.getElementById('levelUpToast');
  if(levelToast)new MutationObserver(()=>{if(levelToast.classList.contains('show'))show('يا سلام! ارتقيت لمستوى جديد! تستاهل كل التقدير! 🏆','celebrating');}).observe(levelToast,{attributes:true,attributeFilter:['class']});
  const resultTitle=document.getElementById('resultTitle');
- if(resultTitle)new MutationObserver(()=>{const result=(resultTitle.textContent||'').trim();if(result)show('أحسنت! أنهيت الجولة، استعد للتحدّي القادم! 🎓','celebrating');}).observe(resultTitle,{childList:true,characterData:true,subtree:true});
+ if(resultTitle)new MutationObserver(()=>{if((resultTitle.textContent||'').trim())show('أحسنت! أنهيت الجولة، استعد للتحدّي القادم! 🎓','celebrating');}).observe(resultTitle,{childList:true,characterData:true,subtree:true});
  syncScreen();
  const launchStart=document.getElementById('launchStart');
- if(launchStart)launchStart.addEventListener('click',()=>{window.setTimeout(()=>{bubbleOpen=true;toggle.setAttribute('aria-expanded','true');show('أهلاً بك! أنا عبقور، مرشدك في تحدّي العقول. خلّينا نبدأ رحلة المعرفة ونصعد سويّة إلى القمّة!','happy',true);},450),{once:true});
- document.addEventListener('click',event=>{const nav=event.target.closest('[data-screen],[data-open-screen]');if(!nav)return;const next=nav.dataset.screen||nav.dataset.openScreen;if(!tips[next])return;window.setTimeout(()=>show(defaultTips[next],next==='play'?'thinking':'idle',true),180);});
+ if(launchStart)launchStart.addEventListener('click',()=>{
+  window.setTimeout(()=>show('أهلاً بك! أنا عبقور، مرشدك في تحدّي العقول. خلّينا نبدأ رحلة المعرفة ونصعد سويّة إلى القمّة!','happy',true),450);
+ },{once:true});
+ document.addEventListener('click',event=>{
+  const nav=event.target.closest('[data-screen],[data-open-screen]');if(!nav)return;
+  const next=nav.dataset.screen||nav.dataset.openScreen;if(!tips[next])return;
+  window.setTimeout(()=>show(defaultTips[next],next==='play'?'thinking':'idle',true),180);
+ });
 })();
-</script>
+</script>>
 </body></html>
