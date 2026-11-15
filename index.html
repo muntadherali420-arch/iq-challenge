@@ -12,6 +12,10 @@
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="manifest" href="/manifest.webmanifest">
 <title>IQ Challenge — تحدّي العقول</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Lalezar&display=swap" rel="stylesheet">
+
 <style>
 :root{--bg:#101827;--panel:#192438;--panel2:#22314b;--ink:#f4f7fb;--muted:#aebbd0;--gold:#ffd166;--mint:#62e6bd;--pink:#ff8fab}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0%,#273a5a 0,transparent 34%),var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
@@ -946,6 +950,61 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;bac
 @media(max-width:390px){.wrap{padding-top:132px}.iq-mentor{width:calc(100vw - 10px);gap:5px}.iq-mentor-toggle{width:100px;height:104px}.iq-mentor-bubble{font-size:11px;padding:7px}.mode-card{min-height:82px;padding:10px 12px}.mode-card strong{font-size:20px}}
 @media(prefers-reduced-motion:reduce){.iq-mentor-toggle{animation:none!important}}
 </style>
+
+<style id="iq-cartoon-refresh">
+/* Cartoon typography and vivid storybook colors */
+:root{--iq-royal:#1749c8;--iq-blue:#16b9ee;--iq-purple:#7737dc;--iq-pink:#ff6f9d;--iq-gold:#ffd23f;--iq-green:#25cb87;--iq-cream:#fff3dc}
+body,button,input,select,textarea{font-family:'Baloo Bhaijaan 2','Noto Sans Arabic',system-ui,sans-serif!important}
+h1,h2,h3,.mode-card strong,.btn,.nav-btn,.launch-title{font-family:'Lalezar','Baloo Bhaijaan 2',sans-serif!important;font-weight:400!important;letter-spacing:.1px}
+body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radial-gradient(circle at 88% 24%,#ffb2d1 0,transparent 22%),linear-gradient(155deg,#0756c9 0%,#168fe8 42%,#5965e8 76%,#8b4bdc 100%)!important;color:#fff!important}
+.wrap{padding-top:132px!important}
+.top{border:3px solid #9af0ff!important;border-radius:25px!important;background:linear-gradient(120deg,#082b85,#1459cf 62%,#5125ad)!important;box-shadow:0 7px 0 #08266f,0 14px 28px #041a5b66!important}
+.top h1,.top .sub{color:#fff!important}
+.hero{background:linear-gradient(140deg,#fff9e8,#ffe7bd 58%,#fff3d9)!important;border:3px solid #fff!important;border-radius:30px!important;box-shadow:0 7px 0 #d68d3c,0 15px 28px #06266b55!important;color:#263675!important}
+.hero h2{font-family:'Lalezar','Baloo Bhaijaan 2',sans-serif!important;color:#173d9b!important;text-shadow:0 2px #bdeaff!important}
+.hero p{color:#42517e!important}
+.eyebrow{color:#d77a00!important}
+.card,.stat{border:2px solid #fff!important;border-radius:24px!important;background:linear-gradient(145deg,#fffdf5,#ffe9c9)!important;box-shadow:0 6px 0 #c9864c66,0 12px 24px #061d6240!important;color:#26356f!important}
+.card .small,.card .auth-note,.card .feedback,.card .level-caption,.stat span{color:#4e5c85!important}
+#progressCard{background:linear-gradient(135deg,#233caa,#6931c8 65%,#8c38c7)!important;border:3px solid #a8eaff!important;color:#fff!important}
+#progressCard .small,#progressCard .level-caption,#progressCard strong{color:#fff!important}
+#progressCard .achievement{background:linear-gradient(145deg,#8650e8,#42229d)!important;border:1px solid #d0baff!important;color:#fff!important}
+#progressCard .achievement small{color:#f5eaff!important}
+#dailyCard{background:linear-gradient(135deg,#ffdc65,#ff9d3e)!important;border:3px solid #fff2b5!important;color:#633700!important}
+#historyCard,#leaderboardCard{background:linear-gradient(135deg,#dff7ff,#e9e2ff)!important;border:3px solid #fff!important;color:#26356f!important}
+.mode-card{border:3px solid #fff!important;border-radius:25px!important;box-shadow:0 7px 0 #10266d77,0 13px 24px #071d5a55!important}
+.mode-million{background:linear-gradient(115deg,#a83df1,#5622c6)!important}
+.mode-puzzle{background:linear-gradient(115deg,#65e34c,#08a96a)!important}
+.mode-visual{background:linear-gradient(115deg,#32c8ff,#1455db)!important}
+.mode-card strong{color:#fff!important;text-shadow:0 2px 2px #14235d66!important}
+.daily-launch-card{background:linear-gradient(110deg,#ffb72f,#f15c25)!important;border:3px solid #fff3bd!important;border-radius:25px!important;box-shadow:0 7px 0 #a23b1c,0 12px 24px #061a5555!important}
+.answer,.puzzle-answer,.visual-answer{font-family:'Baloo Bhaijaan 2','Noto Sans Arabic',sans-serif!important;font-size:17px!important;font-weight:800!important;border:2px solid #c3d9ff!important;border-radius:19px!important;background:linear-gradient(145deg,#fff,#e4efff)!important;color:#243b82!important;box-shadow:0 4px 0 #a9c1ec!important}
+.answer.correct,.puzzle-answer.correct,.visual-answer.correct{background:linear-gradient(110deg,#caffdf,#6de7aa)!important;color:#075a3b!important;border-color:#1dbb79!important}
+.answer.wrong,.puzzle-answer.wrong,.visual-answer.wrong{background:linear-gradient(110deg,#ffe1e9,#ffb6c9)!important;color:#852342!important;border-color:#ec6688!important}
+.btn{border:2px solid #fff2bd!important;border-radius:18px!important;background:linear-gradient(110deg,#ffe36b,#ff9f29)!important;color:#593300!important;box-shadow:0 5px 0 #b96d20!important}
+.btn.secondary{background:linear-gradient(110deg,#8149ec,#4821b5)!important;color:#fff!important;box-shadow:0 5px 0 #2c1478!important}
+.game-nav{background:linear-gradient(110deg,#092a81,#164ec1)!important;border:2px solid #9deaff!important;box-shadow:0 -5px 20px #09265d44!important}
+.nav-btn{color:#f8f5ff!important;font-family:'Lalezar','Baloo Bhaijaan 2',sans-serif!important;font-size:14px!important}
+.nav-btn.active{background:linear-gradient(145deg,#fff08c,#ffbd55)!important;color:#4a2c72!important}
+.question,.puzzle-question,.visual-question{font-family:'Baloo Bhaijaan 2','Noto Sans Arabic',sans-serif!important;font-weight:800!important;color:#273b7a!important}
+.score{background:linear-gradient(120deg,#092b86,#061d62)!important;color:#ffe36b!important;border:2px solid #ffe88c!important}
+.sound-toggle{border-radius:50%!important}
+.launch-title{font-size:clamp(38px,9vw,54px)!important;color:#fff2a8!important;text-shadow:0 4px 0 #5227a2!important}
+.footer{color:#f2f6ff!important}
+@media(max-width:390px){.wrap{padding-top:116px!important}.top{gap:7px}.hero{padding:19px 15px!important}.mode-card strong{font-size:21px!important}}
+/* عبقور: شخصية عائمة مستقلة في الزاوية العليا، بلا بطاقة أو إطار حاضن */
+.iq-mentor{position:fixed!important;top:calc(env(safe-area-inset-top,0px) + 9px)!important;right:12px!important;left:auto!important;transform:none!important;width:112px!important;height:112px!important;display:block!important;z-index:10010!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;pointer-events:none!important;overflow:visible!important}
+.iq-mentor::before{content:"";position:absolute;inset:8px;border-radius:50%;background:radial-gradient(circle,#fff5b9 0%,#ff9bc8 44%,#4ccfff 72%,transparent 74%);filter:blur(5px);opacity:.85;z-index:-1;animation:mentorAura 3.2s ease-in-out infinite}
+.iq-mentor-bubble{position:absolute!important;top:17px!important;right:calc(100% + 9px)!important;left:auto!important;flex:none!important;width:min(210px,54vw)!important;max-width:none!important;min-width:0!important;padding:8px 12px!important;border:2px solid #fff!important;border-radius:19px 19px 6px 19px!important;background:linear-gradient(145deg,#fffdf1,#ffe5a8)!important;color:#263675!important;box-shadow:0 4px 0 #d78b36,0 8px 18px #061d6244!important;font-size:13px!important;font-weight:800!important;line-height:1.45!important;text-align:center!important;pointer-events:none!important}
+.iq-mentor-bubble[hidden]{display:none!important}
+.iq-mentor-toggle{position:relative!important;display:block!important;width:112px!important;height:112px!important;padding:0!important;border:0!important;border-radius:50%!important;background:transparent!important;box-shadow:none!important;filter:drop-shadow(0 7px 7px #091d60aa)!important;animation:mentorFloat 2.5s ease-in-out infinite!important;pointer-events:auto!important}
+.iq-mentor-svg{width:100%!important;height:100%!important;filter:drop-shadow(0 4px 2px #50144766)!important}
+.iq-mentor.is-speaking .iq-mentor-toggle{filter:drop-shadow(0 0 13px #fff36a) drop-shadow(0 7px 7px #091d60aa)!important}
+@keyframes mentorAura{0%,100%{transform:scale(.92);opacity:.65}50%{transform:scale(1.08);opacity:1}}
+@media(max-width:390px){.iq-mentor{width:94px!important;height:94px!important;top:calc(env(safe-area-inset-top,0px) + 7px)!important;right:8px!important}.iq-mentor-toggle{width:94px!important;height:94px!important}.iq-mentor-bubble{top:12px!important;width:min(180px,53vw)!important;font-size:11px!important;padding:7px 9px!important}}
+@media(prefers-reduced-motion:reduce){.iq-mentor::before{animation:none!important}}
+</style>
+
 </head>
 <body>
 <div id="levelUpToast" role="status" aria-live="polite" aria-atomic="true"><strong id="levelUpTitle">🎉 ارتقيت بمستواك!</strong><span id="levelUpMessage"></span></div>
@@ -2635,7 +2694,9 @@ window.setTimeout(() => {
  syncScreen();
  const launchStart=document.getElementById('launchStart');
  if(launchStart)launchStart.addEventListener('click',()=>{
-  window.setTimeout(()=>show('أهلاً بك! أنا عبقور، مرشدك في تحدّي العقول. خلّينا نبدأ رحلة المعرفة ونصعد سويّة إلى القمّة!','happy',true),450);
+  // Speak directly inside the user's start-button gesture so Android WebView
+  // does not delay or block the welcome voice behind an autoplay timeout.
+  show('أهلاً بك! أنا عبقور، مرشدك في تحدّي العقول. خلّينا نبدأ رحلة المعرفة ونصعد سويّة إلى القمّة!','happy',true);
  },{once:true});
  document.addEventListener('click',event=>{
   const nav=event.target.closest('[data-screen],[data-open-screen]');if(!nav)return;
