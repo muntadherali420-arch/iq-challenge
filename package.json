@@ -19,7 +19,8 @@
     "@capacitor/android": "8.6.2",
     "@capacitor/core": "8.6.2",
     "@capacitor/ios": "8.6.2",
-    "@supabase/supabase-js": "2.119.0"
+    "@supabase/supabase-js": "2.119.0",
+    "@capacitor-community/text-to-speech": "8.0.2"
   },
   "devDependencies": {
     "@capacitor/cli": "8.6.2",
