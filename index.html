@@ -994,6 +994,7 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
 @media(max-width:390px){.wrap{padding-top:116px!important}.top{gap:7px}.hero{padding:19px 15px!important}.mode-card strong{font-size:21px!important}}
 /* عبقور: شخصية عائمة مستقلة في الزاوية العليا، بلا بطاقة أو إطار حاضن */
 .iq-mentor{position:fixed!important;top:auto!important;right:auto!important;left:10px!important;bottom:calc(env(safe-area-inset-bottom,0px) + 82px)!important;transform:none!important;width:88px!important;height:88px!important;display:block!important;z-index:10010!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;pointer-events:none!important;overflow:visible!important}
+.iq-mentor:not(.is-visible){display:none!important}.iq-mentor.is-visible{display:block!important}
 .iq-mentor::before{content:"";position:absolute;inset:8px;border-radius:50%;background:radial-gradient(circle,#fff5b9 0%,#ff9bc8 44%,#4ccfff 72%,transparent 74%);filter:blur(5px);opacity:.85;z-index:-1;animation:mentorAura 3.2s ease-in-out infinite}
 .iq-mentor-bubble{position:absolute!important;bottom:8px!important;left:calc(100% + 9px)!important;right:auto!important;top:auto!important;flex:none!important;width:min(205px,58vw)!important;max-width:none!important;min-width:0!important;padding:8px 12px!important;border:2px solid #fff!important;border-radius:19px 19px 19px 6px!important;background:linear-gradient(145deg,#fffdf1,#ffe5a8)!important;color:#263675!important;box-shadow:0 4px 0 #d78b36,0 8px 18px #061d6244!important;font-size:13px!important;font-weight:800!important;line-height:1.45!important;text-align:center!important;pointer-events:none!important}
 .iq-mentor-bubble[hidden]{display:none!important}
@@ -2637,19 +2638,25 @@ window.setTimeout(() => {
  const defaultTips={home:tips.home[0],play:tips.play[0],daily:tips.daily[0],puzzles:tips.puzzles[0],visual:tips.visual[0],profile:tips.profile[0]};
  let tipIndex=0,currentScreen='home',speaking=false,bubbleTimer=null;
  function speak(message){
-  if(!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window))return;
+  if(!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window)){
+   bubble.textContent='الصوت غير متاح على هذا الجهاز حالياً. اضغط على عبقور لقراءة النص.';
+   return false;
+  }
   try{
-   window.speechSynthesis.cancel();
+   const synth=window.speechSynthesis;
+   synth.cancel();
    const utterance=new SpeechSynthesisUtterance(message);
-   utterance.lang='ar-IQ';utterance.rate=.92;utterance.pitch=1.12;
-   const voices=window.speechSynthesis.getVoices();
+   utterance.lang='ar-IQ';utterance.rate=.88;utterance.pitch=1.08;utterance.volume=1;
+   const voices=synth.getVoices();
    const arabic=voices.find(v=>/^ar([-_]|$)/i.test(v.lang));
    if(arabic)utterance.voice=arabic;
    utterance.onstart=()=>{speaking=true;mentor.classList.add('is-speaking')};
    const stop=()=>{speaking=false;mentor.classList.remove('is-speaking')};
    utterance.onend=stop;utterance.onerror=stop;
-   window.speechSynthesis.speak(utterance);
-  }catch(error){speaking=false;mentor.classList.remove('is-speaking')}
+   synth.resume();
+   synth.speak(utterance);
+   return true;
+  }catch(error){speaking=false;mentor.classList.remove('is-speaking');return false}
  }
  function show(message,state='idle',say=false){
   if(!message)return;
@@ -2666,11 +2673,24 @@ window.setTimeout(() => {
   toggle.setAttribute('aria-expanded','true');
   if(say)speak(message);
  }
+ let revealTimer=null;
  function syncScreen(){
   const active=document.querySelector('.app-screen.active');
   const name=active?.id?.replace('screen-','')||'home';
   currentScreen=Object.prototype.hasOwnProperty.call(tips,name)?name:'home';
-  mentor.classList.add('is-visible');
+  const launch=document.getElementById('launchScreen');
+  if(launch&&!launch.classList.contains('launch-hidden')){
+   mentor.classList.remove('is-visible');
+   bubble.hidden=true;
+   return;
+  }
+  if(revealTimer)clearTimeout(revealTimer);
+  if(launch){
+   mentor.classList.remove('is-visible');
+   revealTimer=setTimeout(()=>mentor.classList.add('is-visible'),720);
+  }else{
+   mentor.classList.add('is-visible');
+  }
   tipIndex=0;
   if(bubbleTimer)clearTimeout(bubbleTimer);
   bubble.hidden=true;toggle.setAttribute('aria-expanded','false');
@@ -2698,11 +2718,16 @@ window.setTimeout(() => {
  const resultTitle=document.getElementById('resultTitle');
  if(resultTitle)new MutationObserver(()=>{if((resultTitle.textContent||'').trim())show('أحسنت! أنهيت الجولة، استعد للتحدّي القادم! 🎓','celebrating');}).observe(resultTitle,{childList:true,characterData:true,subtree:true});
  syncScreen();
+ const launchScreen=document.getElementById('launchScreen');
+ if(launchScreen)new MutationObserver(syncScreen).observe(launchScreen,{attributes:true,attributeFilter:['class']});
  const launchStart=document.getElementById('launchStart');
  if(launchStart)launchStart.addEventListener('click',()=>{
-  // Speak directly inside the user's start-button gesture so Android WebView
-  // does not delay or block the welcome voice behind an autoplay timeout.
-  show('أهلاً بك! أنا عبقور، مرشدك في تحدّي العقول. خلّينا نبدأ رحلة المعرفة ونصعد سويّة إلى القمّة!','happy',true);
+  // Start speech synchronously within the real tap gesture for Android WebView.
+  const welcome='أهلاً بك! أنا عبقور، مرشدك في تحدّي العقول. خلّينا نبدأ رحلة المعرفة ونصعد سويّة إلى القمّة!';
+  speak(welcome);
+  if(bubbleTimer)clearTimeout(bubbleTimer);
+  if(revealTimer)clearTimeout(revealTimer);
+  revealTimer=setTimeout(()=>show(welcome,'happy',false),760);
  },{once:true});
  document.addEventListener('click',event=>{
   const nav=event.target.closest('[data-screen],[data-open-screen]');if(!nav)return;
