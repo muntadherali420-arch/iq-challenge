@@ -684,6 +684,70 @@ body{
 @media(prefers-reduced-motion:reduce){.iq-mentor-toggle,.mentor-eye,.mentor-hand,.iq-mentor-bubble{animation:none!important}}
 .wrap{padding-top:150px}
 @media(max-width:380px){.wrap{padding-top:122px}}
+
+/* v71 — animated artwork throughout the app */
+@media(prefers-reduced-motion:no-preference){
+ img:not([data-motion="off"]){
+  transform-origin:center;
+  backface-visibility:hidden;
+  animation:iqImageReveal .7s cubic-bezier(.2,.75,.25,1) both,iqImageFloat 5.8s ease-in-out .7s infinite;
+ }
+ img:not([data-motion="off"]):hover{
+  filter:saturate(1.08) brightness(1.035) drop-shadow(0 7px 10px #17214a30);
+ }
+ img:not([data-motion="off"]):active{
+  transform:scale(.96);
+ }
+ svg[role="img"]:not(.iq-mentor-svg){
+  transform-origin:center;
+  animation:iqImageReveal .7s cubic-bezier(.2,.75,.25,1) both,iqIllustrationFloat 5.4s ease-in-out .7s infinite;
+ }
+ .visual-scene{
+  transform-origin:center;
+  animation:iqSceneFloat 5.2s ease-in-out infinite;
+ }
+ .visual-object-art,.visual-object,.visual-answer{
+  transform-origin:center;
+  animation:iqArtPop .55s cubic-bezier(.2,.8,.2,1) both;
+ }
+ .visual-object-art{display:inline-block}
+ .scholar-art-wrap,.puzzle-mascot,.daily-launch-icon{
+  filter:drop-shadow(0 7px 9px #15265a24);
+ }
+ .scholar-art-wrap svg,.puzzle-mascot svg{
+  filter:drop-shadow(0 7px 5px #15265a30);
+ }
+ .mode-card:active,.visual-object:active,.visual-answer:active{
+  transform:scale(.97);
+ }
+}
+@keyframes iqImageReveal{
+ from{opacity:0;transform:translateY(10px) scale(.92);filter:blur(2px)}
+ to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+}
+@keyframes iqImageFloat{
+ 0%,100%{transform:translateY(0) scale(1)}
+ 50%{transform:translateY(-4px) scale(1.012)}
+}
+@keyframes iqIllustrationFloat{
+ 0%,100%{transform:translateY(0) rotate(0)}
+ 50%{transform:translateY(-3px) rotate(1deg)}
+}
+@keyframes iqSceneFloat{
+ 0%,100%{transform:translateY(0) scale(1)}
+ 50%{transform:translateY(-3px) scale(1.008)}
+}
+@keyframes iqArtPop{
+ 0%{opacity:0;transform:scale(.78) rotate(-4deg)}
+ 75%{opacity:1;transform:scale(1.06) rotate(1deg)}
+ 100%{opacity:1;transform:scale(1) rotate(0)}
+}
+@media(prefers-reduced-motion:reduce){
+ img:not([data-motion="off"]),svg[role="img"]:not(.iq-mentor-svg),.visual-scene,.visual-object-art,.visual-object,.visual-answer{
+  animation:none!important;transform:none!important;filter:none!important
+ }
+}
+
 </style>
 <style>
 /* v53 — encouraging correct-answer streak indicator */
