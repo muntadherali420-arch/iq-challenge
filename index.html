@@ -748,6 +748,16 @@ body{
  }
 }
 
+
+/* Guest mode: make the no-signup path obvious */
+#guestStartBtn{width:100%;margin:12px 0 4px;padding:15px 18px;border:2px solid #fff;border-radius:18px;background:linear-gradient(120deg,#0cae9b,#2375e8);color:#fff;font-weight:900;font-size:1.04rem;box-shadow:0 8px 18px #2264c633;transition:transform .18s ease,filter .18s ease}
+#guestStartBtn:active{transform:scale(.975);filter:brightness(.96)}
+#guestStartBtn:focus-visible,#completeUpgradeBtn:focus-visible{outline:3px solid #ffc94f;outline-offset:3px}
+#guestStartBtn:disabled{opacity:.65;cursor:wait}
+#accountPerksCard ul{padding-inline-start:22px;line-height:1.9}
+#completeUpgradeBtn{width:100%;margin-top:10px}
+@media(prefers-reduced-motion:reduce){#guestStartBtn{transition:none}}
+
 </style>
 <style>
 /* v53 — encouraging correct-answer streak indicator */
