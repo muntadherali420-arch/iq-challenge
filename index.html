@@ -992,17 +992,20 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
 .launch-title{font-size:clamp(38px,9vw,54px)!important;color:#fff2a8!important;text-shadow:0 4px 0 #5227a2!important}
 .footer{color:#f2f6ff!important}
 @media(max-width:390px){.wrap{padding-top:116px!important}.top{gap:7px}.hero{padding:19px 15px!important}.mode-card strong{font-size:21px!important}}
-/* عبقور: شخصية عائمة مستقلة في الزاوية العليا، بلا بطاقة أو إطار حاضن */
-.iq-mentor{position:fixed!important;top:auto!important;right:auto!important;left:10px!important;bottom:calc(env(safe-area-inset-bottom,0px) + 82px)!important;transform:none!important;width:88px!important;height:88px!important;display:block!important;z-index:10010!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;pointer-events:none!important;overflow:visible!important}
+/* عبقور: مكان علوي متغيّر حسب الشاشة، وفقاعة مستقلة لا تغطي محتوى اللعبة */
+.wrap{padding-top:136px!important}
+.iq-mentor{position:fixed!important;top:calc(env(safe-area-inset-top,0px) + 8px)!important;left:8px!important;right:auto!important;bottom:auto!important;transform:none!important;width:86px!important;height:86px!important;display:block!important;z-index:10010!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;pointer-events:none!important;overflow:visible!important}
+.iq-mentor[data-position="right"]{left:auto!important;right:8px!important}
 .iq-mentor:not(.is-visible){display:none!important}.iq-mentor.is-visible{display:block!important}
 .iq-mentor::before{content:"";position:absolute;inset:8px;border-radius:50%;background:radial-gradient(circle,#fff5b9 0%,#ff9bc8 44%,#4ccfff 72%,transparent 74%);filter:blur(5px);opacity:.85;z-index:-1;animation:mentorAura 3.2s ease-in-out infinite}
-.iq-mentor-bubble{position:absolute!important;bottom:8px!important;left:calc(100% + 9px)!important;right:auto!important;top:auto!important;flex:none!important;width:min(205px,58vw)!important;max-width:none!important;min-width:0!important;padding:8px 12px!important;border:2px solid #fff!important;border-radius:19px 19px 19px 6px!important;background:linear-gradient(145deg,#fffdf1,#ffe5a8)!important;color:#263675!important;box-shadow:0 4px 0 #d78b36,0 8px 18px #061d6244!important;font-size:13px!important;font-weight:800!important;line-height:1.45!important;text-align:center!important;pointer-events:none!important}
+.iq-mentor-bubble{position:absolute!important;top:0!important;bottom:auto!important;left:calc(100% + 8px)!important;right:auto!important;flex:none!important;width:min(205px,calc(100vw - 112px))!important;max-width:none!important;min-width:0!important;padding:8px 10px!important;border:2px solid #fff!important;border-radius:19px 19px 19px 6px!important;background:linear-gradient(145deg,#fffdf1,#ffe5a8)!important;color:#263675!important;box-shadow:0 4px 0 #d78b36,0 8px 18px #061d6244!important;font-size:12px!important;font-weight:800!important;line-height:1.4!important;text-align:center!important;pointer-events:none!important}
+.iq-mentor[data-position="right"] .iq-mentor-bubble{left:auto!important;right:calc(100% + 8px)!important;border-radius:19px 19px 6px 19px!important}
 .iq-mentor-bubble[hidden]{display:none!important}
-.iq-mentor-toggle{position:relative!important;display:block!important;width:112px!important;height:112px!important;padding:0!important;border:0!important;border-radius:50%!important;background:transparent!important;box-shadow:none!important;filter:drop-shadow(0 7px 7px #091d60aa)!important;animation:mentorFloat 2.5s ease-in-out infinite!important;pointer-events:auto!important}
+.iq-mentor-toggle{position:relative!important;display:block!important;width:86px!important;height:86px!important;padding:0!important;border:0!important;border-radius:50%!important;background:transparent!important;box-shadow:none!important;filter:drop-shadow(0 7px 7px #091d60aa)!important;animation:mentorFloat 2.5s ease-in-out infinite!important;pointer-events:auto!important}
 .iq-mentor-svg{width:100%!important;height:100%!important;filter:drop-shadow(0 4px 2px #50144766)!important}
 .iq-mentor.is-speaking .iq-mentor-toggle{filter:drop-shadow(0 0 13px #fff36a) drop-shadow(0 7px 7px #091d60aa)!important}
 @keyframes mentorAura{0%,100%{transform:scale(.92);opacity:.65}50%{transform:scale(1.08);opacity:1}}
-@media(max-width:390px){.iq-mentor{width:76px!important;height:76px!important;left:7px!important;bottom:calc(env(safe-area-inset-bottom,0px) + 78px)!important}.iq-mentor-toggle{width:76px!important;height:76px!important}.iq-mentor-bubble{bottom:5px!important;width:min(190px,61vw)!important;font-size:11px!important;padding:7px 9px!important}}
+@media(max-width:390px){.wrap{padding-top:120px!important}.iq-mentor{width:76px!important;height:76px!important;left:7px!important;right:auto!important}.iq-mentor[data-position="right"]{left:auto!important;right:7px!important}.iq-mentor-toggle{width:76px!important;height:76px!important}.iq-mentor-bubble{width:min(190px,calc(100vw - 100px))!important;font-size:11px!important;padding:7px 8px!important}}
 @media(prefers-reduced-motion:reduce){.iq-mentor::before{animation:none!important}}
 </style>
 
@@ -2623,7 +2626,8 @@ window.setTimeout(() => {
 
 </script>
 
-<script>
+<script type="module">
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
 (()=>{
  const mentor=document.getElementById('iqMentor'),bubble=document.getElementById('iqMentorBubble'),toggle=document.getElementById('iqMentorToggle');
  if(!mentor||!bubble||!toggle)return;
@@ -2637,26 +2641,36 @@ window.setTimeout(() => {
  };
  const defaultTips={home:tips.home[0],play:tips.play[0],daily:tips.daily[0],puzzles:tips.puzzles[0],visual:tips.visual[0],profile:tips.profile[0]};
  let tipIndex=0,currentScreen='home',speaking=false,bubbleTimer=null;
- function speak(message){
-  if(!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window)){
-   bubble.textContent='الصوت غير متاح على هذا الجهاز حالياً. اضغط على عبقور لقراءة النص.';
-   return false;
-  }
+ async function speak(message){
+  if(!message)return false;
+  speaking=true;mentor.classList.add('is-speaking');
   try{
-   const synth=window.speechSynthesis;
-   synth.cancel();
-   const utterance=new SpeechSynthesisUtterance(message);
-   utterance.lang='ar-IQ';utterance.rate=.88;utterance.pitch=1.08;utterance.volume=1;
-   const voices=synth.getVoices();
-   const arabic=voices.find(v=>/^ar([-_]|$)/i.test(v.lang));
-   if(arabic)utterance.voice=arabic;
-   utterance.onstart=()=>{speaking=true;mentor.classList.add('is-speaking')};
-   const stop=()=>{speaking=false;mentor.classList.remove('is-speaking')};
-   utterance.onend=stop;utterance.onerror=stop;
-   synth.resume();
-   synth.speak(utterance);
-   return true;
-  }catch(error){speaking=false;mentor.classList.remove('is-speaking');return false}
+   await TextToSpeech.stop().catch(()=>{});
+   let language='ar-IQ';
+   try{
+    const result=await TextToSpeech.getSupportedLanguages();
+    const arabic=(result?.languages||[]).find(lang=>/^ar-IQ$/i.test(lang))
+      ||(result?.languages||[]).find(lang=>/^ar([-_]|$)/i.test(lang));
+    if(arabic)language=arabic;
+   }catch(_){}
+   await TextToSpeech.speak({text:message,lang:language,rate:.88,pitch:1.08,volume:1,queueStrategy:0});
+   speaking=false;mentor.classList.remove('is-speaking');return true;
+  }catch(nativeError){
+   if('speechSynthesis' in window&&'SpeechSynthesisUtterance' in window){
+    try{
+     const synth=window.speechSynthesis;synth.cancel();
+     const utterance=new SpeechSynthesisUtterance(message);
+     utterance.lang='ar-IQ';utterance.rate=.88;utterance.pitch=1.08;utterance.volume=1;
+     const voices=synth.getVoices();const voice=voices.find(v=>/^ar([-_]|$)/i.test(v.lang));
+     if(voice)utterance.voice=voice;
+     utterance.onend=utterance.onerror=()=>{speaking=false;mentor.classList.remove('is-speaking')};
+     synth.resume();synth.speak(utterance);return true;
+    }catch(_){}
+   }
+   speaking=false;mentor.classList.remove('is-speaking');
+   bubble.textContent='تعذّر تشغيل الصوت العربي. قد يحتاج الجهاز إلى تفعيل محرك النطق وتوفير صوت عربي.';
+   bubble.hidden=false;return false;
+  }
  }
  function show(message,state='idle',say=false){
   if(!message)return;
@@ -2678,6 +2692,9 @@ window.setTimeout(() => {
   const active=document.querySelector('.app-screen.active');
   const name=active?.id?.replace('screen-','')||'home';
   currentScreen=Object.prototype.hasOwnProperty.call(tips,name)?name:'home';
+  const mentorPositions={home:'left',play:'right',daily:'left',puzzles:'right',visual:'left',profile:'right'};
+  mentor.dataset.position=mentorPositions[currentScreen]||'left';
+  mentor.dataset.screen=currentScreen;
   const launch=document.getElementById('launchScreen');
   if(launch&&!launch.classList.contains('launch-hidden')){
    mentor.classList.remove('is-visible');
