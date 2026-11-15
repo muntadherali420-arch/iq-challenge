@@ -665,7 +665,7 @@ body{
 .puzzle-feedback{color:#203653!important}
 
 /* Animated in-app mentor mascot: vector artwork + lightweight CSS motion */
-.iq-mentor{position:fixed;z-index:60;top:max(8px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(96vw,460px);display:none;align-items:center;flex-direction:row-reverse;justify-content:center;gap:10px;direction:rtl;pointer-events:none;padding:5px 8px;border:1px solid #8be7ff80;border-radius:24px;background:linear-gradient(110deg,#102a67e8,#1b4b91e8 58%,#41247be8);box-shadow:0 8px 28px #06194380;backdrop-filter:blur(12px)}
+.iq-mentor{position:fixed;z-index:80;top:max(8px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(96vw,460px);display:flex;align-items:center;flex-direction:row-reverse;justify-content:center;gap:10px;direction:rtl;pointer-events:none;padding:5px 8px;border:1px solid #8be7ff80;border-radius:24px;background:linear-gradient(110deg,#102a67e8,#1b4b91e8 58%,#41247be8);box-shadow:0 8px 28px #06194380;backdrop-filter:blur(12px)}
 .iq-mentor.is-visible{display:flex}.iq-mentor-bubble{pointer-events:auto;flex:1;max-width:270px;min-width:120px;padding:9px 11px;border:2px solid #75e6ff;border-radius:16px 16px 5px 16px;background:linear-gradient(145deg,#fff,#eaf8ff);color:#123477;box-shadow:0 5px 16px #001a5570;font-size:12px;font-weight:800;line-height:1.5;text-align:center;transform-origin:bottom left;animation:mentorBubbleIn .35s ease both}.iq-mentor-bubble[hidden]{display:none}
 .iq-mentor-toggle{pointer-events:auto;flex:0 0 auto;border:0;border-radius:50%;background:radial-gradient(circle at 35% 25%,#fff8c9,#8cecff 45%,#3e5de0 78%);padding:5px;width:126px;height:126px;cursor:pointer;filter:drop-shadow(0 7px 9px #061b5bcc);box-shadow:0 0 0 4px #ffffff30,0 0 24px #72dfff88;animation:mentorFloat 2.5s ease-in-out infinite;touch-action:manipulation}
 .iq-mentor-svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 3px 2px #5c174b55)}.mentor-eye{transform-box:fill-box;transform-origin:center;animation:mentorBlink 4.8s infinite}.mentor-hand{transform-box:fill-box;transform-origin:15% 80%;animation:mentorWave 2.8s ease-in-out infinite}.iq-mentor.is-thinking .iq-mentor-toggle{animation:mentorThink 1.5s ease-in-out infinite}.iq-mentor.is-happy .iq-mentor-toggle{animation:mentorHappy .55s ease-in-out 2}.iq-mentor.is-happy .mentor-mouth{stroke:#148c61}.iq-mentor.is-speaking .mentor-mouth{animation:mentorTalk .22s ease-in-out infinite alternate;transform-origin:center}
@@ -1069,7 +1069,7 @@ id="historyCard">
     <button class="nav-btn" type="button" data-screen="profile"><span>🏆</span>إنجازاتي</button>
   </nav>
 </main>
-<aside class="iq-mentor" id="iqMentor" aria-label="عبقور، مرشد تحدّي العقول">
+<aside class="iq-mentor is-visible" id="iqMentor" aria-label="عبقور، مرشد تحدّي العقول">
  <div class="iq-mentor-bubble" id="iqMentorBubble" role="status" aria-live="polite">أهلاً! أنا عبقور، مرشدك في التحدّي. اضغط عليّ للمساعدة!</div>
  <button class="iq-mentor-toggle" id="iqMentorToggle" type="button" aria-label="تحدّث مع عبقور، مرشد اللعبة" aria-expanded="true">
   <svg class="iq-mentor-svg" viewBox="0 0 140 145" role="img" aria-label="شخصية دماغ كرتونية بنظارات وقبعة تخرّج">
