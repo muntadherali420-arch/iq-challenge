@@ -1309,6 +1309,58 @@ const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_wzAJmA21MoRZhkokNj2RFw_lLqi8U9C
 const supabase = window.iqSupabase || createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 window.iqSupabase = supabase;
 
+// Privacy-safe diagnostics: never collect emails, passwords, tokens, answers, URLs, or stack traces.
+let iqDiagnosticCount = 0;
+function iqSafeDiagnosticMessage(value) {
+  return String(value || 'Unknown error')
+    .replace(/https?:\/\/\S+/gi, '[url]')
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[email]')
+    .replace(/(access_token|refresh_token|password|authorization|apikey)\s*[:=]\s*[^\s,;]+/gi, '$1=[redacted]')
+    .replace(/\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g, '[token]')
+    .slice(0, 500);
+}
+async function iqReportDiagnostic(eventType, message, details = {}) {
+  if (iqDiagnosticCount >= 30) return;
+  iqDiagnosticCount += 1;
+  try {
+    const { data } = await supabase.auth.getSession();
+    const userId = data.session?.user?.id;
+    if (!userId) return;
+    const safeDetails = {};
+    ['code', 'status', 'name', 'line', 'column', 'reason'].forEach(key => {
+      const value = details?.[key];
+      if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+        safeDetails[key] = typeof value === 'string' ? iqSafeDiagnosticMessage(value).slice(0, 120) : value;
+      }
+    });
+    const activeScreen = window.iqCurrentScreen ||
+      document.querySelector('.app-screen.active')?.id?.replace('screen-', '') || 'unknown';
+    const { error } = await supabase.from('app_diagnostics').insert({
+      user_id: userId,
+      event_type: eventType,
+      screen: String(activeScreen).slice(0, 40),
+      message: iqSafeDiagnosticMessage(message),
+      details: safeDetails,
+      app_version: '0.1.0',
+      platform: Capacitor.getPlatform()
+    });
+    if (error) console.debug('Diagnostic upload unavailable:', error.code || error.message);
+  } catch (error) {
+    console.debug('Diagnostic upload skipped:', error?.message || error);
+  }
+}
+window.iqReportDiagnostic = iqReportDiagnostic;
+window.addEventListener('error', event => {
+  void iqReportDiagnostic('app_error', event.message, { line: event.lineno || 0, column: event.colno || 0 });
+});
+window.addEventListener('unhandledrejection', event => {
+  const reason = event.reason;
+  void iqReportDiagnostic('promise_rejection', reason?.message || reason, { name: reason?.name || typeof reason });
+});
+window.addEventListener('offline', () => {
+  void iqReportDiagnostic('network_offline', 'انقطع اتصال الإنترنت');
+});
+
 const $ = id => document.getElementById(id);
 function showAppScreen(name){
   document.querySelectorAll('.app-screen').forEach(screen=>screen.classList.toggle('active',screen.id==='screen-'+name));
@@ -1817,6 +1869,7 @@ async function loadDailyChallenge() {
   // Ignore stale responses so the same four answer buttons are never appended twice.
   if (loadVersion !== dailyLoadVersion) return;
   if (error) {
+    void iqReportDiagnostic('daily_load_error', error.message, { code: error.code, status: error.status });
     updateDailyHomeCard('error');
     questionEl.textContent = 'تعذّر تحميل تحدّي اليوم.';
     feedbackEl.textContent = error.message;
@@ -1867,6 +1920,7 @@ async function submitDailyAnswer(challengeId, letter) {
   const { data: latestSession } = await supabase.auth.getSession();
   if (latestSession.session?.user?.id !== submitUserId || answerLoadVersion !== dailyLoadVersion) return;
   if (error) {
+    void iqReportDiagnostic('daily_answer_error', error.message, { code: error.code, status: error.status });
     buttons.forEach(button => button.disabled = false);
     $('dailyFeedback').textContent = 'تعذّر حفظ الإجابة: ' + error.message;
     return;
@@ -1932,6 +1986,7 @@ async function loadRound() {
   const { data: latestSession } = await supabase.auth.getSession();
   if (loadVersion !== roundLoadVersion || latestSession.session?.user?.id !== sessionData.session.user.id) return;
   if (error) {
+    void iqReportDiagnostic('question_load_error', error.message, { code: error.code, status: error.status });
     showGameMessage('تعذّر تحميل الأسئلة. تأكد من تنفيذ ملف إعداد Supabase SQL ثم أعد المحاولة.');
     $('feedback').textContent = error.message;
     return;
@@ -2064,6 +2119,7 @@ async function chooseAnswer(letter) {
     return;
   }
   if (error) {
+    void iqReportDiagnostic('answer_submit_error', error.message, { code: error.code, status: error.status });
     locked = false;
     buttons.forEach(b => b.disabled = false);
     $('feedback').textContent = 'تعذّر حفظ الإجابة: ' + error.message;
@@ -2152,6 +2208,7 @@ if (!initialSession.session) {
   if (guestData?.session) initialSession.session = guestData.session;
   else {
     console.warn('Automatic guest session unavailable:', guestError?.message);
+    void iqReportDiagnostic('auth_session_error', guestError?.message, { code: guestError?.code, status: guestError?.status });
     showGameMessage('تعذّر تجهيز اللعب التلقائي حالياً. يرجى المحاولة بعد قليل.');
   }
 }
@@ -2162,7 +2219,9 @@ if (initialSession.session) {
     await loadLeaderboard();
     await loadDailyChallenge();
   }
-  const { data: stats } = await supabase.rpc('get_quiz_stats');
+  void iqReportDiagnostic('session_ready', 'تم تجهيز جلسة اللاعب');
+  const { data: stats, error: statsError } = await supabase.rpc('get_quiz_stats');
+  if (statsError) void iqReportDiagnostic('startup_stats_error', statsError.message, { code: statsError.code });
   applyServerStats(stats);
   await loadRound();
 } else {
@@ -2530,6 +2589,7 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{void showSession(newSessio
   });
   submitting=false;
   if(error){
+   void iqReportDiagnostic('puzzle_answer_error', error.message, { code: error.code, status: error.status });
    buttons.forEach(b=>b.disabled=false);
    $('puzzleFeedback').textContent='تعذّر تسجيل الإجابة. تحقق من الاتصال ثم اضغط مرة أخرى.';
    return;
