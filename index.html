@@ -2673,7 +2673,7 @@ window.setTimeout(() => {
   toggle.setAttribute('aria-expanded','true');
   if(say)speak(message);
  }
- let revealTimer=null;
+ let revealTimer=null,welcomeTimer=null;
  function syncScreen(){
   const active=document.querySelector('.app-screen.active');
   const name=active?.id?.replace('screen-','')||'home';
@@ -2726,8 +2726,9 @@ window.setTimeout(() => {
   const welcome='أهلاً بك! أنا عبقور، مرشدك في تحدّي العقول. خلّينا نبدأ رحلة المعرفة ونصعد سويّة إلى القمّة!';
   speak(welcome);
   if(bubbleTimer)clearTimeout(bubbleTimer);
-  if(revealTimer)clearTimeout(revealTimer);
-  revealTimer=setTimeout(()=>show(welcome,'happy',false),760);
+  // Keep welcome timing separate: launch-screen observers may reschedule mentor visibility.
+  if(welcomeTimer)clearTimeout(welcomeTimer);
+  welcomeTimer=setTimeout(()=>show(welcome,'happy',false),760);
  },{once:true});
  document.addEventListener('click',event=>{
   const nav=event.target.closest('[data-screen],[data-open-screen]');if(!nav)return;
