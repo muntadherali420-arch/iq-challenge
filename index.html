@@ -668,7 +668,7 @@ body{
 .iq-mentor{position:fixed;z-index:40;left:10px;bottom:94px;width:112px;display:none;align-items:center;flex-direction:column;gap:3px;direction:rtl;pointer-events:none}
 .iq-mentor.is-visible{display:flex}.iq-mentor-bubble{pointer-events:auto;max-width:190px;min-width:132px;padding:9px 11px;border:2px solid #75e6ff;border-radius:16px 16px 5px 16px;background:linear-gradient(145deg,#fff,#eaf8ff);color:#123477;box-shadow:0 5px 16px #001a5570;font-size:12px;font-weight:800;line-height:1.5;text-align:center;transform-origin:bottom left;animation:mentorBubbleIn .35s ease both}.iq-mentor-bubble[hidden]{display:none}
 .iq-mentor-toggle{pointer-events:auto;border:0;background:transparent;padding:0;width:106px;height:112px;cursor:pointer;filter:drop-shadow(0 5px 5px #061b5b88);animation:mentorFloat 2.8s ease-in-out infinite;touch-action:manipulation}
-.iq-mentor-svg{width:100%;height:100%;overflow:visible}.mentor-eye{transform-box:fill-box;transform-origin:center;animation:mentorBlink 4.8s infinite}.mentor-hand{transform-box:fill-box;transform-origin:15% 80%;animation:mentorWave 2.8s ease-in-out infinite}.iq-mentor.is-thinking .iq-mentor-toggle{animation:mentorThink 1.5s ease-in-out infinite}.iq-mentor.is-happy .iq-mentor-toggle{animation:mentorHappy .55s ease-in-out 2}.iq-mentor.is-happy .mentor-mouth{stroke:#148c61}
+.iq-mentor-svg{width:100%;height:100%;overflow:visible}.mentor-eye{transform-box:fill-box;transform-origin:center;animation:mentorBlink 4.8s infinite}.mentor-hand{transform-box:fill-box;transform-origin:15% 80%;animation:mentorWave 2.8s ease-in-out infinite}.iq-mentor.is-thinking .iq-mentor-toggle{animation:mentorThink 1.5s ease-in-out infinite}.iq-mentor.is-happy .iq-mentor-toggle{animation:mentorHappy .55s ease-in-out 2}.iq-mentor.is-happy .mentor-mouth{stroke:#148c61}.iq-mentor.is-speaking .mentor-mouth{animation:mentorTalk .22s ease-in-out infinite alternate;transform-origin:center}@keyframes mentorTalk{from{transform:scaleY(.65)}to{transform:scaleY(1.65)}}
 @keyframes mentorFloat{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-7px) rotate(2deg)}}@keyframes mentorBlink{0%,43%,47%,100%{transform:scaleY(1)}45%{transform:scaleY(.08)}}@keyframes mentorWave{0%,65%,100%{transform:rotate(0)}72%{transform:rotate(-18deg)}80%{transform:rotate(12deg)}88%{transform:rotate(-12deg)}}@keyframes mentorThink{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-3px) rotate(4deg)}}@keyframes mentorHappy{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-13px) scale(1.08)}}@keyframes mentorBubbleIn{from{opacity:0;transform:translateY(7px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-width:380px){.iq-mentor{left:4px;bottom:88px;width:92px}.iq-mentor-toggle{width:90px;height:96px}.iq-mentor-bubble{max-width:160px;font-size:11px}}
 @media(prefers-reduced-motion:reduce){.iq-mentor-toggle,.mentor-eye,.mentor-hand,.iq-mentor-bubble{animation:none!important}}
@@ -2505,14 +2505,50 @@ window.setTimeout(() => {
 
 <script>
 (()=>{
- const mentor=document.getElementById('iqMentor');const bubble=document.getElementById('iqMentorBubble');const toggle=document.getElementById('iqMentorToggle');if(!mentor||!bubble||!toggle)return;
- const lines={home:'أهلاً بك! أنا عبقور، راح أرافقك برحلة التحدّي. 🎓',play:'اقرأ السؤال بهدوء وفكّر قبل اختيار الإجابة. أنت قدّها!',daily:'هذا تحدّي اليوم! ركّز حتى تجمع مكافأتك اليومية. ⭐',puzzles:'الألغاز تحتاج تفكير خارج الصندوق… جرّب تلاحظ التفاصيل!',visual:'دقّق بالصورة، مرات أصغر تفصيل يقودك للحل!',profile:'تابع إنجازاتك، وكل خطوة تقرّبك من قمة العقول!'};
- let bubbleOpen=true;let lastMessage='';function say(message,state='idle'){if(!message)return;lastMessage=message;bubble.textContent=message;bubble.hidden=!bubbleOpen;mentor.classList.remove('is-thinking','is-happy');if(state==='thinking')mentor.classList.add('is-thinking');if(state==='happy')mentor.classList.add('is-happy');}
- function syncScreen(){const active=document.querySelector('.app-screen.active');const name=active?.id?.replace('screen-','')||'home';mentor.classList.toggle('is-visible',['home','play','daily','puzzles','visual','profile'].includes(name));say(lines[name]||lines.home,name==='play'?'thinking':'idle');}
- toggle.addEventListener('click',()=>{bubbleOpen=!bubbleOpen;bubble.hidden=!bubbleOpen;toggle.setAttribute('aria-expanded',String(bubbleOpen));if(bubbleOpen)say(lastMessage||lines.home);});
+ const mentor=document.getElementById('iqMentor'),bubble=document.getElementById('iqMentorBubble'),toggle=document.getElementById('iqMentorToggle');
+ if(!mentor||!bubble||!toggle)return;
+ const tips={
+  home:['أهلاً بك! اختر نمط اللعب الذي يعجبك، وأنا أرافقك خطوة بخطوة.','ابدأ بطريق القمّة إذا تحب الأسئلة المتدرجة وجمع النقاط.','تقدر تدخل تحدّي اليوم حتى تحافظ على سلسلة إنجازاتك!'],
+  play:['اقرأ السؤال بهدوء، ثم قارن بين الاختيارات قبل ما تجاوب.','إذا واجهت سؤالاً صعباً، خذ وقتك وفكّر بجزء من السؤال أولاً.','تذكّر: الدقة أهم من السرعة. اختَر بعد ما تتأكد!'],
+  daily:['هذا تحدّي اليوم! ركّز حتى تجمع مكافأتك اليومية.','حاول تشارك كل يوم حتى تطوّر سلسلة إنجازاتك.'],
+  puzzles:['الألغاز تحتاج تفكير خارج الصندوق… انتبه لصياغة السؤال!','جرّب تقرأ اللغز مرة ثانية؛ أحياناً الحل بتفصيل صغير.','لا تتسرّع، وفكّر بأكثر من احتمال.'],
+  visual:['دقّق بالصورة من الأطراف إلى الوسط، ولا تفوّت التفاصيل.','قارن الأشكال والألوان والعناصر قبل اختيار الإجابة.'],
+  profile:['تابع إنجازاتك ورتبك؛ كل إجابة صحيحة تقرّبك من هدفك.','استمر بالتعلّم، مو شرط تكون كل الإجابات صحيحة من أول محاولة!']
+ };
+ const defaultTips={home:tips.home[0],play:tips.play[0],daily:tips.daily[0],puzzles:tips.puzzles[0],visual:tips.visual[0],profile:tips.profile[0]};
+ let bubbleOpen=true,lastMessage=defaultTips.home,tipIndex=0,currentScreen='home',speakTimer=null;
+ function show(message,state='idle',speak=false){
+  if(!message)return;lastMessage=message;bubble.textContent=message;bubble.hidden=!bubbleOpen;
+  mentor.classList.remove('is-thinking','is-happy','is-speaking');
+  if(state==='thinking')mentor.classList.add('is-thinking');
+  if(state==='happy')mentor.classList.add('is-happy');
+  if(speak&&'speechSynthesis' in window&&'SpeechSynthesisUtterance' in window){
+   try{window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(message);utterance.lang='ar';utterance.rate=.94;utterance.pitch=1.08;
+    utterance.onstart=()=>{mentor.classList.add('is-speaking')};utterance.onend=()=>mentor.classList.remove('is-speaking');utterance.onerror=()=>mentor.classList.remove('is-speaking');window.speechSynthesis.speak(utterance);
+   }catch(e){mentor.classList.remove('is-speaking')}
+  }
+ }
+ function syncScreen(){
+  const active=document.querySelector('.app-screen.active');const name=active?.id?.replace('screen-','')||'home';
+  currentScreen=['home','play','daily','puzzles','visual','profile'].includes(name)?name:'home';
+  mentor.classList.toggle('is-visible',!!active);
+  tipIndex=0;show(defaultTips[currentScreen],currentScreen==='play'?'thinking':'idle');
+ }
+ toggle.addEventListener('click',()=>{
+  const list=tips[currentScreen]||tips.home;const message=list[tipIndex%list.length];tipIndex++;
+  bubbleOpen=true;bubble.hidden=false;toggle.setAttribute('aria-expanded','true');show(message,currentScreen==='play'?'thinking':'idle',true);
+ });
  document.querySelectorAll('.app-screen').forEach(screen=>new MutationObserver(syncScreen).observe(screen,{attributes:true,attributeFilter:['class']}));
- const watchFeedback=(id)=>{const el=document.getElementById(id);if(!el)return;new MutationObserver(()=>{const t=(el.textContent||'').trim();if(!t)return;const positive=/صحيح|أحسنت|رائع|ممتاز|إجابة صحيحة|مبروك/i.test(t);const negative=/خطأ|غير صحيح|حاول|الإجابة الصحيحة/i.test(t);if(positive)say('أحسنت! إجابة رائعة، استمر يا بطل! 🎉','happy');else if(negative)say('لا بأس، نتعلّم من كل محاولة. ركّز بالسؤال القادم! 💡','thinking');}).observe(el,{childList:true,subtree:true,characterData:true});};
- ['feedback','dailyFeedback','puzzleFeedback'].forEach(watchFeedback);syncScreen();
+ const watchFeedback=id=>{
+  const el=document.getElementById(id);if(!el)return;
+  new MutationObserver(()=>{
+   const value=(el.textContent||'').trim();if(!value)return;
+   if(/صحيح|أحسنت|رائع|ممتاز|إجابة صحيحة|مبروك/i.test(value))show('أحسنت! إجابة رائعة، استمر بهذا التركيز! 🎉','happy');
+   else if(/خطأ|غير صحيح|حاول|الإجابة الصحيحة/i.test(value))show('لا بأس، كل محاولة تعلّمنا شيئاً جديداً. جرّب مرة ثانية! 💡','thinking');
+  }).observe(el,{childList:true,subtree:true,characterData:true});
+ };
+ ['feedback','dailyFeedback','puzzleFeedback'].forEach(watchFeedback);
+ syncScreen();
 })();
 </script>
 </body></html>
