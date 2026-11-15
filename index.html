@@ -2233,9 +2233,56 @@ async function showSession(session){
   const user=session?.user;
   if(!user){
     status.textContent='غير مسجّل الدخول';
+    el('authForm').classList.remove('hidden');
+    el('guestStartBtn').classList.remove('hidden');
     el('logoutBtn').classList.add('hidden');
     el('deleteAccountBtn').classList.add('hidden');
     el('adminDashboardLink').classList.add('hidden');
+    el('completeUpgradeBtn').classList.add('hidden');
+    window.iqSetAccountMode?.(null);
+    return;
+  }
+  window.iqSetAccountMode?.(session);
+  window.iqSetBestRoundPlayer?.(user.id);
+  const pendingUpgrade=localStorage.getItem('iq-guest-upgrade-pending')==='1';
+  if(user.is_anonymous){
+    status.textContent=pendingUpgrade
+      ? 'أرسلنا رسالة تأكيد إلى بريدك. افتحها لإكمال ربط حسابك مع الاحتفاظ بتقدمك.'
+      : 'تلعب الآن كضيف — تقدمك محفوظ على هذا الجهاز.';
+    el('authForm').classList.remove('hidden');
+    el('guestStartBtn').classList.add('hidden');
+    el('logoutBtn').classList.add('hidden');
+    el('deleteAccountBtn').classList.add('hidden');
+    el('adminDashboardLink').classList.add('hidden');
+    el('completeUpgradeBtn').classList.add('hidden');
+    el('signupBtn').textContent='ربط تقدمي بحساب';
+    el('loginBtn').textContent='دخول إلى حساب موجود';
+    return;
+  }
+  if(pendingUpgrade && !user.email_confirmed_at){
+    status.textContent='بانتظار تأكيد البريد الإلكتروني. افتح رسالة التأكيد التي وصلتك.';
+    el('authForm').classList.add('hidden');
+    el('guestStartBtn').classList.add('hidden');
+    el('logoutBtn').classList.add('hidden');
+    el('deleteAccountBtn').classList.add('hidden');
+    el('completeUpgradeBtn').classList.add('hidden');
+    return;
+  }
+  if(pendingUpgrade && user.email_confirmed_at){
+    status.textContent='تم تأكيد البريد. أدخل كلمة مرور لحماية حسابك وإكمال الترقية.';
+    el('authForm').classList.remove('hidden');
+    el('guestStartBtn').classList.add('hidden');
+    el('usernameInput').classList.add('hidden');
+    el('emailInput').classList.add('hidden');
+    el('signupBtn').classList.add('hidden');
+    el('loginBtn').classList.add('hidden');
+    el('passwordInput').classList.remove('hidden');
+    el('passwordInput').value='';
+    el('passwordInput').placeholder='أنشئ كلمة مرور من 6 أحرف على الأقل';
+    el('passwordInput').autocomplete='new-password';
+    el('completeUpgradeBtn').classList.remove('hidden');
+    el('logoutBtn').classList.add('hidden');
+    el('deleteAccountBtn').classList.add('hidden');
     return;
   }
   const metadataName=(user.user_metadata?.username || '').toString().trim();
@@ -2243,22 +2290,64 @@ async function showSession(session){
   if(profileReadError) console.warn('Profile lookup:',profileReadError.message);
   const savedName=(profile?.username || '').toString().trim();
   const candidate=metadataName || savedName;
-  // Never publish an email address as a leaderboard display name.
   const username=(candidate && !candidate.includes('@') ? candidate : 'لاعب-'+user.id.slice(0,6)).slice(0,32);
-  window.iqSetBestRoundPlayer?.(user.id);
   status.textContent='مسجّل الدخول: '+username;
+  el('authForm').classList.add('hidden');
+  el('completeUpgradeBtn').classList.add('hidden');
   el('logoutBtn').classList.remove('hidden');
   el('deleteAccountBtn').classList.remove('hidden');
-  el('authForm').classList.add('hidden');
+  el('adminDashboardLink').classList.add('hidden');
+  el('usernameInput').classList.remove('hidden');
+  el('emailInput').classList.remove('hidden');
+  el('signupBtn').classList.remove('hidden');
+  el('loginBtn').classList.remove('hidden');
+  el('signupBtn').textContent='إنشاء حساب';
+  el('loginBtn').textContent='تسجيل الدخول';
   // Only the display name is public; the email remains in Supabase Auth.
   const {error}=await supabase.from('profiles').upsert({id:user.id,username},{onConflict:'id'});
   if(error) console.warn('Profile setup:',error.message);
 }
+el('guestStartBtn').addEventListener('click',async()=>{
+  setBusy(true);status.textContent='جارٍ تجهيز اللعب كضيف...';
+  const {data,error}=await supabase.auth.signInAnonymously();
+  setBusy(false);
+  if(error){
+    status.textContent=error.message.toLowerCase().includes('anonymous')
+      ? 'اللعب كضيف يحتاج تفعيل Anonymous Sign-Ins في إعدادات Supabase Authentication.'
+      : 'تعذّر بدء اللعب كضيف: '+error.message;
+    return;
+  }
+  await showSession(data.session);
+});
 el('signupBtn').addEventListener('click',async()=>{
   const username=el('usernameInput').value.trim();
   const email=el('emailInput').value.trim();
   const password=el('passwordInput').value;
-  if(!username||username.length<3||username.length>24||username.includes('@')||!email||password.length<6){status.textContent='اختر اسماً مستعاراً من 3 إلى 24 حرفاً دون بريد إلكتروني، وأدخل بريدك وكلمة مرور من 6 أحرف على الأقل.';return;}
+  if(!username||username.length<3||username.length>24||username.includes('@')||!email){
+    status.textContent='اختر اسماً مستعاراً من 3 إلى 24 حرفاً دون بريد إلكتروني، وأدخل بريدك الإلكتروني.';
+    return;
+  }
+  const {data:sessionData}=await supabase.auth.getSession();
+  const currentUser=sessionData.session?.user;
+  if(currentUser?.is_anonymous){
+    setBusy(true);status.textContent='جارٍ ربط تقدم الضيف ببريدك الإلكتروني...';
+    const {data,error}=await supabase.auth.updateUser({email, data:{username}});
+    setBusy(false);
+    if(error){
+      status.textContent='تعذّر ربط البريد. إذا كان البريد مستخدماً بحساب سابق، سجّل الدخول لذلك الحساب؛ لن ننقل تقدم الضيف إليه تلقائياً.';
+      console.warn('Guest account upgrade:',error.message);
+      return;
+    }
+    localStorage.setItem('iq-guest-upgrade-pending','1');
+    status.textContent='تم إرسال رسالة تأكيد إلى بريدك. افتحها من دون تسجيل الخروج، وبعد التأكيد ارجع للتطبيق وأنشئ كلمة مرور. سيبقى تقدم الضيف مرتبطاً بالحساب نفسه.';
+    const {data:latest}=await supabase.auth.getSession();
+    await showSession(latest.session);
+    return;
+  }
+  if(password.length<6){
+    status.textContent='كلمة المرور يجب أن تكون 6 أحرف على الأقل.';
+    return;
+  }
   setBusy(true);status.textContent='جارٍ إنشاء الحساب...';
   const {data,error}=await supabase.auth.signUp({email,password,options:{data:{username}}});
   setBusy(false);
@@ -2266,12 +2355,27 @@ el('signupBtn').addEventListener('click',async()=>{
   if(data.session){await showSession(data.session);status.textContent='تم إنشاء الحساب وتسجيل الدخول: '+username;}
   else status.textContent='تم إرسال طلب التسجيل. افحص بريدك إذا طُلب تأكيده، ثم سجّل الدخول.';
 });
+el('completeUpgradeBtn').addEventListener('click',async()=>{
+  const password=el('passwordInput').value;
+  if(password.length<6){status.textContent='كلمة المرور يجب أن تكون 6 أحرف على الأقل.';return;}
+  el('completeUpgradeBtn').disabled=true;status.textContent='جارٍ إكمال إنشاء الحساب...';
+  const {data,error}=await supabase.auth.updateUser({password});
+  el('completeUpgradeBtn').disabled=false;
+  if(error){status.textContent='تعذّر حفظ كلمة المرور: '+error.message;return;}
+  localStorage.removeItem('iq-guest-upgrade-pending');
+  const {data:latest}=await supabase.auth.getSession();
+  await showSession(latest.session);
+  status.textContent='تم إنشاء حسابك بنجاح، وتقدم الضيف أصبح محفوظاً بحسابك.';
+});
 el('loginBtn').addEventListener('click',async()=>{
   const email=el('emailInput').value.trim();const password=el('passwordInput').value;
   if(!email||!password){status.textContent='أدخل البريد الإلكتروني وكلمة المرور.';return;}
+  const {data:current}=await supabase.auth.getSession();
+  if(current.session?.user?.is_anonymous && !window.confirm('إذا دخلت إلى حساب موجود، تقدم الضيف الحالي لن ينتقل تلقائياً إلى ذلك الحساب. هل تريد المتابعة؟')) return;
   setBusy(true);status.textContent='جارٍ تسجيل الدخول...';
   const {data,error}=await supabase.auth.signInWithPassword({email,password});setBusy(false);
   if(error){status.textContent='تعذّر تسجيل الدخول: '+error.message;return;}
+  localStorage.removeItem('iq-guest-upgrade-pending');
   await showSession(data.session);
 });
 el('logoutBtn').addEventListener('click',async()=>{const {error}=await supabase.auth.signOut();if(error){status.textContent='تعذّر تسجيل الخروج: '+error.message;return;}el('authForm').classList.remove('hidden');status.textContent='تم تسجيل الخروج.';el('logoutBtn').classList.add('hidden');el('adminDashboardLink').classList.add('hidden');});
@@ -2307,8 +2411,8 @@ el('deleteAccountBtn').addEventListener('click',async()=>{
 });
 
 const {data:{session}}=await supabase.auth.getSession();
-if(session) await showSession(session);
-supabase.auth.onAuthStateChange((_event,newSession)=>{if(!newSession){el('authForm').classList.remove('hidden');showSession(null);}});
+await showSession(session);
+supabase.auth.onAuthStateChange((_event,newSession)=>{void showSession(newSession);});
 </script>
 
 <script>
