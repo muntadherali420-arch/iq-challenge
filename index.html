@@ -2259,7 +2259,6 @@ async function showSession(session){
   if(pendingUpgrade && (user.email_confirmed_at || user.confirmed_at)){
     status.textContent='تم تأكيد البريد. أدخل كلمة مرور لحماية حسابك وإكمال الترقية.';
     el('authForm').classList.remove('hidden');
-    el('guestStartBtn').classList.add('hidden');
     el('usernameInput').classList.add('hidden');
     el('emailInput').classList.add('hidden');
     el('signupBtn').classList.add('hidden');
