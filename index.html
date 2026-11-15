@@ -2255,11 +2255,16 @@ async function showSession(session){
     el('deleteAccountBtn').classList.add('hidden');
     el('adminDashboardLink').classList.add('hidden');
     el('completeUpgradeBtn').classList.add('hidden');
+    el('usernameInput').classList.remove('hidden');
+    el('emailInput').classList.remove('hidden');
+    el('passwordInput').classList.remove('hidden');
+    el('signupBtn').classList.remove('hidden');
+    el('loginBtn').classList.remove('hidden');
     el('signupBtn').textContent='ربط تقدمي بحساب';
     el('loginBtn').textContent='دخول إلى حساب موجود';
     return;
   }
-  if(pendingUpgrade && !user.email_confirmed_at){
+  if(pendingUpgrade && !(user.email_confirmed_at || user.confirmed_at)){
     status.textContent='بانتظار تأكيد البريد الإلكتروني. افتح رسالة التأكيد التي وصلتك.';
     el('authForm').classList.add('hidden');
     el('guestStartBtn').classList.add('hidden');
@@ -2268,7 +2273,7 @@ async function showSession(session){
     el('completeUpgradeBtn').classList.add('hidden');
     return;
   }
-  if(pendingUpgrade && user.email_confirmed_at){
+  if(pendingUpgrade && (user.email_confirmed_at || user.confirmed_at)){
     status.textContent='تم تأكيد البريد. أدخل كلمة مرور لحماية حسابك وإكمال الترقية.';
     el('authForm').classList.remove('hidden');
     el('guestStartBtn').classList.add('hidden');
@@ -2308,9 +2313,9 @@ async function showSession(session){
   if(error) console.warn('Profile setup:',error.message);
 }
 el('guestStartBtn').addEventListener('click',async()=>{
-  setBusy(true);status.textContent='جارٍ تجهيز اللعب كضيف...';
+  el('guestStartBtn').disabled=true;status.textContent='جارٍ تجهيز اللعب كضيف...';
   const {data,error}=await supabase.auth.signInAnonymously();
-  setBusy(false);
+  el('guestStartBtn').disabled=false;
   if(error){
     status.textContent=error.message.toLowerCase().includes('anonymous')
       ? 'اللعب كضيف يحتاج تفعيل Anonymous Sign-Ins في إعدادات Supabase Authentication.'
