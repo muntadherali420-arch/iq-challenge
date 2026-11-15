@@ -749,16 +749,8 @@ body{
 }
 
 
-/* Guest mode: make the no-signup path obvious */
-#guestStartBtn{display:none!important}
-
-#guestStartBtn{width:100%;margin:12px 0 4px;padding:15px 18px;border:2px solid #fff;border-radius:18px;background:linear-gradient(120deg,#0cae9b,#2375e8);color:#fff;font-weight:900;font-size:1.04rem;box-shadow:0 8px 18px #2264c633;transition:transform .18s ease,filter .18s ease}
-#guestStartBtn:active{transform:scale(.975);filter:brightness(.96)}
-#guestStartBtn:focus-visible,#completeUpgradeBtn:focus-visible{outline:3px solid #ffc94f;outline-offset:3px}
-#guestStartBtn:disabled{opacity:.65;cursor:wait}
 #accountPerksCard ul{padding-inline-start:22px;line-height:1.9}
 #completeUpgradeBtn{width:100%;margin-top:10px}
-@media(prefers-reduced-motion:reduce){#guestStartBtn{transition:none}}
 
 </style>
 <style>
@@ -1089,18 +1081,6 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
 <body>
 <div id="levelUpToast" role="status" aria-live="polite" aria-atomic="true"><strong id="levelUpTitle">🎉 ارتقيت بمستواك!</strong><span id="levelUpMessage"></span></div>
 
-<div id="launchScreen" role="dialog" aria-label="شاشة بداية تحدّي العقول">
- <div class="launch-content">
-  <div class="launch-mark">🧠</div>
-  <h1 class="launch-title">تحدّي العقول</h1>
-  <div class="launch-sub">IQ CHALLENGE</div>
-  <p class="launch-tagline">استعدّ… اختبر ذكاءك واصنع إنجازك</p>
-  <div class="launch-river"><div class="launch-river-fill"></div></div>
-  <div class="launch-percent" id="launchPercent">جارٍ تجهيز عالم التحدّي…</div>
-  <button id="launchStart" type="button">ابدأ التحدّي 🎮</button>
-  <div class="launch-note">الموسيقى تبدأ عند الضغط على زر البدء</div>
- </div>
-</div>
 <main class="wrap">
   <header class="top">
     <div class="brand"><div class="logo" aria-label="شعار الدماغ">🧠</div><div><h1>تحدّي العقول</h1><div class="sub">IQ CHALLENGE · النسخة التجريبية 0.1</div></div></div>
@@ -1192,15 +1172,14 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
   <div class="app-screen" id="screen-profile">
   <section class="card" id="authCard">
     <div class="row"><strong>حساب اللاعب</strong><span class="tag">تسجيل آمن</span></div>
-    <p class="auth-note">أنشئ حساباً أو سجّل دخولك حتى نربط تقدمك بحسابك. استخدم بريداً إلكترونياً تملكه.</p>
+    <p class="auth-note">التسجيل اختياري. أنشئ حساباً أو سجّل الدخول لحفظ تقدمك وفتح لوحة المتصدرين والتحديات اليومية.</p>
     <div class="auth-grid" id="authForm">
       <input class="auth-input" id="usernameInput" type="text" autocomplete="nickname" placeholder="اسم مستعار (لا تكتب بريدك أو معلوماتك الشخصية)">
       <input class="auth-input" id="emailInput" type="email" autocomplete="email" placeholder="البريد الإلكتروني">
       <input class="auth-input" id="passwordInput" type="password" autocomplete="current-password" placeholder="كلمة المرور (6 أحرف على الأقل)">
-      <div class="auth-actions"><button class="btn" id="signupBtn">إنشاء حساب / ترقية حساب الضيف</button><button class="btn secondary" id="loginBtn">تسجيل الدخول</button></div>
+      <div class="auth-actions"><button class="btn" id="signupBtn">إنشاء حساب</button><button class="btn secondary" id="loginBtn">تسجيل الدخول</button></div>
       <button class="btn secondary hidden" id="completeUpgradeBtn" type="button">تأكيد كلمة المرور وإكمال الحساب</button>
     </div>
-    <button class="btn hidden" id="guestStartBtn" type="button" aria-hidden="true" tabindex="-1">اللعب كضيف</button>
     <div class="account-line" id="accountStatus" aria-live="polite">غير مسجّل الدخول</div>
     <button class="btn secondary hidden" id="logoutBtn">تسجيل الخروج</button>
     <button class="btn secondary hidden" id="deleteAccountBtn" type="button">🗑️ حذف الحساب نهائياً</button>
@@ -1276,7 +1255,6 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
  const $=id=>document.getElementById(id);
  window.iqSetAccountMode=(session)=>{
   const guest=!!session?.user?.is_anonymous;
-  $('guestStartBtn')?.classList.toggle('hidden',!!session);
   $('accountPerksCard')?.classList.toggle('hidden',!guest);
   $('achievementsCenter')?.classList.toggle('hidden',guest);
   $('leaderboardCard')?.classList.toggle('hidden',guest);
@@ -1504,20 +1482,6 @@ $('soundToggle').addEventListener('click', () => {
 });
 updateSoundButton();
 window.iqCurrentScreen = document.querySelector('.app-screen.active')?.id?.replace('screen-','') || 'home';
-(()=>{
- const screen=document.getElementById('launchScreen'),button=document.getElementById('launchStart'),percent=document.getElementById('launchPercent');
- if(!screen||!button)return;
- setTimeout(()=>{percent.textContent='اكتمل التجهيز…';button.classList.add('ready');},2750);
- button.addEventListener('click',async()=>{
-  button.disabled=true;button.textContent='لحظة ونبدأ…';
-  if(soundEnabled){await startBackgroundMusic();}
-  screen.classList.add('launch-hidden');
-  setTimeout(()=>{
-   screen.remove();
-   if(typeof window.iqStartCoachGuide==='function') window.iqStartCoachGuide();
-  },700);
- });
-})();
 let questions = [], qIndex = 0, earned = 0, locked = false;
 let roundFinished = false, nextTransitioning = false;
 let currentStreak = 0, bestStreak = 0;
@@ -2256,7 +2220,6 @@ async function showSession(session){
   if(!user){
     status.textContent='غير مسجّل الدخول';
     el('authForm').classList.remove('hidden');
-    el('guestStartBtn').classList.remove('hidden');
     el('logoutBtn').classList.add('hidden');
     el('deleteAccountBtn').classList.add('hidden');
     el('adminDashboardLink').classList.add('hidden');
@@ -2272,7 +2235,6 @@ async function showSession(session){
       ? 'أرسلنا رسالة تأكيد إلى بريدك. افتحها لإكمال ربط حسابك مع الاحتفاظ بتقدمك.'
       : 'تلعب الآن كضيف — تقدمك محفوظ على هذا الجهاز.';
     el('authForm').classList.remove('hidden');
-    el('guestStartBtn').classList.add('hidden');
     el('logoutBtn').classList.add('hidden');
     el('deleteAccountBtn').classList.add('hidden');
     el('adminDashboardLink').classList.add('hidden');
@@ -2334,18 +2296,6 @@ async function showSession(session){
   const {error}=await supabase.from('profiles').upsert({id:user.id,username},{onConflict:'id'});
   if(error) console.warn('Profile setup:',error.message);
 }
-el('guestStartBtn').addEventListener('click',async()=>{
-  el('guestStartBtn').disabled=true;status.textContent='جارٍ تجهيز اللعب كضيف...';
-  const {data,error}=await supabase.auth.signInAnonymously();
-  el('guestStartBtn').disabled=false;
-  if(error){
-    status.textContent=error.message.toLowerCase().includes('anonymous')
-      ? 'اللعب كضيف يحتاج تفعيل Anonymous Sign-Ins في إعدادات Supabase Authentication.'
-      : 'تعذّر بدء اللعب كضيف: '+error.message;
-    return;
-  }
-  await showSession(data.session);
-});
 el('signupBtn').addEventListener('click',async()=>{
   const username=el('usernameInput').value.trim();
   const email=el('emailInput').value.trim();
