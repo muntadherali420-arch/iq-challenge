@@ -1189,9 +1189,10 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
   </div>
   <div class="app-screen" id="screen-visual">
     <section class="card visual-shell">
-      <div class="visual-top"><div><span class="eyebrow">🖼️ تحدّي الملاحظة والاستنتاج</span><h2 style="margin:6px 0">اختبار الذكاء بالصور</h2><p class="small">شاهد المشهد، فكّر بهدوء، واختر الحل. افتح المراحل بالتتابع.</p></div><span class="tag" id="visualProgress">0 / 10 مكتملة</span></div>
+      <div class="visual-top"><div><span class="eyebrow">🖼️ تحدّي الملاحظة والاستنتاج</span><h2 style="margin:6px 0">اختبار الذكاء بالصور</h2><p class="small">10 تحديات في كل جولة. ركّز بالتفاصيل واجمع النقاط.</p></div><div style="display:grid;gap:7px"><span class="tag" id="visualProgress">0 / 10</span><span class="tag" id="visualScore">⭐ 0 نقطة</span></div></div>
       <div class="level-progress"><div id="visualProgressBar"></div></div>
-      <div id="visualStageSelect"><strong>اختر المرحلة</strong><div class="visual-stage-grid" id="visualStageGrid"></div><p class="small">كل إجابة صحيحة تفتح المرحلة التالية. تقدر ترجع للمراحل اللي كملتها بأي وقت.</p></div>
+      <div id="visualRestPanel" class="hidden"><div class="visual-scene">⏸️</div><h3>استراحة الصور</h3><p class="small" id="visualRestStatus">استراحة 30 دقيقة بعد إكمال الجولة.</p><button class="btn secondary" id="visualAdBtn" type="button" disabled aria-disabled="true">🎬 فتح الجولة بإعلان — قريباً</button><p class="small">خيار الإعلان المكافئ سيُفعّل بعد ربط حساب الإعلانات. لن تُفتح الجولة إلا بعد مشاهدة إعلان مكتمل فعلياً.</p></div>
+      <div id="visualStageSelect"><strong>اختر أحد تحديات الجولة</strong><div class="visual-stage-grid" id="visualStageGrid"></div><p class="small">كل إجابة صحيحة تمنحك 10 نقاط. بعد إكمال 10 تحديات تبدأ استراحة 30 دقيقة.</p></div>
       <div id="visualPlay" class="hidden">
         <div class="visual-top"><strong id="visualStageTitle">المرحلة 1</strong><span class="tag" id="visualStageCount">1 / 10</span></div>
         <div class="visual-scene" id="visualScene" aria-label="مشهد اللغز">☁️ 🌹 ☀️</div>
@@ -2922,7 +2923,7 @@ window.setTimeout(() => {
  }
 })();
 
-// Third mode: interactive visual observation stages, saved locally.
+// Third mode: visual challenges in 10-stage server-saved rounds.
 (()=>{
  const stages=[
   {scene:'☁️ 🌹 ☀️',q:'حتى تحصل الزهرة على ضوء الشمس، أي شيء يجب إبعاده عن طريقها؟',a:['الغيمة','الأصيص','الورقة','الجذر'],c:0,why:'الغيمة تحجب ضوء الشمس عن الزهرة.'},
@@ -2950,35 +2951,110 @@ window.setTimeout(() => {
   {type:'drag',object:'🗑️',objectLabel:'الورقة',target:'♻️',targetLabel:'إعادة التدوير',q:'اسحب الورقة إلى علامة إعادة التدوير.',why:'ممتاز! فرز النفايات يساعد على إعادة تدويرها.'},
   {type:'drag',object:'⭐',objectLabel:'النجمة',target:'🌌',targetLabel:'السماء',q:'اسحب النجمة وضعها في السماء.',why:'أحسنت! أصبحت النجمة في مكانها الصحيح.'}
  ];
- const key='iq-visual-stages-v1';
- const optionOrders=[[2,0,3,1],[1,3,0,2],[3,2,1,0],[1,0,3,2],[2,3,0,1],[3,1,2,0],[1,2,0,3],[2,0,1,3],[0,3,2,1],[3,0,1,2],[2,0,3,1],[1,3,0,2],[3,2,1,0],[2,0,3,1],[1,0,3,2],[3,1,2,0],[1,2,0,3],[2,3,0,1],[0,3,2,1],[3,0,1,2]];
- let completed=Number(localStorage.getItem(key)||0),current=0,locked=false,orderSelected=[];
- const $v=id=>document.getElementById(id);
+ const optionOrders=[[2,0,3,1],[1,3,0,2],[3,2,1,0],[1,0,3,2],[2,3,0,1],[3,1,2,0],[1,2,0,3],[2,3,0,1],[0,3,2,1],[3,0,1,2],[2,0,3,1],[1,3,0,2],[3,2,1,0],[2,0,3,1],[1,0,3,2],[3,1,2,0],[1,2,0,3],[2,3,0,1],[0,3,2,1],[3,0,1,2]];
+ let roundStageIds=[],answeredStageIds=[],current=0,currentStageNumber=0,locked=false,orderSelected=[];
+ let totalVisualPoints=0,cooldownUntil=0,visualRestTimer=null,visualLoading=false;
+ const $v=id=>document.getElementById(id),client=()=>window.iqSupabase;
  const grid=$v('visualStageGrid'); if(!grid)return;
- function progress(){completed=Math.max(0,Math.min(stages.length,completed));$v('visualProgress').textContent=completed+' / '+stages.length+' مكتملة';$v('visualProgressBar').style.width=(completed/stages.length*100)+'%';}
+ function formatRemaining(ms){const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+ function progress(){
+  const count=answeredStageIds.length;
+  $v('visualProgress').textContent=count+' / 10 مكتملة';
+  $v('visualProgressBar').style.width=(count/10*100)+'%';
+  $v('visualScore').textContent='⭐ '+totalVisualPoints+' نقطة';
+ }
  function drawGrid(){
   progress();grid.innerHTML='';
-  stages.forEach((_,i)=>{const b=document.createElement('button');b.type='button';b.className='visual-stage'+(i<completed?' done':'');b.textContent=(i<completed?'✓ ':'')+(i+1);b.disabled=i>completed;b.setAttribute('aria-label','المرحلة '+(i+1));b.addEventListener('click',()=>openStage(i));grid.appendChild(b);});
+  roundStageIds.forEach((stageId,index)=>{
+   const done=answeredStageIds.includes(stageId);
+   const b=document.createElement('button');b.type='button';b.className='visual-stage'+(done?' done':'');
+   b.textContent=(done?'✓ ':'')+(index+1);b.disabled=done;
+   b.setAttribute('aria-label','التحدي '+(index+1));
+   b.addEventListener('click',()=>openStage(stageId-1));grid.appendChild(b);
+  });
+  $v('visualRestPanel').classList.add('hidden');
   $v('visualStageSelect').classList.remove('hidden');$v('visualPlay').classList.add('hidden');
+ }
+ function updateRestClock(){
+  const left=cooldownUntil-Date.now();
+  if(left>0){$v('visualRestStatus').textContent='⏸️ استراحة 30 دقيقة بعد إكمال الجولة · المتبقي: '+formatRemaining(left);return;}
+  if(visualRestTimer){clearInterval(visualRestTimer);visualRestTimer=null;}
+  cooldownUntil=0;
+  void loadVisualRound();
+ }
+ function showRest(){
+  $v('visualStageSelect').classList.add('hidden');$v('visualPlay').classList.add('hidden');
+  $v('visualRestPanel').classList.remove('hidden');
+  updateRestClock();
+  if(cooldownUntil>Date.now()&&!visualRestTimer)visualRestTimer=setInterval(updateRestClock,1000);
+ }
+ async function loadVisualRound(){
+  if(visualLoading)return;
+  const c=client();if(!c)return;
+  visualLoading=true;
+  try{
+   const sessionResult=await withTimeout(c.auth.getSession(),8000,'انتهت مهلة التحقق من جلسة اللاعب');
+   if(!sessionResult.data?.session){$v('visualProgress').textContent='سجّل الدخول';grid.innerHTML='';$v('visualStageSelect').classList.remove('hidden');$v('visualRestPanel').classList.add('hidden');visualLoading=false;return;}
+   const result=await withTimeout(c.rpc('get_visual_round_status'),10000,'انتهت مهلة تحميل جولة الصور');
+   if(result.error)throw result.error;
+   const status=result.data||{};
+   roundStageIds=Array.isArray(status.round_stage_ids)?status.round_stage_ids.map(Number):[];
+   answeredStageIds=Array.isArray(status.answered_stage_ids)?status.answered_stage_ids.map(Number):[];
+   totalVisualPoints=Number(status.total_score)||0;
+   cooldownUntil=status.cooldown_until?new Date(status.cooldown_until).getTime():0;
+   progress();
+   if(cooldownUntil>Date.now()){showRest();}
+   else if(answeredStageIds.length>=10){showRest();}
+   else drawGrid();
+  }catch(error){
+   $v('visualStageSelect').classList.remove('hidden');grid.innerHTML='';
+   $v('visualProgress').textContent='تعذّر التحميل';
+   const note=document.createElement('p');note.className='small';note.textContent=error.message||'تحقق من الاتصال ثم أعد فتح قسم الصور.';grid.appendChild(note);
+  }finally{visualLoading=false;}
  }
  function showRetry(){
   document.querySelectorAll('.visual-retry').forEach(b=>b.remove());
   const retry=document.createElement('button');retry.type='button';retry.className='btn secondary visual-retry';retry.textContent='إعادة المحاولة';retry.addEventListener('click',()=>openStage(current));$v('visualAnswers').after(retry);
  }
- function success(message){
-  locked=true;document.querySelectorAll('.visual-retry').forEach(b=>b.remove());completed=Math.max(completed,current+1);localStorage.setItem(key,String(completed));
-  $v('visualFeedback').textContent='ممتاز! '+message;progress();
-  $v('visualNext').classList.remove('hidden');$v('visualNext').textContent=current===stages.length-1?'إنهاء الاختبار ✓':'المرحلة التالية ←';
+ async function completeStage(message,answerPayload){
+  if(locked)return;
+  const c=client();if(!c){fail('تعذّر الاتصال بالخادم. حاول مرة ثانية.');return;}
+  locked=true;
+  const buttons=[...$v('visualAnswers').querySelectorAll('button')];buttons.forEach(b=>b.disabled=true);
+  $v('visualFeedback').textContent='جارٍ حفظ الإجابة واحتساب النقاط...';
+  try{
+   const result=await withTimeout(c.rpc('submit_visual_stage_answer',{p_stage_number:currentStageNumber,p_answer:String(answerPayload)}),10000,'انتهت مهلة حفظ إجابة الصور');
+   if(result.error)throw result.error;
+   const data=result.data||{};
+   if(data.already_answered){if(!answeredStageIds.includes(currentStageNumber))answeredStageIds.push(currentStageNumber);progress();$v('visualFeedback').textContent='هذا التحدي مسجّل مسبقاً.';$v('visualNext').classList.remove('hidden');return;}
+   if(!data.is_correct){locked=false;buttons.forEach(b=>b.disabled=false);fail('مو صحيح، حاول مرة ثانية وركز بالتفاصيل.');return;}
+   if(!answeredStageIds.includes(currentStageNumber))answeredStageIds.push(currentStageNumber);
+   totalVisualPoints=Number(data.total_score)||totalVisualPoints+10;
+   progress();
+   $v('visualFeedback').textContent='ممتاز! +10 نقاط. '+message;
+   $v('visualNext').classList.remove('hidden');$v('visualNext').textContent='العودة إلى تحديات الجولة ←';
+   if(data.round_complete||answeredStageIds.length>=10){
+    cooldownUntil=data.cooldown_until?new Date(data.cooldown_until).getTime():Date.now()+30*60*1000;
+    setTimeout(()=>{void loadVisualRound();},700);
+   }
+  }catch(error){
+   locked=false;buttons.forEach(b=>b.disabled=false);
+   $v('visualFeedback').textContent='تعذّر حفظ الإجابة: '+(error.message||'تحقق من الاتصال ثم أعد المحاولة.');
+  }
  }
  function fail(message='مو مشكلة! حاول مرة ثانية وركز بالتفاصيل.'){
   $v('visualFeedback').textContent=message;showRetry();
  }
  function openStage(i){
-  if(i>completed)return;current=i;locked=false;orderSelected=[];const x=stages[i];
+  const stageNumber=i+1;
+  if(!roundStageIds.includes(stageNumber)||answeredStageIds.includes(stageNumber))return;
+  current=i;currentStageNumber=stageNumber;locked=false;orderSelected=[];
+  const x=stages[i],roundPosition=roundStageIds.indexOf(stageNumber)+1;
   $v('visualStageSelect').classList.add('hidden');$v('visualPlay').classList.remove('hidden');
-  $v('visualStageTitle').textContent='المرحلة '+(i+1);$v('visualStageCount').textContent=(i+1)+' / '+stages.length;
+  $v('visualStageTitle').textContent='التحدي '+roundPosition+' من 10';$v('visualStageCount').textContent=roundPosition+' / 10';
   const scene=$v('visualScene');scene.innerHTML='';scene.textContent=x.scene||'';
-  $v('visualQuestion').textContent=x.q;$v('visualFeedback').textContent=x.type==='order'?'اضغط العناصر حسب الترتيب الصحيح.':x.type==='tap'?'المس العنصر المطلوب داخل المشهد.':x.type==='drag'?'اضغط على العنصر واسحبه إلى المكان المناسب.':'اختر الإجابة التي تراها صحيحة.';
+  $v('visualQuestion').textContent=x.q;
+  $v('visualFeedback').textContent=x.type==='order'?'اضغط العناصر حسب الترتيب الصحيح.':x.type==='tap'?'المس العنصر المطلوب داخل المشهد.':x.type==='drag'?'اسحب العنصر إلى المكان المناسب.':'اختر الإجابة التي تراها صحيحة.';
   $v('visualNext').classList.add('hidden');$v('visualAnswers').innerHTML='';document.querySelectorAll('.visual-retry').forEach(b=>b.remove());
   if(x.type==='drag'){
    scene.classList.add('drag-scene');
@@ -2989,20 +3065,19 @@ window.setTimeout(() => {
    target.innerHTML='<span class="visual-object-art"></span><span>'+x.targetLabel+'</span>';target.querySelector('.visual-object-art').textContent=x.target;
    let selected=false;
    function selectSource(){if(locked)return;selected=true;source.classList.add('selected');target.classList.add('ready');$v('visualFeedback').textContent='هسه اسحب العنصر إلى '+x.targetLabel+' أو اضغط المكان المطلوب.';}
-   function dropTarget(){if(locked||!selected)return;target.classList.add('done');target.querySelector('.visual-object-art').textContent=x.target+' '+x.object;source.classList.remove('selected');target.classList.remove('ready');success(x.why);}
+   function dropTarget(){if(locked||!selected)return;target.classList.add('done');target.querySelector('.visual-object-art').textContent=x.target+' '+x.object;source.classList.remove('selected');target.classList.remove('ready');void completeStage(x.why,'done');}
    function finishDrag(e){if(!selected||locked)return;const hit=document.elementFromPoint(e.clientX,e.clientY);if(hit&&hit.closest&&hit.closest('#visualScene [data-drop-target]'))dropTarget();}
    source.addEventListener('click',selectSource);
    source.addEventListener('pointerdown',()=>{selectSource();document.addEventListener('pointerup',finishDrag,{once:true});});
-   target.addEventListener('click',dropTarget);
-   target.addEventListener('pointerup',dropTarget);
+   target.addEventListener('click',dropTarget);target.addEventListener('pointerup',dropTarget);
    scene.append(source,arrow,target);
   }else if(x.type==='tap'){
    scene.classList.remove('drag-scene');scene.textContent='';
-   x.objects.forEach((obj,n)=>{const b=document.createElement('button');b.type='button';b.className='visual-object';b.textContent=obj;b.setAttribute('aria-label','العنصر '+(n+1));b.addEventListener('click',()=>{if(locked)return;if(n===x.target){b.classList.add('selected');success(x.why);}else{b.classList.add('selected');fail('هذا مو المطلوب، جرّب عنصر ثاني.',false);}});scene.appendChild(b);});
+   x.objects.forEach((obj,n)=>{const b=document.createElement('button');b.type='button';b.className='visual-object';b.textContent=obj;b.setAttribute('aria-label','العنصر '+(n+1));b.addEventListener('click',()=>{if(locked)return;if(n===x.target){b.classList.add('selected');void completeStage(x.why,String(n));}else{b.classList.add('selected');fail('هذا مو المطلوب، جرّب عنصر ثاني.');}});scene.appendChild(b);});
   }else if(x.type==='order'){
    scene.classList.remove('drag-scene');
    x.items.forEach((item,n)=>{const b=document.createElement('button');b.type='button';b.className='visual-answer';b.textContent=item;b.addEventListener('click',()=>{if(locked||orderSelected.includes(n))return;orderSelected.push(n);b.classList.add('correct');b.disabled=true;$v('visualFeedback').textContent='ترتيبك الحالي: '+orderSelected.map(k=>x.items[k]).join(' ← ');});$v('visualAnswers').appendChild(b);});
-   const check=document.createElement('button');check.type='button';check.className='btn visual-order-check';check.textContent='تحقّق من الترتيب';check.addEventListener('click',()=>{if(locked)return;if(orderSelected.length!==x.items.length){fail('اختَر كل العناصر أولاً، ثم تحقّق من الترتيب.',false);return;}if(orderSelected.every((n,k)=>n===k))success(x.why);else{locked=true;fail('الترتيب مو صحيح. أعد المحاولة.');}});$v('visualAnswers').appendChild(check);
+   const check=document.createElement('button');check.type='button';check.className='btn visual-order-check';check.textContent='تحقّق من الترتيب';check.addEventListener('click',()=>{if(locked)return;if(orderSelected.length!==x.items.length){fail('اختَر كل العناصر أولاً، ثم تحقّق من الترتيب.');return;}if(orderSelected.every((n,k)=>n===k))void completeStage(x.why,orderSelected.join(','));else{fail('الترتيب مو صحيح. أعد المحاولة.');}});$v('visualAnswers').appendChild(check);
   }else{
    scene.classList.remove('drag-scene');
    optionOrders[i].forEach(n=>{const b=document.createElement('button');b.type='button';b.className='visual-answer';b.textContent=x.a[n];b.addEventListener('click',()=>choose(n));$v('visualAnswers').appendChild(b);});
@@ -3010,15 +3085,16 @@ window.setTimeout(() => {
  }
  function choose(n){
   if(locked)return;const x=stages[current],buttons=[...$v('visualAnswers').children].filter(b=>b.classList.contains('visual-answer'));
-  buttons.forEach(b=>b.disabled=true);
-  if(n===x.c){buttons.forEach((b)=>{if(b.textContent===x.a[x.c])b.classList.add('correct');});success(x.why);}
+  if(n===x.c){buttons.forEach(b=>{if(b.textContent===x.a[x.c])b.classList.add('correct');});void completeStage(x.why,String(n));}
   else{const selected=buttons.find(b=>b.textContent===x.a[n]);if(selected)selected.classList.add('wrong');fail();}
  }
- $v('visualNext').addEventListener('click',()=>{if(current<stages.length-1&&current<completed)openStage(current+1);else drawGrid();});
+ $v('visualNext').addEventListener('click',drawGrid);
  $v('visualBack').addEventListener('click',drawGrid);
- document.querySelectorAll('[data-open-screen="visual"],.nav-btn[data-screen="visual"]').forEach(b=>b.addEventListener('click',drawGrid));
+ document.querySelectorAll('[data-open-screen="visual"],.nav-btn[data-screen="visual"]').forEach(b=>b.addEventListener('click',()=>{void loadVisualRound();}));
+ const c=client();
+ if(c)c.auth.onAuthStateChange((_event,session)=>{if(session&&window.iqCurrentScreen==='visual')void loadVisualRound();});
  drawGrid();
-})();
+})();;
 
 </script>
 
