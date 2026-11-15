@@ -2251,7 +2251,6 @@ async function showSession(session){
   if(pendingUpgrade && !(user.email_confirmed_at || user.confirmed_at)){
     status.textContent='بانتظار تأكيد البريد الإلكتروني. افتح رسالة التأكيد التي وصلتك.';
     el('authForm').classList.add('hidden');
-    el('guestStartBtn').classList.add('hidden');
     el('logoutBtn').classList.add('hidden');
     el('deleteAccountBtn').classList.add('hidden');
     el('completeUpgradeBtn').classList.add('hidden');
