@@ -1466,6 +1466,8 @@ function withTimeout(promise, milliseconds, label) {
   });
   return Promise.race([promise, timeout]).finally(() => window.clearTimeout(timer));
 }
+// Share the timeout helper with the independent classic-script game modes.
+window.iqWithTimeout = withTimeout;
 function showAppScreen(name){
   document.querySelectorAll('.app-screen').forEach(screen=>screen.classList.toggle('active',screen.id==='screen-'+name));
   document.querySelectorAll('.nav-btn').forEach(button=>button.classList.toggle('active',button.dataset.screen===name));
@@ -2637,7 +2639,7 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{void showSession(newSessio
   const client=getClient();
   if(!client)return;
   try {
-   const {data,error}=await withTimeout(client.rpc('get_quiz_stats'),8000,'انتهت مهلة تحديث النقاط');
+   const {data,error}=await window.iqWithTimeout(client.rpc('get_quiz_stats'),8000,'انتهت مهلة تحديث النقاط');
    if(error||!data)return;
   totalPuzzlePoints=Number(data.puzzle_total_score)||0;
   $('puzzleScore').textContent='⭐ '+totalPuzzlePoints+' نقطة';
@@ -2677,7 +2679,7 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{void showSession(newSessio
   setMessage('جارٍ تحميل 10 ألغاز جديدة…','');
   let sessionData;
   try {
-   const sessionResult=await withTimeout(client.auth.getSession(),8000,'انتهت مهلة التحقق من جلسة اللاعب');
+   const sessionResult=await window.iqWithTimeout(client.auth.getSession(),8000,'انتهت مهلة التحقق من جلسة اللاعب');
    sessionData=sessionResult.data;
   } catch(error) {
    setMessage('تعذّر التحقق من جلسة اللاعب.','تأكد من اتصال الإنترنت ثم حاول تحميل الأحجيات مجدداً.');
@@ -2690,7 +2692,7 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{void showSession(newSessio
   currentPuzzleUserId=sessionData.session.user.id;
    let roundStatus,statusError;
    try {
-    const statusResult=await withTimeout(client.rpc('get_puzzle_round_status'),10000,'انتهت مهلة التحقق من استراحة الأحجيات');
+    const statusResult=await window.iqWithTimeout(client.rpc('get_puzzle_round_status'),10000,'انتهت مهلة التحقق من استراحة الأحجيات');
     roundStatus=statusResult.data;statusError=statusResult.error;
    } catch(error) {
     setMessage('تأخر التحقق من حالة الجولة.','تحقق من الاتصال ثم أعد المحاولة.');
@@ -2717,7 +2719,7 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{void showSession(newSessio
    startRestClock();
    let data,error;
   try {
-   const questionResult=await withTimeout(client.rpc('get_puzzle_questions'),15000,'انتهت مهلة تحميل الأحجيات');
+   const questionResult=await window.iqWithTimeout(client.rpc('get_puzzle_questions'),15000,'انتهت مهلة تحميل الأحجيات');
    data=questionResult.data;error=questionResult.error;
   } catch(loadError) {
    setMessage('تأخر تحميل الأحجيات بسبب الاتصال بالخادم.','افحص الإنترنت ثم اضغط إعادة المحاولة.');
@@ -2739,7 +2741,7 @@ supabase.auth.onAuthStateChange((_event,newSession)=>{void showSession(newSessio
   puzzles=data;puzzleIndex=0;roundPoints=0;
   let latestStatus=null;
   try {
-   const latestResult=await withTimeout(client.rpc('get_puzzle_round_status'),8000,'انتهت مهلة تحديث حالة الجولة');
+   const latestResult=await window.iqWithTimeout(client.rpc('get_puzzle_round_status'),8000,'انتهت مهلة تحديث حالة الجولة');
    latestStatus=latestResult.data;
   } catch(error) { console.warn('Puzzle round status refresh skipped:',error.message); }
   if(latestStatus){
@@ -3028,9 +3030,9 @@ window.setTimeout(() => {
   const c=client();if(!c)return;
   visualLoading=true;
   try{
-   const sessionResult=await withTimeout(c.auth.getSession(),8000,'انتهت مهلة التحقق من جلسة اللاعب');
+   const sessionResult=await window.iqWithTimeout(c.auth.getSession(),8000,'انتهت مهلة التحقق من جلسة اللاعب');
    if(!sessionResult.data?.session){$v('visualProgress').textContent='سجّل الدخول';grid.innerHTML='';$v('visualStageSelect').classList.remove('hidden');$v('visualRestPanel').classList.add('hidden');visualLoading=false;return;}
-   const result=await withTimeout(c.rpc('get_visual_round_status'),10000,'انتهت مهلة تحميل جولة الصور');
+   const result=await window.iqWithTimeout(c.rpc('get_visual_round_status'),10000,'انتهت مهلة تحميل جولة الصور');
    if(result.error)throw result.error;
    const status=result.data||{};
    roundStageIds=Array.isArray(status.round_stage_ids)?status.round_stage_ids.map(Number):[];
@@ -3058,7 +3060,7 @@ window.setTimeout(() => {
   const buttons=[...$v('visualAnswers').querySelectorAll('button')];buttons.forEach(b=>b.disabled=true);
   $v('visualFeedback').textContent='جارٍ حفظ الإجابة واحتساب النقاط...';
   try{
-   const result=await withTimeout(c.rpc('submit_visual_stage_answer',{p_stage_number:currentStageNumber,p_answer:String(answerPayload)}),10000,'انتهت مهلة حفظ إجابة الصور');
+   const result=await window.iqWithTimeout(c.rpc('submit_visual_stage_answer',{p_stage_number:currentStageNumber,p_answer:String(answerPayload)}),10000,'انتهت مهلة حفظ إجابة الصور');
    if(result.error)throw result.error;
    const data=result.data||{};
    if(data.already_answered){if(!answeredStageIds.includes(currentStageNumber))answeredStageIds.push(currentStageNumber);progress();$v('visualFeedback').textContent='هذا التحدي مسجّل مسبقاً.';$v('visualNext').classList.remove('hidden');return;}
