@@ -790,6 +790,25 @@ body{
 #accountPerksCard ul{padding-inline-start:22px;line-height:1.9}
 #completeUpgradeBtn{width:100%;margin-top:10px}
 
+
+/* Daily missions and local cosmetic rewards */
+.daily-missions{margin:16px 0;background:linear-gradient(145deg,#28294c,#34345d);border:1px solid #7770a6;border-radius:22px;padding:17px;color:#fff;box-shadow:0 10px 26px #14133335}
+.daily-missions-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.daily-missions-title{font-size:17px;font-weight:900;color:#ffe1a0}
+.daily-missions-note{font-size:11px;line-height:1.6;color:#e0dcf5;margin:7px 0 12px}
+.daily-missions-stars{background:#51446f;border:1px solid #8e7eb3;color:#ffe49c;border-radius:999px;padding:7px 11px;font-size:12px;font-weight:900;white-space:nowrap}
+.daily-mission-list{display:grid;gap:9px}
+.daily-mission{background:#ffffff12;border:1px solid #ffffff24;border-radius:13px;padding:11px}
+.daily-mission-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.daily-mission-name{font-size:13px;font-weight:850}
+.daily-mission-reward{font-size:11px;color:#ffe49c;font-weight:850;white-space:nowrap}
+.daily-mission-meta{display:flex;justify-content:space-between;gap:8px;margin-top:7px;color:#ded9f1;font-size:11px}
+.daily-mission-bar{height:7px;background:#171936;border-radius:99px;overflow:hidden;margin-top:7px}
+.daily-mission-bar>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#7de3c1,#ffdc82);border-radius:99px;transition:width .25s}
+.daily-mission.done{border-color:#83d9b8;background:#1f584c55}
+.daily-mission.done .daily-mission-name{color:#b9ffdc}
+@media(prefers-reduced-motion:reduce){.daily-mission-bar>span{transition:none}}
+
 </style>
 <style>
 /* v53 — encouraging correct-answer streak indicator */
@@ -1205,6 +1224,17 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
     <button class="mode-card mode-million" type="button" data-open-screen="play"><span class="mode-icon">🏆</span><span class="mode-kicker">المسابقة الكبرى</span><strong>طريق القمّة</strong><small>أسئلة متدرجة • نقاط • مراحل أصعب</small><span class="mode-go">ابدأ التحدّي ←</span></button>
     <button class="mode-card mode-puzzle" type="button" data-open-screen="puzzles"><span class="mode-icon">🧩</span><span class="mode-kicker">فكّر خارج الصندوق</span><strong>الأحجيات المخادعة</strong><small>ألغاز ذكية • تلميحات • حلول مفاجئة</small><span class="mode-go">اكتشف الألغاز ←</span></button>
     <button class="mode-card mode-visual" type="button" data-open-screen="visual"><span class="mode-icon">🖼️</span><span class="mode-kicker">لاحظ الصورة واكتشف الحل</span><strong>اختبار الذكاء بالصور</strong><small>مشاهد مصوّرة • مراحل متتابعة • حلول تحتاج تركيز</small><span class="mode-go">ابدأ اختبار الصور ←</span></button>
+  </section>
+
+  <section class="daily-missions" id="dailyMissionsCard" aria-labelledby="dailyMissionsTitle">
+    <div class="daily-missions-head">
+      <strong class="daily-missions-title" id="dailyMissionsTitle">🎯 مهام اليوم</strong>
+      <span class="daily-missions-stars" id="dailyMissionStars">⭐ نجوم اليوم: 0</span>
+    </div>
+    <p class="daily-missions-note">أنجز مهام المسابقة واجمع النجوم. تتجدد المهام يومياً، والنجوم مكافأة تحفيزية منفصلة عن نقاط لوحة المتصدرين.</p>
+    <div class="daily-mission-list" id="dailyMissionList" aria-live="polite">
+      <div class="daily-mission"><span class="daily-mission-name">جارٍ تجهيز مهامك اليومية...</span></div>
+    </div>
   </section>
   <button class="daily-launch-card" id="dailyHomeLaunch" type="button" data-open-screen="daily" aria-label="افتح تحدّي اليوم">
     <span class="daily-launch-icon" aria-hidden="true">🌟</span>
@@ -1906,6 +1936,93 @@ async function loadLeaderboard() {
     list.appendChild(item);
   });
 }
+
+const DAILY_MISSION_DEFINITIONS = [
+  { id: 'answer5', title: 'أجب عن 5 أسئلة في المسابقة', goal: 5, metric: 'answered', icon: '📝' },
+  { id: 'correct3', title: 'احصل على 3 إجابات صحيحة', goal: 3, metric: 'correct', icon: '💡' },
+  { id: 'round1', title: 'أكمل جولة واحدة كاملة', goal: 1, metric: 'rounds', icon: '🏆' }
+];
+let dailyMissionUserId = null;
+let dailyMissionState = null;
+function dailyMissionDate() { return new Date().toISOString().slice(0, 10); }
+function dailyMissionStorageKey(userId) { return 'iq-daily-missions-v1:' + String(userId || 'device'); }
+function saveDailyMissionState() {
+  if (!dailyMissionState || !dailyMissionUserId) return;
+  try { localStorage.setItem(dailyMissionStorageKey(dailyMissionUserId), JSON.stringify(dailyMissionState)); }
+  catch (error) { console.warn('Daily mission progress could not be saved locally:', error); }
+}
+function renderDailyMissions() {
+  const list = $('dailyMissionList');
+  const starsEl = $('dailyMissionStars');
+  if (!list || !starsEl || !dailyMissionState) return;
+  starsEl.textContent = '⭐ نجوم اليوم: ' + dailyMissionState.stars.toLocaleString('ar-IQ');
+  list.replaceChildren();
+  DAILY_MISSION_DEFINITIONS.forEach(mission => {
+    const current = Math.min(mission.goal, Math.max(0, Number(dailyMissionState[mission.metric]) || 0));
+    const done = current >= mission.goal;
+    const item = document.createElement('article');
+    item.className = 'daily-mission' + (done ? ' done' : '');
+    const top = document.createElement('div'); top.className = 'daily-mission-top';
+    const name = document.createElement('span'); name.className = 'daily-mission-name';
+    name.textContent = (done ? '✓ ' : mission.icon + ' ') + mission.title;
+    const reward = document.createElement('span'); reward.className = 'daily-mission-reward';
+    reward.textContent = done ? '⭐ اكتملت · +10 نجوم' : 'المكافأة: 10 نجوم';
+    top.append(name, reward);
+    const meta = document.createElement('div'); meta.className = 'daily-mission-meta';
+    const progress = document.createElement('span'); progress.textContent = 'التقدم';
+    const count = document.createElement('span'); count.textContent = current.toLocaleString('ar-IQ') + ' / ' + mission.goal.toLocaleString('ar-IQ');
+    meta.append(progress, count);
+    const bar = document.createElement('div'); bar.className = 'daily-mission-bar';
+    const fill = document.createElement('span'); fill.style.width = (current / mission.goal * 100) + '%'; bar.appendChild(fill);
+    item.append(top, meta, bar); list.appendChild(item);
+  });
+}
+function updateDailyMissions() {
+  if (!dailyMissionState) return;
+  DAILY_MISSION_DEFINITIONS.forEach(mission => {
+    const done = Number(dailyMissionState[mission.metric]) >= mission.goal;
+    if (done && !dailyMissionState.claimed.includes(mission.id)) {
+      dailyMissionState.claimed.push(mission.id);
+      dailyMissionState.stars += 10;
+    }
+  });
+  saveDailyMissionState();
+  renderDailyMissions();
+}
+async function loadDailyMissions(session) {
+  let activeSession = session;
+  if (activeSession === undefined) {
+    try { activeSession = (await supabase.auth.getSession()).data?.session || null; }
+    catch { activeSession = null; }
+  }
+  const userId = activeSession?.user?.id || 'device';
+  dailyMissionUserId = userId;
+  const today = dailyMissionDate();
+  let stored = null;
+  try { stored = JSON.parse(localStorage.getItem(dailyMissionStorageKey(userId)) || 'null'); }
+  catch { stored = null; }
+  dailyMissionState = stored && stored.date === today ? {
+    date: today,
+    answered: Math.max(0, Number(stored.answered) || 0),
+    correct: Math.max(0, Number(stored.correct) || 0),
+    rounds: Math.max(0, Number(stored.rounds) || 0),
+    claimed: Array.isArray(stored.claimed) ? stored.claimed.filter(id => DAILY_MISSION_DEFINITIONS.some(m => m.id === id)) : [],
+    stars: Math.max(0, Number(stored.stars) || 0)
+  } : { date: today, answered: 0, correct: 0, rounds: 0, claimed: [], stars: 0 };
+  updateDailyMissions();
+}
+function recordDailyMissionAnswer(isCorrect) {
+  if (!dailyMissionState) return;
+  dailyMissionState.answered += 1;
+  if (isCorrect) dailyMissionState.correct += 1;
+  updateDailyMissions();
+}
+function recordDailyMissionRound() {
+  if (!dailyMissionState) return;
+  dailyMissionState.rounds += 1;
+  updateDailyMissions();
+}
+
 let dailyLoadVersion = 0;
 // The daily challenge RPC uses PostgreSQL current_date in UTC. Keep the
 // visible countdown aligned to that exact reset boundary (00:00 UTC).
@@ -2314,6 +2431,7 @@ async function chooseAnswer(letter) {
     return;
   }
   questionAnsweredCount++;
+  recordDailyMissionAnswer(!!data.is_correct);
   const correctLetter = String(data.correct_option || '').toUpperCase();
   buttons.forEach((b, i) => {
     const optionLetter = ['A','B','C','D'][i];
@@ -2347,6 +2465,7 @@ async function chooseAnswer(letter) {
 function finishRound() {
   if (roundFinished) return;
   roundFinished = true;
+  recordDailyMissionRound();
   nextTransitioning = true;
   saveRoundToHistory(earned);
   bestRound = Math.max(bestRound, earned);
@@ -2409,6 +2528,7 @@ if (!initialSession.session) {
 if (initialSession.session) {
   setBestRoundPlayer(initialSession.session.user.id);
   window.iqSetAccountMode?.(initialSession.session);
+  await loadDailyMissions(initialSession.session);
   if (!initialSession.session.user.is_anonymous) {
     void loadLeaderboard().catch(error => console.warn('Leaderboard startup skipped:', error));
     void loadDailyChallenge().catch(error => console.warn('Daily challenge startup skipped:', error));
@@ -2434,6 +2554,7 @@ supabase.auth.onAuthStateChange(async (_event, session) => {
   const refreshVersion = ++playerRefreshVersion;
   if (session) {
     window.iqSetAccountMode?.(session);
+    void loadDailyMissions(session);
     setBestRoundPlayer(session.user.id);
     // Clear the previous account's visible stats while the new account loads.
     totalScore = 0;
@@ -2456,6 +2577,7 @@ supabase.auth.onAuthStateChange(async (_event, session) => {
     applyServerStats(stats);
   } else {
     window.iqSetAccountMode?.(null);
+    void loadDailyMissions(null);
     setBestRoundPlayer('guest');
     totalScore = 0;
     answeredCount = 0;
