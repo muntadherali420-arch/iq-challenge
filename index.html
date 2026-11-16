@@ -1146,6 +1146,19 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
 @media(min-width:520px){.rank-reward-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
 @media(prefers-reduced-motion:no-preference){.rank-reward.unlocked{animation:rankRewardIn .35s ease-out}}
 @keyframes rankRewardIn{from{transform:translateY(4px);opacity:.7}to{transform:translateY(0);opacity:1}}
+/* Cosmetic reward store */
+.reward-store{margin-top:22px;padding-top:17px;border-top:1px solid #ffffff35}
+.reward-store-balance{background:#51446f;border:1px solid #8e7eb3;color:#ffe49c;border-radius:99px;padding:7px 11px;font-size:12px;font-weight:900;white-space:nowrap}
+.reward-store-equipped{margin:11px 0;padding:10px 12px;border-radius:12px;background:#ffffff18;color:#ffe6ae;font-size:12px;font-weight:800}
+.reward-store-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}
+.reward-store-item{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;padding:12px 8px;border:1px solid #ffffff35;border-radius:15px;background:#ffffff12;text-align:center}
+.reward-store-item.owned{border-color:#8ad7b6;background:#1f584c33}
+.reward-store-icon{font-size:29px}
+.reward-store-item strong{font-size:12px}
+.reward-store-item small{font-size:10px;line-height:1.45;color:var(--muted)}
+.reward-store-item .reward-store-cost{color:#d6b975;font-weight:900}
+.reward-store-item .btn{margin-top:3px;padding:9px 7px;font-size:11px;box-shadow:none;width:100%}
+@media(max-width:430px){.reward-store-grid{grid-template-columns:1fr}.reward-store-item{display:grid;grid-template-columns:38px 1fr;grid-template-rows:auto auto auto;align-items:center;text-align:right}.reward-store-icon{grid-row:1/4}.reward-store-item .btn{grid-column:2}.reward-store-item small{font-size:11px}}
 </style>
 </head>
 <body>
@@ -1341,6 +1354,12 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
     <div class="row" style="margin-top:18px"><strong>🎖️ مكافآت الرتب</strong><span class="tag" id="rankRewardCount">0 / 10</span></div>
     <p class="small">افتح شارة جديدة كلما أكملت رتبة من رتب التحدّي. هذه مكافآت إنجاز شكلية ولا تغيّر نقاطك.</p>
     <div class="rank-reward-grid" id="rankRewardGrid"></div>
+    <div class="reward-store" id="rewardStore">
+      <div class="row"><strong>🛍️ متجر الشارات</strong><span class="reward-store-balance" id="rewardStoreBalance">⭐ رصيدك: 0</span></div>
+      <p class="small">حوّل نجوم المهام إلى شارات شكلية. رصيد المتجر تراكمي ولا يتأثر بتجدد مهام اليوم، ومخصص للزينة داخل اللعبة فقط.</p>
+      <div class="reward-store-equipped" id="rewardStoreEquipped">الشارة الحالية: بدون شارة متجر</div>
+      <div class="reward-store-grid" id="rewardStoreGrid"></div>
+    </div>
   </section>
 
 
@@ -1944,6 +1963,7 @@ const DAILY_MISSION_DEFINITIONS = [
 ];
 let dailyMissionUserId = null;
 let dailyMissionState = null;
+let rewardStoreState = null;
 function dailyMissionDate() { return new Date().toISOString().slice(0, 10); }
 function dailyMissionStorageKey(userId) { return 'iq-daily-missions-v1:' + String(userId || 'device'); }
 function saveDailyMissionState() {
@@ -1984,10 +2004,15 @@ function updateDailyMissions() {
     if (done && !dailyMissionState.claimed.includes(mission.id)) {
       dailyMissionState.claimed.push(mission.id);
       dailyMissionState.stars += 10;
+      if (rewardStoreState) {
+        rewardStoreState.balance += 10;
+        saveRewardStore();
+      }
     }
   });
   saveDailyMissionState();
   renderDailyMissions();
+  renderRewardStore();
 }
 async function loadDailyMissions(session) {
   let activeSession = session;
@@ -1997,6 +2022,7 @@ async function loadDailyMissions(session) {
   }
   const userId = activeSession?.user?.id || 'device';
   dailyMissionUserId = userId;
+  loadRewardStore(userId);
   const today = dailyMissionDate();
   let stored = null;
   try { stored = JSON.parse(localStorage.getItem(dailyMissionStorageKey(userId)) || 'null'); }
@@ -2017,6 +2043,73 @@ function recordDailyMissionAnswer(isCorrect) {
   if (isCorrect) dailyMissionState.correct += 1;
   updateDailyMissions();
 }
+const REWARD_STORE_ITEMS = [
+  { id: 'thinker', name: 'شارة الباحث', icon: '🔎', cost: 30, detail: 'لمن يحب اكتشاف المعرفة' },
+  { id: 'crown', name: 'تاج الذكاء', icon: '👑', cost: 60, detail: 'تميّز بين أصحاب العقول' },
+  { id: 'genius', name: 'درع العبقري', icon: '🛡️', cost: 100, detail: 'شارة النخبة المثابرة' }
+];
+let rewardStoreState = null;
+function rewardStoreStorageKey(userId) { return 'iq-reward-store-v1:' + String(userId || 'device'); }
+function saveRewardStore() {
+  if (!rewardStoreState || !dailyMissionUserId) return;
+  try { localStorage.setItem(rewardStoreStorageKey(dailyMissionUserId), JSON.stringify(rewardStoreState)); }
+  catch (error) { console.warn('Reward store could not be saved locally:', error); }
+}
+function renderRewardStore() {
+  const grid = $('rewardStoreGrid');
+  const balance = $('rewardStoreBalance');
+  const equipped = $('rewardStoreEquipped');
+  if (!grid || !balance || !equipped || !rewardStoreState) return;
+  balance.textContent = '⭐ رصيدك: ' + rewardStoreState.balance.toLocaleString('ar-IQ');
+  const active = REWARD_STORE_ITEMS.find(item => item.id === rewardStoreState.equipped);
+  equipped.textContent = 'الشارة الحالية: ' + (active ? active.icon + ' ' + active.name : 'بدون شارة متجر');
+  grid.replaceChildren();
+  REWARD_STORE_ITEMS.forEach(item => {
+    const owned = rewardStoreState.owned.includes(item.id);
+    const isEquipped = rewardStoreState.equipped === item.id;
+    const card = document.createElement('article');
+    card.className = 'reward-store-item' + (owned ? ' owned' : '');
+    const icon = document.createElement('span'); icon.className = 'reward-store-icon'; icon.textContent = item.icon;
+    const name = document.createElement('strong'); name.textContent = item.name;
+    const detail = document.createElement('small'); detail.textContent = item.detail;
+    const cost = document.createElement('small'); cost.className = 'reward-store-cost';
+    cost.textContent = owned ? (isEquipped ? '✓ مجهّزة حالياً' : '✓ ضمن مجموعتك') : '⭐ ' + item.cost + ' نجمة';
+    const action = document.createElement('button'); action.type = 'button'; action.className = 'btn' + (owned ? ' secondary' : '');
+    action.dataset.rewardAction = owned ? 'equip' : 'buy'; action.dataset.rewardId = item.id;
+    action.textContent = owned ? (isEquipped ? 'مجهّزة' : 'استخدم الشارة') : 'شراء الشارة';
+    action.disabled = isEquipped || (!owned && rewardStoreState.balance < item.cost);
+    card.append(icon, name, detail, cost, action); grid.appendChild(card);
+  });
+}
+function loadRewardStore(userId) {
+  let stored = null;
+  try { stored = JSON.parse(localStorage.getItem(rewardStoreStorageKey(userId)) || 'null'); }
+  catch { stored = null; }
+  rewardStoreState = {
+    balance: Math.max(0, Number(stored?.balance) || 0),
+    owned: Array.isArray(stored?.owned) ? stored.owned.filter(id => REWARD_STORE_ITEMS.some(item => item.id === id)) : [],
+    equipped: REWARD_STORE_ITEMS.some(item => item.id === stored?.equipped) ? stored.equipped : null
+  };
+  renderRewardStore();
+}
+function handleRewardStoreAction(event) {
+  const button = event.target.closest('[data-reward-action][data-reward-id]');
+  if (!button || !rewardStoreState) return;
+  const item = REWARD_STORE_ITEMS.find(entry => entry.id === button.dataset.rewardId);
+  if (!item) return;
+  if (button.dataset.rewardAction === 'buy') {
+    if (rewardStoreState.owned.includes(item.id) || rewardStoreState.balance < item.cost) return;
+    rewardStoreState.balance -= item.cost;
+    rewardStoreState.owned.push(item.id);
+    rewardStoreState.equipped = item.id;
+  } else if (button.dataset.rewardAction === 'equip' && rewardStoreState.owned.includes(item.id)) {
+    rewardStoreState.equipped = item.id;
+  } else return;
+  saveRewardStore();
+  renderRewardStore();
+}
+$('rewardStoreGrid')?.addEventListener('click', handleRewardStoreAction);
+
 function recordDailyMissionRound() {
   if (!dailyMissionState) return;
   dailyMissionState.rounds += 1;
