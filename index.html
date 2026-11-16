@@ -1329,12 +1329,12 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
   </div>
   <div class="app-screen" id="screen-duel">
     <section class="card duel-shell">
-      <div class="duel-heading"><span class="duel-emblem">⚔️</span><div><span class="eyebrow">مواجهة لاعب ضد لاعب</span><h2>مواجهة العقول</h2><p class="small">أنشئ غرفة خاصة وشارك رمز الدعوة مع صديقك. أول لاعب يجيب لا يحصل على أفضلية بالنقاط؛ الدقة هي الأساس.</p></div></div>
+      <div class="duel-heading"><span class="duel-emblem">🧠</span><div><span class="eyebrow">مواجهة لاعب ضد لاعب</span><h2>مواجهة العقول</h2><p class="small">أنشئ غرفة خاصة وشارك رمز الدعوة مع صديقك. أول لاعب يجيب لا يحصل على أفضلية بالنقاط؛ الدقة هي الأساس.</p></div></div>
       <div id="duelLobby">
         <button class="btn" id="duelCreateBtn" type="button">إنشاء غرفة جديدة</button>
         <div class="duel-divider"><span>أو انضم إلى صديقك</span></div>
-        <label class="small" for="duelCodeInput">رمز الدعوة المكوّن من 6 أحرف</label>
-        <input class="auth-input duel-code-input" id="duelCodeInput" maxlength="6" inputmode="text" autocomplete="off" placeholder="مثال: A7K9PQ" aria-label="رمز دعوة المواجهة">
+        <label class="small" for="duelCodeInput">رمز الدعوة المكوّن من 8 أحرف</label>
+        <input class="auth-input duel-code-input" id="duelCodeInput" maxlength="8" inputmode="text" autocomplete="off" placeholder="مثال: A7K9PQ3D" aria-label="رمز دعوة المواجهة">
         <button class="btn secondary" id="duelJoinBtn" type="button">انضم إلى الغرفة</button>
       </div>
       <div class="duel-status" id="duelStatus" role="status" aria-live="polite">تحتاج إلى حساب مسجّل للمشاركة في المواجهات.</div>
@@ -1658,7 +1658,7 @@ async function duelCreateRoom() {
 async function duelJoinRoom() {
   if (iqDuelBusy || !(await duelRequireRegistered())) return;
   const code = String($('duelCodeInput').value || '').trim().toUpperCase();
-  if (!/^[A-HJ-NP-Z2-9]{6}$/.test(code)) {
+  if (!/^[A-HJ-NP-Z2-9]{8}$/.test(code)) {
     duelSetStatus('اكتب رمز دعوة صحيحاً من 6 أحرف وأرقام.');
     return;
   }
@@ -1727,7 +1727,7 @@ function duelRenderState(state) {
     }
   } else if (state.status === 'completed') {
     duelStopPolling();
-    const tie = !state.winner_name;
+    const tie = state.is_tie === true;
     const won = state.winner_is_me === true;
     result.classList.remove('hidden');
     result.textContent = tie ? '🤝 تعادل رائع! كلاكما حقق النتيجة نفسها.' : (won ? '🏆 فزت بالمواجهة! أحسنت.' : '👏 انتهت المواجهة. صديقك فاز هذه المرة.');
@@ -1798,7 +1798,7 @@ $('duelCopyCodeBtn')?.addEventListener('click', async () => {
   }
 });
 $('duelCodeInput')?.addEventListener('input', event => {
-  event.target.value = event.target.value.toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g, '').slice(0,6);
+  event.target.value = event.target.value.toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g, '').slice(0,8);
 });
 
 const COACH_STEPS=[
