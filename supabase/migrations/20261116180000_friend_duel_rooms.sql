@@ -1,7 +1,7 @@
 -- Invite-code player challenges. Scores and answer validation stay server-side.
 create table if not exists public.duel_rooms (
   id uuid primary key default gen_random_uuid(),
-  invite_code text not null unique check (invite_code ~ '^[A-HJ-NP-Z2-9]{6}$'),
+  invite_code text not null unique check (invite_code ~ '^[A-HJ-NP-Z2-9]{8}$'),
   host_id uuid not null references auth.users(id) on delete cascade,
   guest_id uuid references auth.users(id) on delete cascade,
   status text not null default 'waiting' check (status in ('waiting','active','completed','cancelled')),
@@ -90,7 +90,8 @@ begin
     'host_score', v_room.host_score, 'guest_score', v_room.guest_score,
     'host_answered', v_host_answered, 'guest_answered', v_guest_answered,
     'my_answered', v_my_answered, 'questions', v_questions,
-    'winner_name', v_winner_name, 'winner_is_me', v_room.winner_id = v_uid
+    'winner_name', v_winner_name, 'winner_is_me', v_room.winner_id = v_uid,
+    'is_tie', v_room.status = 'completed' and v_room.winner_id is null
   );
 end;
 $$;
@@ -120,7 +121,7 @@ begin
   end if;
   loop
     select string_agg(substr(v_alphabet, floor(random() * length(v_alphabet))::integer + 1, 1), '')
-      into v_code from generate_series(1, 6);
+      into v_code from generate_series(1, 8);
     exit when not exists (select 1 from public.duel_rooms where invite_code = v_code);
   end loop;
   insert into public.duel_rooms(invite_code, host_id, question_ids)
