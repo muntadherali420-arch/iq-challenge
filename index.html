@@ -1659,7 +1659,7 @@ async function duelJoinRoom() {
   if (iqDuelBusy || !(await duelRequireRegistered())) return;
   const code = String($('duelCodeInput').value || '').trim().toUpperCase();
   if (!/^[A-HJ-NP-Z2-9]{8}$/.test(code)) {
-    duelSetStatus('اكتب رمز دعوة صحيحاً من 6 أحرف وأرقام.');
+    duelSetStatus('اكتب رمز دعوة صحيحاً من 8 أحرف وأرقام.');
     return;
   }
   iqDuelBusy = true;
