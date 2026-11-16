@@ -1269,7 +1269,7 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
     <button class="mode-card mode-million" type="button" data-open-screen="play"><span class="mode-icon">🏆</span><span class="mode-kicker">المسابقة الكبرى</span><strong>طريق القمّة</strong><small>أسئلة متدرجة • نقاط • مراحل أصعب</small><span class="mode-go">ابدأ التحدّي ←</span></button>
     <button class="mode-card mode-puzzle" type="button" data-open-screen="puzzles"><span class="mode-icon">🧩</span><span class="mode-kicker">فكّر خارج الصندوق</span><strong>الأحجيات المخادعة</strong><small>ألغاز ذكية • تلميحات • حلول مفاجئة</small><span class="mode-go">اكتشف الألغاز ←</span></button>
     <button class="mode-card mode-visual" type="button" data-open-screen="visual"><span class="mode-icon">🖼️</span><span class="mode-kicker">لاحظ الصورة واكتشف الحل</span><strong>اختبار الذكاء بالصور</strong><small>مشاهد مصوّرة • مراحل متتابعة • حلول تحتاج تركيز</small><span class="mode-go">ابدأ اختبار الصور ←</span></button>
-    <button class="mode-card mode-duel" type="button" data-open-screen="duel"><span class="mode-icon">⚔️</span><span class="mode-kicker">تحدّى أصدقاءك</span><strong>مواجهة العقول</strong><small>غرفة خاصة • رمز دعوة • 5 أسئلة</small><span class="mode-go">ابدأ المواجهة ←</span></button>
+    <button class="mode-card mode-duel" type="button" data-open-screen="duel"><span class="mode-icon">🧠</span><span class="mode-kicker">تحدّى أصدقاءك</span><strong>مواجهة العقول</strong><small>غرفة خاصة • رمز دعوة • 5 أسئلة</small><span class="mode-go">ابدأ المواجهة ←</span></button>
   </section>
 
   <section class="daily-missions" id="dailyMissionsCard" aria-labelledby="dailyMissionsTitle">
@@ -1645,6 +1645,8 @@ async function duelCreateRoom() {
     $('duelRoom').classList.remove('hidden');
     $('duelInviteCode').textContent = data.invite_code;
     duelSetStatus('غرفتك جاهزة. شارك الرمز مع صديقك وانتظر انضمامه.');
+    iqDuelBusy = false;
+    iqDuelBusy = false;
     await duelRefresh();
     duelStartPolling();
   } catch (error) {
