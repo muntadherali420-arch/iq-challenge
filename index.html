@@ -1159,6 +1159,38 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
 .reward-store-item .reward-store-cost{color:#d6b975;font-weight:900}
 .reward-store-item .btn{margin-top:3px;padding:9px 7px;font-size:11px;box-shadow:none;width:100%}
 @media(max-width:430px){.reward-store-grid{grid-template-columns:1fr}.reward-store-item{display:grid;grid-template-columns:38px 1fr;grid-template-rows:auto auto auto;align-items:center;text-align:right}.reward-store-icon{grid-row:1/4}.reward-store-item .btn{grid-column:2}.reward-store-item small{font-size:11px}}
+/* Friend duel lobby and match */
+.mode-duel{background:linear-gradient(140deg,#fff0d4,#f8d9ff)!important;border-color:#d7b6ef!important}
+.mode-duel .mode-icon{background:linear-gradient(135deg,#8a54d6,#5132a8)!important;color:#fff!important}
+.duel-shell{background:linear-gradient(145deg,#29275b,#40317e)!important;border:2px solid #a18be7!important;color:#fff!important}
+.duel-shell .small{color:#e7defd!important}
+.duel-heading{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.duel-heading h2{margin:4px 0;color:#ffe5a3}
+.duel-emblem{display:grid;place-items:center;flex:0 0 58px;height:58px;border-radius:18px;background:#ffffff20;font-size:32px}
+.duel-divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:#e5dafa;font-size:12px}
+.duel-divider:before,.duel-divider:after{content:"";height:1px;flex:1;background:#ffffff35}
+.duel-code-input{text-align:center;letter-spacing:5px;text-transform:uppercase;font-size:22px!important;font-weight:900}
+.duel-status{margin:14px 0;padding:12px;border-radius:13px;background:#ffffff18;color:#fff1bf;font-size:13px;line-height:1.6}
+.duel-room{margin-top:16px}
+.duel-code-panel{display:grid;justify-items:center;gap:7px;padding:16px;border-radius:18px;background:#ffffff17;border:1px solid #ffffff30}
+.duel-code-panel span{font-size:12px;color:#e8defb}
+.duel-code-panel strong{font-size:32px;letter-spacing:7px;color:#ffe17a}
+.duel-code-panel .btn{max-width:220px}
+.duel-players{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:9px;margin:14px 0}
+.duel-players>div{display:grid;gap:5px;padding:12px 8px;border-radius:14px;background:#ffffff18;text-align:center;min-width:0}
+.duel-players small,.duel-players span{font-size:11px;color:#e4dafa}
+.duel-players strong{font-size:14px;overflow-wrap:anywhere;color:#fff}
+.duel-players>b{color:#ffdf80}
+.duel-score-line{display:flex;align-items:center;justify-content:center;gap:12px;padding:10px;border-radius:13px;background:#ffffff12;font-size:12px;color:#eee6ff}
+.duel-score-line strong{font-size:20px;color:#ffe17a}
+.duel-question-meta{display:flex;justify-content:space-between;gap:8px;margin-top:18px;color:#f1e8ff;font-size:11px}
+#duelQuestionText{font-size:19px;line-height:1.6;color:#fff;margin:12px 0}
+.duel-options{display:grid;gap:9px}
+.duel-options .answer{background:#fff!important;color:#33215e!important;border:2px solid #cfc0ff!important;box-shadow:0 3px 0 #8e7cce!important}
+.duel-options .answer:disabled{opacity:.65}
+.duel-result{margin:16px 0;padding:18px;border-radius:16px;background:linear-gradient(120deg,#fff0ae,#ffd16b);color:#543400;text-align:center;font-size:18px;font-weight:900}
+.duel-footnote{margin-top:16px}
+@media(max-width:420px){.duel-players{gap:5px}.duel-players>div{padding:10px 5px}.duel-code-panel strong{font-size:28px;letter-spacing:5px}}
 </style>
 </head>
 <body>
@@ -1237,6 +1269,7 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
     <button class="mode-card mode-million" type="button" data-open-screen="play"><span class="mode-icon">🏆</span><span class="mode-kicker">المسابقة الكبرى</span><strong>طريق القمّة</strong><small>أسئلة متدرجة • نقاط • مراحل أصعب</small><span class="mode-go">ابدأ التحدّي ←</span></button>
     <button class="mode-card mode-puzzle" type="button" data-open-screen="puzzles"><span class="mode-icon">🧩</span><span class="mode-kicker">فكّر خارج الصندوق</span><strong>الأحجيات المخادعة</strong><small>ألغاز ذكية • تلميحات • حلول مفاجئة</small><span class="mode-go">اكتشف الألغاز ←</span></button>
     <button class="mode-card mode-visual" type="button" data-open-screen="visual"><span class="mode-icon">🖼️</span><span class="mode-kicker">لاحظ الصورة واكتشف الحل</span><strong>اختبار الذكاء بالصور</strong><small>مشاهد مصوّرة • مراحل متتابعة • حلول تحتاج تركيز</small><span class="mode-go">ابدأ اختبار الصور ←</span></button>
+    <button class="mode-card mode-duel" type="button" data-open-screen="duel"><span class="mode-icon">⚔️</span><span class="mode-kicker">تحدّى أصدقاءك</span><strong>مواجهة العقول</strong><small>غرفة خاصة • رمز دعوة • 5 أسئلة</small><span class="mode-go">ابدأ المواجهة ←</span></button>
   </section>
 
   <section class="daily-missions" id="dailyMissionsCard" aria-labelledby="dailyMissionsTitle">
@@ -1292,6 +1325,34 @@ body{background:radial-gradient(circle at 12% 7%,#48e2ff 0,transparent 24%),radi
         <button class="btn hidden" id="visualNext" type="button">المرحلة التالية ←</button>
         <button class="btn secondary" id="visualBack" type="button">العودة إلى المراحل</button>
       </div>
+    </section>
+  </div>
+  <div class="app-screen" id="screen-duel">
+    <section class="card duel-shell">
+      <div class="duel-heading"><span class="duel-emblem">⚔️</span><div><span class="eyebrow">مواجهة لاعب ضد لاعب</span><h2>مواجهة العقول</h2><p class="small">أنشئ غرفة خاصة وشارك رمز الدعوة مع صديقك. أول لاعب يجيب لا يحصل على أفضلية بالنقاط؛ الدقة هي الأساس.</p></div></div>
+      <div id="duelLobby">
+        <button class="btn" id="duelCreateBtn" type="button">إنشاء غرفة جديدة</button>
+        <div class="duel-divider"><span>أو انضم إلى صديقك</span></div>
+        <label class="small" for="duelCodeInput">رمز الدعوة المكوّن من 6 أحرف</label>
+        <input class="auth-input duel-code-input" id="duelCodeInput" maxlength="6" inputmode="text" autocomplete="off" placeholder="مثال: A7K9PQ" aria-label="رمز دعوة المواجهة">
+        <button class="btn secondary" id="duelJoinBtn" type="button">انضم إلى الغرفة</button>
+      </div>
+      <div class="duel-status" id="duelStatus" role="status" aria-live="polite">تحتاج إلى حساب مسجّل للمشاركة في المواجهات.</div>
+      <div class="duel-room hidden" id="duelRoom">
+        <div class="duel-code-panel"><span>رمز دعوة صديقك</span><strong id="duelInviteCode">------</strong><button class="btn secondary" id="duelCopyCodeBtn" type="button">نسخ الرمز</button></div>
+        <div class="duel-players"><div><small>اللاعب الأول</small><strong id="duelHostName">—</strong><span id="duelHostProgress">0 / 5</span></div><b>VS</b><div><small>اللاعب الثاني</small><strong id="duelGuestName">بانتظار صديقك</strong><span id="duelGuestProgress">0 / 5</span></div></div>
+        <div class="duel-score-line"><span>نتيجتك</span><strong id="duelMyScore">0</strong><span>نقاط الخصم</span><strong id="duelOpponentScore">0</strong></div>
+        <div id="duelQuestionArea" class="hidden">
+          <div class="duel-question-meta"><span id="duelQuestionCount">السؤال 1 من 5</span><span>10 نقاط للإجابة الصحيحة</span></div>
+          <h3 id="duelQuestionText"></h3>
+          <div class="duel-options" id="duelOptions"></div>
+          <p class="small" id="duelAnswerFeedback" aria-live="polite"></p>
+        </div>
+        <div class="duel-result hidden" id="duelResult"></div>
+        <button class="btn secondary" id="duelRefreshBtn" type="button">تحديث المواجهة</button>
+        <button class="btn secondary" id="duelExitBtn" type="button">العودة للرئيسية</button>
+      </div>
+      <p class="small duel-footnote">المواجهة متاحة للحسابات المسجّلة فقط. كل لاعب يجيب عن الأسئلة الخمسة بشكل مستقل، وتُحتسب النتيجة على الخادم.</p>
     </section>
   </div>
   <div class="app-screen" id="screen-play">
@@ -1536,12 +1597,207 @@ function showAppScreen(name){
   document.querySelectorAll('.app-screen').forEach(screen=>screen.classList.toggle('active',screen.id==='screen-'+name));
   document.querySelectorAll('.nav-btn').forEach(button=>button.classList.toggle('active',button.dataset.screen===name));
   window.iqCurrentScreen = name;
+  if (name === 'duel' && iqDuelRoomId) void duelRefresh();
+  else if (name !== 'duel') duelStopPolling();
   if (typeof syncBackgroundMusic === 'function') syncBackgroundMusic();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 window.iqShowScreen=showAppScreen;
 document.querySelectorAll('.nav-btn').forEach(button=>button.addEventListener('click',()=>showAppScreen(button.dataset.screen)));
 document.querySelectorAll('[data-open-screen]').forEach(button=>button.addEventListener('click',()=>showAppScreen(button.dataset.openScreen)));
+let iqDuelRoomId = null;
+let iqDuelPollTimer = null;
+let iqDuelBusy = false;
+let iqDuelLastState = null;
+function duelSetStatus(message) {
+  const el = $('duelStatus');
+  if (el) el.textContent = message;
+}
+function duelStopPolling() {
+  if (iqDuelPollTimer) window.clearInterval(iqDuelPollTimer);
+  iqDuelPollTimer = null;
+}
+function duelStartPolling() {
+  duelStopPolling();
+  iqDuelPollTimer = window.setInterval(() => {
+    if (window.iqCurrentScreen === 'duel' && iqDuelRoomId && !iqDuelBusy) void duelRefresh();
+  }, 2500);
+}
+async function duelRequireRegistered() {
+  const { data, error } = await supabase.auth.getSession();
+  if (error || !data.session || data.session.user.is_anonymous) {
+    duelSetStatus('المواجهات بين اللاعبين متاحة للحسابات المسجّلة فقط. أنشئ حساباً مجانياً من صفحة إنجازاتي ثم ارجع هنا.');
+    showAppScreen('profile');
+    return false;
+  }
+  return true;
+}
+async function duelCreateRoom() {
+  if (iqDuelBusy || !(await duelRequireRegistered())) return;
+  iqDuelBusy = true;
+  $('duelCreateBtn').disabled = true;
+  duelSetStatus('جارٍ إنشاء غرفة المواجهة...');
+  try {
+    const { data, error } = await supabase.rpc('create_duel_room');
+    if (error) throw error;
+    iqDuelRoomId = data.room_id;
+    $('duelLobby').classList.add('hidden');
+    $('duelRoom').classList.remove('hidden');
+    $('duelInviteCode').textContent = data.invite_code;
+    duelSetStatus('غرفتك جاهزة. شارك الرمز مع صديقك وانتظر انضمامه.');
+    await duelRefresh();
+    duelStartPolling();
+  } catch (error) {
+    duelSetStatus('تعذّر إنشاء الغرفة: ' + (error.message || 'تحقق من الاتصال وحاول مجدداً.'));
+  } finally {
+    iqDuelBusy = false;
+    $('duelCreateBtn').disabled = false;
+  }
+}
+async function duelJoinRoom() {
+  if (iqDuelBusy || !(await duelRequireRegistered())) return;
+  const code = String($('duelCodeInput').value || '').trim().toUpperCase();
+  if (!/^[A-HJ-NP-Z2-9]{6}$/.test(code)) {
+    duelSetStatus('اكتب رمز دعوة صحيحاً من 6 أحرف وأرقام.');
+    return;
+  }
+  iqDuelBusy = true;
+  $('duelJoinBtn').disabled = true;
+  duelSetStatus('جارٍ البحث عن غرفة الدعوة...');
+  try {
+    const { data, error } = await supabase.rpc('join_duel_room', { p_invite_code: code });
+    if (error) throw error;
+    iqDuelRoomId = data.room_id;
+    $('duelLobby').classList.add('hidden');
+    $('duelRoom').classList.remove('hidden');
+    $('duelInviteCode').textContent = data.invite_code;
+    duelSetStatus('انضممت إلى المواجهة! استعد للأسئلة.');
+    await duelRefresh();
+    duelStartPolling();
+  } catch (error) {
+    duelSetStatus('تعذّر الانضمام: ' + (error.message || 'تأكد من الرمز وأن الغرفة ما زالت متاحة.'));
+  } finally {
+    iqDuelBusy = false;
+    $('duelJoinBtn').disabled = false;
+  }
+}
+function duelRenderState(state) {
+  iqDuelLastState = state;
+  $('duelRoom').classList.remove('hidden');
+  $('duelInviteCode').textContent = state.invite_code || '------';
+  $('duelHostName').textContent = state.host_name || 'اللاعب الأول';
+  $('duelGuestName').textContent = state.guest_name || 'بانتظار صديقك';
+  $('duelHostProgress').textContent = Number(state.host_answered || 0) + ' / 5';
+  $('duelGuestProgress').textContent = Number(state.guest_answered || 0) + ' / 5';
+  const isHost = state.is_host === true;
+  $('duelMyScore').textContent = Number(isHost ? state.host_score : state.guest_score || 0).toLocaleString('ar-IQ');
+  $('duelOpponentScore').textContent = Number(isHost ? state.guest_score : state.host_score || 0).toLocaleString('ar-IQ');
+  const questions = Array.isArray(state.questions) ? state.questions : [];
+  const answered = Array.isArray(state.my_answered) ? state.my_answered : [];
+  const area = $('duelQuestionArea');
+  const result = $('duelResult');
+  result.classList.add('hidden');
+  area.classList.add('hidden');
+  if (state.status === 'waiting') {
+    duelSetStatus('بانتظار انضمام صديقك. أرسل له رمز الدعوة الظاهر أعلاه.');
+  } else if (state.status === 'active') {
+    const nextIndex = [0,1,2,3,4].find(index => !answered.includes(index));
+    if (nextIndex === undefined) {
+      duelSetStatus('أكملت الأسئلة الخمسة. ننتظر اللاعب الآخر حتى ينهي المواجهة...');
+    } else {
+      duelSetStatus('المواجهة بدأت! أجب عن الأسئلة الخمسة لتحصل على نتيجتك.');
+      const q = questions[nextIndex];
+      if (!q) { duelSetStatus('جارٍ تجهيز أسئلة المواجهة...'); return; }
+      area.classList.remove('hidden');
+      $('duelQuestionCount').textContent = 'السؤال ' + (nextIndex + 1) + ' من 5';
+      $('duelQuestionText').textContent = q.question_text;
+      $('duelAnswerFeedback').textContent = '';
+      const options = $('duelOptions');
+      options.replaceChildren();
+      ['a','b','c','d'].forEach(letter => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'answer';
+        button.textContent = q['option_' + letter];
+        button.addEventListener('click', () => void duelSubmitAnswer(nextIndex, letter.toUpperCase()));
+        options.appendChild(button);
+      });
+    }
+  } else if (state.status === 'completed') {
+    duelStopPolling();
+    const tie = !state.winner_name;
+    const won = state.winner_is_me === true;
+    result.classList.remove('hidden');
+    result.textContent = tie ? '🤝 تعادل رائع! كلاكما حقق النتيجة نفسها.' : (won ? '🏆 فزت بالمواجهة! أحسنت.' : '👏 انتهت المواجهة. صديقك فاز هذه المرة.');
+    duelSetStatus('اكتملت المواجهة — النتيجة النهائية محسوبة من الخادم.');
+  } else {
+    duelStopPolling();
+    duelSetStatus('انتهت صلاحية الغرفة أو أُغلقت. أنشئ غرفة جديدة للمحاولة مرة أخرى.');
+  }
+}
+async function duelRefresh() {
+  if (!iqDuelRoomId || iqDuelBusy) return;
+  iqDuelBusy = true;
+  try {
+    const { data, error } = await supabase.rpc('get_duel_room', { p_room_id: iqDuelRoomId });
+    if (error) throw error;
+    duelRenderState(data);
+  } catch (error) {
+    duelSetStatus('تعذّر تحديث المواجهة: ' + (error.message || 'تحقق من الإنترنت.'));
+  } finally {
+    iqDuelBusy = false;
+  }
+}
+async function duelSubmitAnswer(questionIndex, selectedOption) {
+  if (!iqDuelRoomId || iqDuelBusy) return;
+  iqDuelBusy = true;
+  [...$('duelOptions').querySelectorAll('button')].forEach(button => button.disabled = true);
+  $('duelAnswerFeedback').textContent = 'جارٍ تسجيل الإجابة...';
+  try {
+    const { data, error } = await supabase.rpc('submit_duel_answer', {
+      p_room_id: iqDuelRoomId,
+      p_question_index: questionIndex,
+      p_selected_option: selectedOption
+    });
+    if (error) throw error;
+    $('duelAnswerFeedback').textContent = data.is_correct ? '✓ إجابة صحيحة! +10 نقاط' : 'ليست صحيحة هذه المرة. واصل التحدّي!';
+    await supabase.rpc('get_duel_room', { p_room_id: iqDuelRoomId }).then(({data:state,error:stateError}) => {
+      if (stateError) throw stateError;
+      duelRenderState(state);
+    });
+  } catch (error) {
+    $('duelAnswerFeedback').textContent = 'تعذّر حفظ الإجابة: ' + (error.message || 'حاول مرة أخرى.');
+    [...$('duelOptions').querySelectorAll('button')].forEach(button => button.disabled = false);
+  } finally {
+    iqDuelBusy = false;
+  }
+}
+$('duelCreateBtn')?.addEventListener('click', () => void duelCreateRoom());
+$('duelJoinBtn')?.addEventListener('click', () => void duelJoinRoom());
+$('duelRefreshBtn')?.addEventListener('click', () => void duelRefresh());
+$('duelExitBtn')?.addEventListener('click', () => {
+  duelStopPolling();
+  iqDuelRoomId = null;
+  iqDuelLastState = null;
+  $('duelRoom').classList.add('hidden');
+  $('duelLobby').classList.remove('hidden');
+  $('duelCodeInput').value = '';
+  duelSetStatus('تحتاج إلى حساب مسجّل للمشاركة في المواجهات.');
+  showAppScreen('home');
+});
+$('duelCopyCodeBtn')?.addEventListener('click', async () => {
+  const code = $('duelInviteCode').textContent;
+  try {
+    await navigator.clipboard.writeText(code);
+    duelSetStatus('تم نسخ رمز الدعوة. أرسله لصديقك.');
+  } catch {
+    duelSetStatus('انسخ رمز الدعوة يدوياً: ' + code);
+  }
+});
+$('duelCodeInput')?.addEventListener('input', event => {
+  event.target.value = event.target.value.toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g, '').slice(0,6);
+});
+
 const COACH_STEPS=[
  {icon:'🏆',title:'ابدأ من هنا',text:'اضغط على «المسابقة الكبرى» حتى تبدأ رحلة التحدّي وتدخل عالم الأسئلة.'},
  {icon:'🧠',title:'اقرأ السؤال',text:'اقرأ السؤال جيداً، وشاهد الخيارات الأربعة. خذ وقتك بالتفكير قبل الاختيار.'},
