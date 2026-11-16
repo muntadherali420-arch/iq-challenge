@@ -1646,7 +1646,6 @@ async function duelCreateRoom() {
     $('duelInviteCode').textContent = data.invite_code;
     duelSetStatus('غرفتك جاهزة. شارك الرمز مع صديقك وانتظر انضمامه.');
     iqDuelBusy = false;
-    iqDuelBusy = false;
     await duelRefresh();
     duelStartPolling();
   } catch (error) {
@@ -1674,6 +1673,7 @@ async function duelJoinRoom() {
     $('duelRoom').classList.remove('hidden');
     $('duelInviteCode').textContent = data.invite_code;
     duelSetStatus('انضممت إلى المواجهة! استعد للأسئلة.');
+    iqDuelBusy = false;
     await duelRefresh();
     duelStartPolling();
   } catch (error) {
@@ -1762,11 +1762,12 @@ async function duelSubmitAnswer(questionIndex, selectedOption) {
       p_selected_option: selectedOption
     });
     if (error) throw error;
-    $('duelAnswerFeedback').textContent = data.is_correct ? '✓ إجابة صحيحة! +10 نقاط' : 'ليست صحيحة هذه المرة. واصل التحدّي!';
+    const answerMessage = data.is_correct ? '✓ إجابة صحيحة! +10 نقاط' : 'ليست صحيحة هذه المرة. واصل التحدّي!';
     await supabase.rpc('get_duel_room', { p_room_id: iqDuelRoomId }).then(({data:state,error:stateError}) => {
       if (stateError) throw stateError;
       duelRenderState(state);
     });
+    if (!$('duelQuestionArea').classList.contains('hidden')) $('duelAnswerFeedback').textContent = answerMessage;
   } catch (error) {
     $('duelAnswerFeedback').textContent = 'تعذّر حفظ الإجابة: ' + (error.message || 'حاول مرة أخرى.');
     [...$('duelOptions').querySelectorAll('button')].forEach(button => button.disabled = false);
