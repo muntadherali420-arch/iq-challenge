@@ -2442,28 +2442,7 @@ function renderAchievementCenter(streak) {
     : 'مذهل! فتحت جميع شارات سلسلة التحدّي اليومي.';
 }
 async function loadDailyStreak() {
-  let sessionData;
-  try {
-    const sessionResult = await withTimeout(
-      supabase.auth.getSession(),
-      8000,
-      'انتهت مهلة التحقق من جلسة تحدّي اليوم'
-    );
-    sessionData = sessionResult.data;
-  } catch (error) {
-    if (loadVersion !== dailyLoadVersion) return;
-    void iqReportDiagnostic('daily_load_error', error.message, { name: error.name, reason: 'session_timeout' });
-    updateDailyHomeCard('error');
-    questionEl.textContent = 'تعذّر التحقق من جلسة تحدّي اليوم.';
-    feedbackEl.textContent = 'الاتصال تأخر. افحص الإنترنت ثم أعد المحاولة.';
-    answersEl.replaceChildren();
-    const retryButton = document.createElement('button');
-    retryButton.className = 'btn secondary';
-    retryButton.textContent = 'إعادة المحاولة';
-    retryButton.addEventListener('click', () => void loadDailyChallenge());
-    answersEl.appendChild(retryButton);
-    return;
-  }
+  const { data: sessionData } = await supabase.auth.getSession();
   if (!sessionData.session || sessionData.session.user.is_anonymous) {
     updateDailyStreakDisplay(null);
     renderAchievementCenter(null);
@@ -2497,7 +2476,28 @@ async function loadDailyChallenge() {
   const questionEl = $('dailyQuestion');
   const answersEl = $('dailyAnswers');
   const feedbackEl = $('dailyFeedback');
-  const { data: sessionData } = await supabase.auth.getSession();
+  let sessionData;
+  try {
+    const sessionResult = await withTimeout(
+      supabase.auth.getSession(),
+      8000,
+      'انتهت مهلة التحقق من جلسة تحدّي اليوم'
+    );
+    sessionData = sessionResult.data;
+  } catch (error) {
+    if (loadVersion !== dailyLoadVersion) return;
+    void iqReportDiagnostic('daily_load_error', error.message, { name: error.name, reason: 'session_timeout' });
+    updateDailyHomeCard('error');
+    questionEl.textContent = 'تعذّر التحقق من جلسة تحدّي اليوم.';
+    feedbackEl.textContent = 'الاتصال تأخر. افحص الإنترنت ثم أعد المحاولة.';
+    answersEl.replaceChildren();
+    const retryButton = document.createElement('button');
+    retryButton.className = 'btn secondary';
+    retryButton.textContent = 'إعادة المحاولة';
+    retryButton.addEventListener('click', () => void loadDailyChallenge());
+    answersEl.appendChild(retryButton);
+    return;
+  }
   if (!sessionData.session || sessionData.session.user.is_anonymous) {
     updateDailyHomeCard(sessionData.session ? 'guest' : 'login');
     updateDailyStreakDisplay(null);
