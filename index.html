@@ -2442,7 +2442,28 @@ function renderAchievementCenter(streak) {
     : 'مذهل! فتحت جميع شارات سلسلة التحدّي اليومي.';
 }
 async function loadDailyStreak() {
-  const { data: sessionData } = await supabase.auth.getSession();
+  let sessionData;
+  try {
+    const sessionResult = await withTimeout(
+      supabase.auth.getSession(),
+      8000,
+      'انتهت مهلة التحقق من جلسة تحدّي اليوم'
+    );
+    sessionData = sessionResult.data;
+  } catch (error) {
+    if (loadVersion !== dailyLoadVersion) return;
+    void iqReportDiagnostic('daily_load_error', error.message, { name: error.name, reason: 'session_timeout' });
+    updateDailyHomeCard('error');
+    questionEl.textContent = 'تعذّر التحقق من جلسة تحدّي اليوم.';
+    feedbackEl.textContent = 'الاتصال تأخر. افحص الإنترنت ثم أعد المحاولة.';
+    answersEl.replaceChildren();
+    const retryButton = document.createElement('button');
+    retryButton.className = 'btn secondary';
+    retryButton.textContent = 'إعادة المحاولة';
+    retryButton.addEventListener('click', () => void loadDailyChallenge());
+    answersEl.appendChild(retryButton);
+    return;
+  }
   if (!sessionData.session || sessionData.session.user.is_anonymous) {
     updateDailyStreakDisplay(null);
     renderAchievementCenter(null);
@@ -2490,7 +2511,28 @@ async function loadDailyChallenge() {
   questionEl.textContent = 'جارٍ تحميل تحدّي اليوم...';
   answersEl.innerHTML = '';
   feedbackEl.textContent = '';
-  const { data, error } = await supabase.rpc('get_daily_challenge');
+  let challengeResult;
+  try {
+    challengeResult = await withTimeout(
+      supabase.rpc('get_daily_challenge'),
+      12000,
+      'انتهت مهلة تحميل تحدّي اليوم'
+    );
+  } catch (error) {
+    if (loadVersion !== dailyLoadVersion) return;
+    void iqReportDiagnostic('daily_load_error', error.message, { name: error.name, reason: 'challenge_rpc_timeout' });
+    updateDailyHomeCard('error');
+    questionEl.textContent = 'تأخر تحميل تحدّي اليوم.';
+    feedbackEl.textContent = 'الخادم لم يستجب بالوقت المحدد. افحص الإنترنت وحاول مرة ثانية.';
+    answersEl.replaceChildren();
+    const retryButton = document.createElement('button');
+    retryButton.className = 'btn secondary';
+    retryButton.textContent = 'إعادة المحاولة';
+    retryButton.addEventListener('click', () => void loadDailyChallenge());
+    answersEl.appendChild(retryButton);
+    return;
+  }
+  const { data, error } = challengeResult;
   // Auth events can trigger a second load while the first request is still running.
   // Ignore stale responses so the same four answer buttons are never appended twice.
   if (loadVersion !== dailyLoadVersion) return;
