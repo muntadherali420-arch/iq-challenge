@@ -6,6 +6,8 @@ on:
       - 'index.html'
       - 'admin.html'
       - 'admin.html'
+      - 'privacy.html'
+      - 'delete-account.html'
       - 'manifest.webmanifest'
       - 'sw.js'
       - 'package.json'
