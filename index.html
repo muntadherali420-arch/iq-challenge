@@ -2925,8 +2925,10 @@ if (initialSession.session) {
   await loadDailyMissions(initialSession.session);
   if (!initialSession.session.user.is_anonymous) {
     void loadLeaderboard().catch(error => console.warn('Leaderboard startup skipped:', error));
-    void loadDailyChallenge().catch(error => console.warn('Daily challenge startup skipped:', error));
   }
+  // loadDailyChallenge handles anonymous sessions itself and must always run
+  // so the daily screen never remains stuck on its static loading placeholder.
+  void loadDailyChallenge().catch(error => console.warn('Daily challenge startup skipped:', error));
   void iqReportDiagnostic('session_ready', 'تم تجهيز جلسة اللاعب');
   // Stats are secondary; let the question round start without waiting for them.
   void withTimeout(supabase.rpc('get_quiz_stats'), 10000, 'انتهت مهلة تحميل النقاط')
@@ -2957,10 +2959,12 @@ supabase.auth.onAuthStateChange(async (_event, session) => {
     updateStats();
     if (!session.user.is_anonymous) {
       loadLeaderboard();
-      loadDailyChallenge();
     } else {
       $('leaderboardList').textContent = 'لوحة المتصدرين من امتيازات الحساب المسجّل.';
     }
+    // This function renders the registered-account requirement for guests.
+    // Calling it for every auth state prevents the default loading text from persisting.
+    void loadDailyChallenge().catch(error => console.warn('Daily challenge refresh skipped:', error));
     loadRound();
     const { data: stats, error } = await supabase.rpc('get_quiz_stats');
     if (refreshVersion !== playerRefreshVersion) return;
