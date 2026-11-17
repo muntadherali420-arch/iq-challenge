@@ -20,6 +20,8 @@ on:
     paths:
       - 'index.html'
       - 'admin.html'
+      - 'delete-account.html'
+      - 'privacy.html'
       - 'package.json'
       - 'capacitor.config.json'
       - 'vite.config.js'
