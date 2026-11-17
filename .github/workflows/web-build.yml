@@ -5,7 +5,6 @@ on:
     paths:
       - 'index.html'
       - 'admin.html'
-      - 'admin.html'
       - 'privacy.html'
       - 'delete-account.html'
       - 'manifest.webmanifest'
@@ -21,6 +20,8 @@ on:
     paths:
       - 'index.html'
       - 'admin.html'
+      - 'privacy.html'
+      - 'delete-account.html'
       - 'manifest.webmanifest'
       - 'sw.js'
       - 'package.json'
@@ -48,6 +49,8 @@ jobs:
         run: |
           test -s www/index.html
           test -s www/admin.html
+          test -s www/privacy.html
+          test -s www/delete-account.html
           test -s www/sw.js
           test -s www/manifest.webmanifest
           grep -q '"directory": "./www"' wrangler.jsonc
