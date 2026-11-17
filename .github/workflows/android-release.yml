@@ -71,7 +71,7 @@ jobs:
           import re
           p = Path("android/app/build.gradle")
           s = p.read_text()
-          if "signingConfigs" in s or not re.search(r"buildTypes\\s*\\{\\s*release\\s*\\{", s):
+          if "signingConfigs" in s or not re.search(r"buildTypes\s*\\{\s*release\s*\\{", s):
               raise SystemExit("Unexpected Gradle structure; refusing to alter signing configuration.")
           signing = """signingConfigs {
                   release {
@@ -83,7 +83,7 @@ jobs:
               }
 
               """
-          s = re.sub(r"(\\s*)buildTypes\\s*\\{\\s*release\\s*\\{",
+          s = re.sub(r"(\s*)buildTypes\s*\\{\s*release\s*\\{",
                      lambda m: signing + "buildTypes {\n        release {\n            signingConfig signingConfigs.release",
                      s, count=1)
           if "signingConfig signingConfigs.release" not in s:
