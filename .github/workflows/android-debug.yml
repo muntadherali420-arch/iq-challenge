@@ -24,6 +24,12 @@ on:
     paths:
       - 'index.html'
       - 'admin.html'
+      - 'delete-account.html'
+      - 'privacy.html'
+      - 'icon.svg'
+      - 'icon-192.png'
+      - 'icon-512.png'
+      - 'manifest.webmanifest'
       - 'package.json'
       - 'capacitor.config.json'
       - 'vite.config.js'
