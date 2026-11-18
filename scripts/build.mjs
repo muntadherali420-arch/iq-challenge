@@ -25,4 +25,9 @@ for (const file of [
   await copyFile(file, `www/${file}`);
 }
 
+// This stylesheet is intentionally stored in public/, while Vite publicDir is
+// disabled for this project. Copy it explicitly so web and Capacitor builds
+// include the stylesheet linked from index.html.
+await copyFile('public/app-polish.css', 'www/app-polish.css');
+
 console.log('IQ Challenge web bundle created in ./www');
